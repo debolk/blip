@@ -1,0 +1,78 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+    ],
+    "hash": "90904c4f127ce380673ff5548b92e99b",
+    "packages": [
+        {
+            "name": "peej/tonic",
+            "version": "v3.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/peej/tonic.git",
+                "reference": "v3.2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/peej/tonic/zipball/v3.2",
+                "reference": "v3.2",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "behat/behat": "2.*",
+                "peej/phpdoctor": "dev-master",
+                "phpspec/phpspec": "1.*"
+            },
+            "suggest": {
+                "pimple/pimple": "A simple dependancy injection container to handle your services",
+                "smarty/smarty": "PHP templating engine for building response representations"
+            },
+            "bin": [
+                "web/dispatch.php"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Tonic": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Paul James",
+                    "email": "paul@peej.co.uk"
+                }
+            ],
+            "description": "The RESTful Web App PHP Micro-Framework",
+            "homepage": "http://peej.github.com/tonic",
+            "keywords": [
+                "microframework",
+                "rest"
+            ],
+            "time": "2013-06-02 21:48:37"
+        }
+    ],
+    "packages-dev": [
+
+    ],
+    "aliases": [
+
+    ],
+    "minimum-stability": "stable",
+    "stability-flags": [
+
+    ],
+    "platform": [
+
+    ],
+    "platform-dev": [
+
+    ]
+}

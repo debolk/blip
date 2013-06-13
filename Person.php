@@ -5,13 +5,14 @@ use Tonic\Resource,
     Tonic\ConditionException;
 
 /**
- * @uri /persons
+ * @accepts application/json
  * @provides application/json
  */
-class PersonsCollection extends Resource
+class Person extends Resource
 {
     /**
      * @method GET
+     * @url /persons
      */
     public function index()
     {
@@ -20,21 +21,15 @@ class PersonsCollection extends Resource
 
     /**
      * @method POST
+     * @url /persons
      */
     public function create()
     {
         return json_encode(true);
     }
-}
-
-/**
- * @uri /persons/:id
- * @provides application/json
- */
-class Person extends Resource
-{
     /**
      * @method GET
+     * @url /persons/:id
      */
     public function show($id)
     {
@@ -43,6 +38,7 @@ class Person extends Resource
 
     /**
      * @method PATCH
+     * @url /persons/:id
      */
     public function update($id)
     {

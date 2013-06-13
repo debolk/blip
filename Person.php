@@ -5,21 +5,47 @@ use Tonic\Resource,
     Tonic\ConditionException;
 
 /**
- * The obligitory Hello World example
- *
  * @uri /persons
+ * @provides application/json
+ */
+class PersonsCollection extends Resource
+{
+    /**
+     * @method GET
+     */
+    public function index()
+    {
+        return json_encode(array());
+    }
+
+    /**
+     * @method POST
+     */
+    public function create()
+    {
+        return json_encode(true);
+    }
+}
+
+/**
+ * @uri /persons/:id
+ * @provides application/json
  */
 class Person extends Resource
 {
     /**
-     * Say Hello World
-     *
      * @method GET
-     * @param  str $name
-     * @return Response
      */
-    public function sayHello($name = 'World')
+    public function show($id)
     {
-        return new Response(Response::OK, 'Hello '.htmlspecialchars(ucwords($name)));
+        return json_encode(new stdClass());
+    }
+
+    /**
+     * @method PATCH
+     */
+    public function update($id)
+    {
+        return json_encode(true);
     }
 }

@@ -1,6 +1,7 @@
 {
   "require": {
     "peej/tonic": "~3.2.0",
-    "zendframework/zend-ldap": "~2.2.0"
+    "zendframework/zend-ldap": "~2.2.0",
+    "phpunit/phpunit": "~3.7.0"
   }
 }

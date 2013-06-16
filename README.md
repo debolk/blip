@@ -15,7 +15,7 @@ Copyright 2013 Jakob Buis. Released under the [GNU General Public License versio
 ## Installing and deployment
 Installing and deploying Blip is easy.
 
-1. Install Apache.
+1. Install Apache and PHP5. Blip depends on PHP 5.4.7 or later and PHP's LDAP extensions installed.
 1. Install [Composer](http://getcomposer.org/).
 1. Run `composer install` to install all dependencies.
 1. Copy .htaccess.sample to .htaccess and adapt as needed.

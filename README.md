@@ -17,7 +17,7 @@ Installing and deploying Blip is easy. Install apache and [Composer](http://getc
 
     composer install
 
-to install all dependencies. Point an apache virtual host to the root directory (containing .htaccess and dispatch.php). If needed, adapt the settings in LDAP.php to connect to the correct LDAP-instance. 
+to install all dependencies. Copy .htaccess.sample to .htaccess and adapt as needed. Point an apache virtual host to the root directory (containing .htaccess and dispatch.php).
 
 ## Testing
 Blip is tested using PHPUnit. Testcases are stored in ./test. Execute

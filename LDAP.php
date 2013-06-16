@@ -11,17 +11,9 @@ class LDAP
   /**
    * Construct a connection to the server
    */
-  public function __construct()
+  public function __construct($server)
   {
-    $options = array(
-      'host'              => getenv('LDAP_HOST'),
-      'username'          => getenv('LDAP_USERNAME'),
-      'password'          => getenv('LDAP_PASSWORD'),
-      'bindRequiresDn'    => getenv('LDAP_BINDREQUIRESDN'),
-      'accountDomainName' => getenv('LDAP_ACCOUNTDOMAINNAME'),
-      'baseDN'            => getenv('LDAP_BASEDN'),
-    );
-    $this->server = new Zend\Ldap\Ldap($options);
+    $this->server = $server;
   }
 
   /**

@@ -11,3 +11,10 @@ Blip is a REST API based on Tonic. It uses Composer to manage its dependencies.
 
 ## License
 Copyright 2013 Jakob Buis. Released under the GPLv3 (http://www.gnu.org/licenses/gpl.html).
+
+## Testing
+Blip is tested using PHPUnit. Testcases are stored in ./test. Execute 
+
+    vendor/bin/phpunit -c test/config.xml 
+
+on the commandline to run the tests.

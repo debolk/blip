@@ -1,10 +1,21 @@
 <?php 
 
+require_once('LDAP.php');
+
 class LDAPTest extends PHPUnit_Framework_TestCase
 {
-  function test_it_setups_a_connection_to_the_server()
+  function setUp()
   {
-    $this->markTestIncomplete('This test has not been implemented yet.');
+    // Stub the LDAP-server
+    $this->stub = $this->getMock('Zend\Ldap\Ldap');
+
+    // Get a handle to our class under test
+    $this->ldap = new LDAP($this->stub);
+  }
+
+  function test_it_can_be_instantiated()
+  {
+    $this->assertInstanceOf('LDAP', $this->ldap);
   }
 
   function test_it_finds_all_users()
@@ -27,9 +38,12 @@ class LDAPTest extends PHPUnit_Framework_TestCase
     $this->markTestIncomplete('This test has not been implemented yet.');
   }
 
+  /**
+   * @expectedException LDAPInvalidUserException
+   */
   function test_it_does_not_create_an_invalid_user()
   {
-    $this->markTestIncomplete('This test has not been implemented yet.');
+    $this->ldap->create(array());
   }
 
   function test_it_updates_a_user()

@@ -38,11 +38,17 @@ class LDAP
 
   /**
    * Create a new member with the given data
-   * @param array $data
+   * @param array $data containing the keys name, email and status. Status can be any string of: lid, kandidaat-lid, oud-lid or ex-lid.
    * @return the results of LDAP::find() of the new member
    */
   public function create($data)
   {
+    // Guard against invalid input
+    if (!isset($data['name'], $data['email'], $data['status'])) {
+      throw new LDAPInvalidUserException('Not all required fields are present');
+    }
+
+    // Rest of the method not yet implemented
     throw new Exception('Method not implemented');
   }
 
@@ -57,3 +63,8 @@ class LDAP
     throw new Exception('Method not implemented');
   }
 }
+
+/**
+ * Exceptions used in the class
+ */
+class LDAPInvalidUserException extends Exception {}

@@ -22,4 +22,4 @@ Installing and deploying Blip is easy.
 1. Point an apache virtual host to the root directory (containing .htaccess and dispatch.php).
 
 ## Testing
-Blip is tested using PHPUnit. Testcases are stored in ./test. Execute `vendor/bin/phpunit -c test/config.xml` on the commandline to run the tests.
+Blip is tested using PHPUnit. Testcases are stored in ./test. Execute `vendor/bin/phpunit test` on the commandline to run the tests.

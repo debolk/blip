@@ -10,7 +10,7 @@ Blip (Bolks ledeninformatiepunt) offers a Facade-pattern for the LDAP-install of
 Blip is a REST API based on Tonic. It uses Composer to manage its dependencies.
 
 ## License
-Copyright 2013 Jakob Buis. Released under the GPLv3 (http://www.gnu.org/licenses/gpl.html).
+Copyright 2013 Jakob Buis. Released under the [GNU Public License version 3](http://www.gnu.org/licenses/gpl.html).
 
 ## Installing and deployment
 Installing and deploying Blip is easy. Install apache and [Composer](http://getcomposer.org/) and run 

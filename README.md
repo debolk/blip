@@ -12,9 +12,16 @@ Blip is a REST API based on Tonic. It uses Composer to manage its dependencies.
 ## License
 Copyright 2013 Jakob Buis. Released under the GPLv3 (http://www.gnu.org/licenses/gpl.html).
 
-## Testing
-Blip is tested using PHPUnit. Testcases are stored in ./test. Execute 
+## Installing and deployment
+Installing and deploying Blip is easy. Install apache and [Composer](http://getcomposer.org/) and run 
 
-    vendor/bin/phpunit -c test/config.xml 
+    composer install
+
+to install all dependencies. Point an apache virtual host to the root directory (containing .htaccess and dispatch.php). If needed, adapt the settings in LDAP.php to connect to the correct LDAP-instance. 
+
+## Testing
+Blip is tested using PHPUnit. Testcases are stored in ./test. Execute
+
+    vendor/bin/phpunit -c test/config.xml
 
 on the commandline to run the tests.

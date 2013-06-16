@@ -14,11 +14,12 @@ Copyright 2013 Jakob Buis. Released under the [GNU General Public License versio
 
 ## Installing and deployment
 Installing and deploying Blip is easy.
-1.Install Apache.
-1.Install [Composer](http://getcomposer.org/).
-1.Run `composer install` to install all dependencies.
-1.Copy .htaccess.sample to .htaccess and adapt as needed.
-1.Point an apache virtual host to the root directory (containing .htaccess and dispatch.php).
+
+1. Install Apache.
+1. Install [Composer](http://getcomposer.org/).
+1. Run `composer install` to install all dependencies.
+1. Copy .htaccess.sample to .htaccess and adapt as needed.
+1. Point an apache virtual host to the root directory (containing .htaccess and dispatch.php).
 
 ## Testing
 Blip is tested using PHPUnit. Testcases are stored in ./test. Execute `vendor/bin/phpunit -c test/config.xml` on the commandline to run the tests.

@@ -14,12 +14,12 @@ class LDAP
   public function __construct()
   {
     $options = array(
-      'host'              => 's0.foo.net',
-      'username'          => 'CN=user1,DC=foo,DC=net',
-      'password'          => 'pass1',
-      'bindRequiresDn'    => true,
-      'accountDomainName' => 'foo.net',
-      'baseDN'            => 'OU=sales,DC=foo,DC=net',
+      'host'              => getenv('LDAP_HOST'),
+      'username'          => getenv('LDAP_USERNAME'),
+      'password'          => getenv('LDAP_PASSWORD'),
+      'bindRequiresDn'    => getenv('LDAP_BINDREQUIRESDN'),
+      'accountDomainName' => getenv('LDAP_ACCOUNTDOMAINNAME'),
+      'baseDN'            => getenv('LDAP_BASEDN'),
     );
     $this->server = new Zend\Ldap\Ldap($options);
   }

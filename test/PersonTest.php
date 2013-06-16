@@ -1,5 +1,7 @@
 <?php 
 
+require_once('Person.php');
+
 class PersonTest extends PHPUnit_Framework_TestCase
 {
   function test_it_returns_all_users()

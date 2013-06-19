@@ -14,7 +14,7 @@ class PersonCollection extends BlipResource
    */
   public function index()
   {
-    return json_encode($this->ldap->find_all());
+    return json_encode($this->ldap->find_all(), JSON_UNESCAPED_SLASHES);
   }
 
   /**
@@ -39,7 +39,7 @@ class PersonResource extends BlipResource
    */
   public function show($id)
   {
-    return json_encode($this->ldap->find($id));
+    return json_encode($this->ldap->find($id), JSON_UNESCAPED_SLASHES);
   }
 
   /**

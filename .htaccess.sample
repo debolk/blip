@@ -2,8 +2,6 @@
 SetEnv LDAP_HOST              s0.foo.net
 SetEnv LDAP_USERNAME          CN=user1,DC=foo,DC=net
 SetEnv LDAP_PASSWORD          password
-SetEnv LDAP_BINDREQUIRESDN    1
-SetEnv LDAP_ACCOUNTDOMAINNAME foo.net
 SetEnv LDAP_BASEDN            OU=sales,DC=foo,DC=net
 
 # Rewriting requests

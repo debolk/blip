@@ -1,19 +1,20 @@
 <?php
 
+require_once('models/Person.php');
+
 class LDAP
 {
   /**
    * The connection to the Bolk LDAP-server
-   * @type Zend\Ldap\Ldap
    */
   private $server;
 
   /**
    * Construct a connection to the server
    */
-  public function __construct($server)
+  public function __construct()
   {
-    $this->server = $server;
+    $this->server = ldap_connect('ldap.i.bolkhuis.nl');
   }
 
   /**
@@ -22,7 +23,15 @@ class LDAP
    */
   public function find_all()
   {
-    throw new Exception('Method not implemented');
+    // Retrieve results
+    $search = ldap_search($this->server, 'dc=bolkhuis,dc=nl', '(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate)))', array('uid', 'givenname', 'sn', 'mail'));
+    $result = ldap_get_entries($this->server, $search);
+
+    // Remove the first, useless entry
+    array_shift($result);
+
+    // Convert to resource objects
+    return array_map(array($this, 'to_resource'), $result);
   }
 
   /**
@@ -61,6 +70,31 @@ class LDAP
   public function update($data)
   {
     throw new Exception('Method not implemented');
+  }
+
+  /**
+   * Converts an LDAP-entry to an resource
+   * @param array $entry the LDAP-entry to convert
+   * @returns Models\Person the resulting resource
+   */
+  private function to_resource($entry)
+  {
+    $person = new Models\Person;
+    $person->id = isset($entry['uid'][0]) ? ($entry['uid'][0]) : (null);
+    $person->first_name = isset($entry['givenname'][0]) ? ($entry['givenname'][0]) : (null);
+    $person->last_name = isset($entry['sn'][0]) ? ($entry['sn'][0]) : (null);
+    $person->email = isset($entry['mail'][0]) ? ($entry['mail'][0]) : (null);
+    return $person;
+  }
+
+  /**
+   * Converts an LDAP-entry to an resource
+   * @param array $entry the LDAP-entry to convert
+   * @returns Models\Person the resulting resource
+   */
+  private function from_resource($entry)
+  {
+
   }
 }
 

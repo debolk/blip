@@ -14,7 +14,8 @@ class LDAP
    */
   public function __construct()
   {
-    $this->server = ldap_connect('ldap.i.bolkhuis.nl');
+    $this->server = ldap_connect(getenv('LDAP_HOST'));
+    ldap_bind($this->server, getenv('LDAP_USERNAME'), getenv('LDAP_PASSWORD'));
   }
 
   /**
@@ -24,7 +25,7 @@ class LDAP
   public function find_all()
   {
     // Retrieve results
-    $search = ldap_search($this->server, 'dc=bolkhuis,dc=nl', '(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate)))', array('uid', 'givenname', 'sn', 'mail'));
+    $search = ldap_search($this->server, getenv('LDAP_BASEDN'), '(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate)))', array('uid', 'givenname', 'sn', 'mail'));
     $result = ldap_get_entries($this->server, $search);
 
     // Remove the first, useless entry
@@ -43,7 +44,7 @@ class LDAP
   public function find($id)
   {
     // Retrieve results
-    $search = ldap_search($this->server, 'dc=bolkhuis,dc=nl', "(uid=$id)", array('uid', 'givenname', 'sn', 'mail'));
+    $search = ldap_search($this->server, getenv('LDAP_BASEDN'), "(uid=$id)", array('uid', 'givenname', 'sn', 'mail'));
     $result = ldap_get_entries($this->server, $search);
 
     // Remove the first, useless entry

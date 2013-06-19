@@ -42,7 +42,15 @@ class LDAP
    */
   public function find($id)
   {
-    throw new Exception('Method not implemented');
+    // Retrieve results
+    $search = ldap_search($this->server, 'dc=bolkhuis,dc=nl', "(uid=$id)", array('uid', 'givenname', 'sn', 'mail'));
+    $result = ldap_get_entries($this->server, $search);
+
+    // Remove the first, useless entry
+    array_shift($result);
+
+    // Return a resource object
+    return $this->to_resource($result[0]);
   }
 
   /**

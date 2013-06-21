@@ -20,26 +20,59 @@ class LDAP
 
   /**
    * Find the information of every member
-   * @return array[object]
+   * @return array[Models\Person]
    */
   public function find_all()
   {
-    // Retrieve results
-    $search = ldap_search($this->server, getenv('LDAP_BASEDN'), '(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate)))', array('uid', 'givenname', 'sn', 'mail'));
-    $result = ldap_get_entries($this->server, $search);
-
-    // Remove the first, useless entry
-    array_shift($result);
-
-    // Convert to resource objects
+    $result = $this->ldap_find('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate)))', array('uid', 'givenname', 'sn', 'mail'));
     return array_map(array($this, 'to_resource'), $result);
+  }
+
+  /**
+   * Finds all current, past and candidate members
+   * @return array[Models\Person]
+   */
+  public function find_all_members()
+  {
+    // Rest of the method not yet implemented
+    throw new Exception('Method not implemented');
+  }
+
+  /**
+   * Finds all current members
+   * @return array[Models\Person]
+   */
+  public function find_current_members()
+  {
+    // Rest of the method not yet implemented
+    throw new Exception('Method not implemented');
+  }
+
+  /**
+   * Finds all candidate members
+   * @return array[Models\Person]
+   */
+  public function find_candidate_members()
+  {
+    // Rest of the method not yet implemented
+    throw new Exception('Method not implemented');
+  }
+
+  /**
+   * Finds all past members
+   * @return array[Models\Person]
+   */
+  public function find_past_members()
+  {
+    // Rest of the method not yet implemented
+    throw new Exception('Method not implemented');
   }
 
   /**
    * Find the information of a specific member
    * @param int $id the id of the member to find
    * @throws LDAPNotFoundException if the member doesn't exist
-   * @return object
+   * @return Models\Person
    */
   public function find($id)
   {
@@ -105,9 +138,26 @@ class LDAP
   {
     throw new Exception('Method not implemented');
   }
-}
 
-/**
- * Exceptions used in the class
- */
-class LDAPInvalidUserException extends Exception {}
+  /**
+   * Performs a LDAP search
+   * @param string $query the query to search
+   * @param array[string] $attributes attributes to include in the result set
+   * @return LDAP result set
+   */
+  private function ldap_find($query, $attributes = array())
+  {
+    // Retrieve results
+    if (sizeof($attributes) > 0) {
+      $search = ldap_search($this->server, getenv('LDAP_BASEDN'), $query, array('uid', 'givenname', 'sn', 'mail'));
+    }
+    else {
+      $search = ldap_search($this->server, getenv('LDAP_BASEDN'), $query);
+    }
+    $result = ldap_get_entries($this->server, $search);
+
+    // Remove the first, useless entry
+    array_shift($result);
+    return $result;
+  }
+}

@@ -61,11 +61,6 @@ class LDAP
    */
   public function create($data)
   {
-    // Guard against invalid input
-    if (!isset($data['name'], $data['email'], $data['status'])) {
-      throw new LDAPInvalidUserException('Not all required fields are present');
-    }
-
     // Rest of the method not yet implemented
     throw new Exception('Method not implemented');
   }

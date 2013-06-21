@@ -65,17 +65,35 @@ class PersonResource extends BlipResource
     if ($result === null) {
       return new Tonic\Response(404, "Person not found");
     }
-    
+
     return json_encode($result, JSON_UNESCAPED_SLASHES);
   }
 
   /**
    * @method PATCH
-   * @return string
+   * @return Tonic\Response
    */
   public function update($id)
   {
-    $input = json_decode($request->data);
-    return json_encode($this->ldap->update($input));
+    $candidate = json_decode($this->request->data);
+
+    // Could not decode the data
+    if ($candidate === null) {
+      return new Tonic\Response(400, "Not valid JSON");
+    }
+
+    // Validation fails
+    $validator = v::attribute('name', v::string()->length(1,200))
+                  ->attribute('id', v::string()->length(1,20))
+                  ->attribute('email', v::email());
+    try {
+      $validator->assert($candidate);
+    }
+    catch (InvalidArgumentException $e) {
+      return new Tonic\Response(400, json_encode($e->findMessages(array('name', 'id', 'email'))));
+    }
+
+    $this->ldap->update($candidate);
+    return new Tonic\Response(200);
   }
 }

@@ -82,7 +82,7 @@ class LDAP
   }
 
   /**
-   * Converts an LDAP-entry to an resource
+   * Converts a LDAP-entry to a resource
    * @param array $entry the LDAP-entry to convert
    * @returns Models\Person the resulting resource
    */
@@ -97,13 +97,13 @@ class LDAP
   }
 
   /**
-   * Converts an LDAP-entry to an resource
-   * @param array $entry the LDAP-entry to convert
-   * @returns Models\Person the resulting resource
+   * Converts a resource to a LDAP-entry
+   * @param array $resource the resource to convert
+   * @returns array the resulting LDAP-entry
    */
-  private function from_resource($entry)
+  private function from_resource($resource)
   {
-
+    throw new Exception('Method not implemented');
   }
 }
 

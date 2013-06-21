@@ -60,7 +60,13 @@ class PersonResource extends BlipResource
    */
   public function show($id)
   {
-    return json_encode($this->ldap->find($id), JSON_UNESCAPED_SLASHES);
+    $result = $this->ldap->find($id);
+    // Result does not exist
+    if ($result === null) {
+      return new Tonic\Response(404, "Person not found");
+    }
+    
+    return json_encode($result, JSON_UNESCAPED_SLASHES);
   }
 
   /**

@@ -50,6 +50,11 @@ class LDAP
     // Remove the first, useless entry
     array_shift($result);
 
+    // Person doesn't exist
+    if (empty($result)) {
+      return null;
+    }
+
     // Return a resource object
     return $this->to_resource($result[0]);
   }

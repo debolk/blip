@@ -27,21 +27,21 @@ class MemberCollection extends BlipResource
 
   private function all()
   {
-    return new Tonic\Response(200, json_encode($this->ldap->find_all_members()));
+    return new Tonic\Response(200, json_encode($this->ldap->find_all_members(), JSON_UNESCAPED_SLASHES));
   }
 
   private function current()
   {
-    return new Tonic\Response(200, json_encode($this->ldap->find_current_members()));
+    return new Tonic\Response(200, json_encode($this->ldap->find_current_members(), JSON_UNESCAPED_SLASHES));
   }
 
   private function candidate()
   {
-    return new Tonic\Response(200, json_encode($this->ldap->find_candidate_members()));
+    return new Tonic\Response(200, json_encode($this->ldap->find_candidate_members(), JSON_UNESCAPED_SLASHES));
   }
 
   private function past()
   {
-    return new Tonic\Response(200, json_encode($this->ldap->find_past_members()));
+    return new Tonic\Response(200, json_encode($this->ldap->find_past_members(), JSON_UNESCAPED_SLASHES));
   }
 }

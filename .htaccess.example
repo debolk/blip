@@ -6,6 +6,12 @@ SetEnv LDAP_BASEDN            OU=sales,DC=foo,DC=net
 
 # Rewriting requests
 RewriteEngine On
+
+# Redirect root to API documentation
+RewriteCond %{REQUEST_URI} ^/$
+RewriteRule .* index.html [L,QSA]
+
+# Redirect all other requests to API
 RewriteCond %{REQUEST_URI} !dispatch\.php$
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule .* dispatch.php [L,QSA]

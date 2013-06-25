@@ -24,7 +24,7 @@ class LDAP
    */
   public function find_all()
   {
-    $result = $this->server_find('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate)))', array('uid', 'givenname', 'sn', 'mail'));
+    $result = $this->ldap_find('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate)))', array('uid', 'givenname', 'sn', 'mail'));
     return array_map(array($this, 'to_resource'), $result);
   }
 

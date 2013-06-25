@@ -53,8 +53,7 @@ class LDAP
    */
   public function find_candidate_members()
   {
-    // Rest of the method not yet implemented
-    throw new Exception('Method not implemented');
+    return $this->ldap_group_members('cn=kandidaatleden,ou=groups,o=nieuwedelft');
   }
 
   /**
@@ -63,8 +62,7 @@ class LDAP
    */
   public function find_past_members()
   {
-    // Rest of the method not yet implemented
-    throw new Exception('Method not implemented');
+    return $this->ldap_group_members('cn=oud-leden,ou=groups,o=nieuwedelft');
   }
 
   /**

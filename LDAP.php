@@ -34,8 +34,10 @@ class LDAP
    */
   public function find_all_members()
   {
-    // Rest of the method not yet implemented
-    throw new Exception('Method not implemented');
+    $members = $this->ldap_group_members('cn=leden,ou=groups,o=nieuwedelft');
+    $members = array_merge($members, $this->ldap_group_members('cn=kandidaatleden,ou=groups,o=nieuwedelft'));
+    $members = array_merge($members, $this->ldap_group_members('cn=oud-leden,ou=groups,o=nieuwedelft'));
+    return $members;
   }
 
   /**

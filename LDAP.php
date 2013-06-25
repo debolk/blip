@@ -171,6 +171,16 @@ class LDAP
     $search = ldap_search($this->server, $dn.','.getenv('LDAP_BASEDN'), '(objectClass=PosixGroup)', array('memberuid'));
     $entries = ldap_get_entries($this->server, $search);
 
+    // Group does not exist or has no members
+    if (!isset($entries[0])) {
+      throw new Exception('Group doesn\'t exist');
+    }
+
+    // Group has no members
+    if (!isset($entries[0]['memberuid'])) {
+      return array();
+    }
+
     // Locate the member uids
     $results = $entries[0]['memberuid'];
 

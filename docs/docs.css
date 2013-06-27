@@ -1,0 +1,25 @@
+html {
+  background-color: #eee;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+body {
+  margin: 1em auto;
+  border-radius: 1em;
+  background-color: white;
+  width: 50em;
+  padding: 1em;
+}
+
+h2 {
+  margin-bottom: 0em;
+}
+
+p {
+  margin-top: 0em;
+}
+
+footer {
+  color: #666;
+  text-align: right;
+}

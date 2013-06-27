@@ -173,7 +173,7 @@ class LDAP
     $search = ldap_search($this->server, $dn.','.getenv('LDAP_BASEDN'), '(objectClass=PosixGroup)', array('memberuid'));
     $entries = ldap_get_entries($this->server, $search);
 
-    // Group does not exist or has no members
+    // Group does not exist
     if (!isset($entries[0])) {
       throw new Exception('Group doesn\'t exist');
     }

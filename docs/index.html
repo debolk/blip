@@ -83,6 +83,149 @@
           </code>
         </div>
       </div>
+
+      <div class="spec get">
+        <div class="header">
+          <span class="method">GET</span>
+          <span class="url">/persons/{id}</span>
+          <span class="short">Informatie over een persoon</span>
+        </div>
+        <div class="description">
+          <p>
+            Retourneert de id, het e-mailadres, de volledige naam. Ook wordt de URL van ieder lid bijgevoegd. Vervang het {uid} door de gebruikersnaam van de gebruiker.
+          </p>
+          <h4>Parameters</h4>
+          <code>geen</code>
+          <h4>Resultaat</h4>
+          <code>
+            {"id": "peter", "href": "http://blip.i.bolkhuis.nl/persons/peter", "email": "peter@nieuwedelft.nl", "name": "Peter Dummy"}
+          </code>
+        </div>
+      </div>
+
+      <div class="spec put">
+        <div class="header">
+          <span class="method">PUT</span>
+          <span class="url">/persons/{id}</span>
+          <span class="short">Update de gegevens van een bestaand persoon</span>
+        </div>
+        <div class="description">
+          <p>
+            Accepteert een JSON-object dat de nieuwe gegevens van de persoon beschrijven. Parameters (zie onder) die niet worden meegegeven worden genegeerd. De methode retourneert de complete gegevens van het nieuwe lid.
+          </p>
+          <h4>Parameters</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Input</th>
+                <th>Verplicht</th>
+                <th>Eisen</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>id</td>
+                <td>string(1,20)</td>
+                <td>nee</td>
+                <td>moet uniek zijn</td>
+              </tr>
+              <tr>
+                <td>name</td>
+                <td>string(1,200)</td>
+                <td>nee</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>email</td>
+                <td>geldig e-mailadres</td>
+                <td>nee</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          <h4>Resultaat</h4>
+          <code>
+            {"id": "peter", "href": "http://blip.i.bolkhuis.nl/persons/peter", "email": "peter@nieuwedelft.nl", "name": "Peter Dummy"}
+          </code>
+        </div>
+      </div>
+
+      <div class="spec get">
+        <div class="header">
+          <span class="method">GET</span>
+          <span class="url">/members</span>
+          <span class="short">Informatie over alle leden</span>
+        </div>
+        <div class="description">
+          <p>
+            Retourneert de gegevens van alle huidige, kandidaat- en oud-leden van De Bolk.
+          </p>
+          <h4>Parameters</h4>
+          <code>geen</code>
+          <h4>Resultaat</h4>
+          <code>
+            [{"id": "peter", "href": "http://blip.i.bolkhuis.nl/persons/peter", "email": "peter@nieuwedelft.nl", "name": "Peter Dummy"}]
+          </code>
+        </div>
+      </div>
+
+      <div class="spec get">
+        <div class="header">
+          <span class="method">GET</span>
+          <span class="url">/members/current</span>
+          <span class="short">Informatie over alle huidige leden</span>
+        </div>
+        <div class="description">
+          <p>
+            Retourneert de gegevens van alle huidige, normale leden van De Bolk.
+          </p>
+          <h4>Parameters</h4>
+          <code>geen</code>
+          <h4>Resultaat</h4>
+          <code>
+            [{"id": "peter", "href": "http://blip.i.bolkhuis.nl/persons/peter", "email": "peter@nieuwedelft.nl", "name": "Peter Dummy"}]
+          </code>
+        </div>
+      </div>
+
+      <div class="spec get">
+        <div class="header">
+          <span class="method">GET</span>
+          <span class="url">/members/past</span>
+          <span class="short">Informatie over alle oud-leden</span>
+        </div>
+        <div class="description">
+          <p>
+            Retourneert de gegevens van alle oud-leden van De Bolk.
+          </p>
+          <h4>Parameters</h4>
+          <code>geen</code>
+          <h4>Resultaat</h4>
+          <code>
+            [{"id": "peter", "href": "http://blip.i.bolkhuis.nl/persons/peter", "email": "peter@nieuwedelft.nl", "name": "Peter Dummy"}]
+          </code>
+        </div>
+      </div>
+
+      <div class="spec get">
+        <div class="header">
+          <span class="method">GET</span>
+          <span class="url">/members/candidate</span>
+          <span class="short">Informatie over alle kandidaatleden</span>
+        </div>
+        <div class="description">
+          <p>
+            Retourneert de gegevens van alle kandidaatleden van De Bolk.
+          </p>
+          <h4>Parameters</h4>
+          <code>geen</code>
+          <h4>Resultaat</h4>
+          <code>
+            [{"id": "peter", "href": "http://blip.i.bolkhuis.nl/persons/peter", "email": "peter@nieuwedelft.nl", "name": "Peter Dummy"}]
+          </code>
+        </div>
+      </div>
     </section>
 
     <h2>Vragen en Hulp</h2>

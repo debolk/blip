@@ -3,6 +3,8 @@
   <head>
     <title>Blip API-documentatie</title>
     <link rel="stylesheet" type="text/css" href="docs/docs.css">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <script type="text/javascript" src="docs/docs.js"></script>
   </head>
   <body>
     <h1>Blip API-documentatie</h1>
@@ -10,17 +12,80 @@
       Binnen De Bolk wordt de informatie over alle leden opgeslagen in LDAP. Het Bolks Ledeninformatiepunt (Blip) biedt een makkelijker manier om informatie over leden op te vragen en te gebruiken bij het bouwen van je eigen applicaties voor De Bolk. Je kunt het vergelijken met een <a href="https://en.wikipedia.org/wiki/Facade_pattern">Facade pattern</a>.
     </p>
 
-    <nav>
-      <a href="#quickstart">Quickstart</a> |
-      <a href="#specificatie">Specificatie</a> |
-      <a href="#vragen">Vragen en hulp</a>
-    </nav>
+    <h2>Methodes</h2>
+    <p>
+      Alle methodes van de API accepteren en retourneren alleen JSON.
+    </p>
+    <section class="specs">
+      <div class="spec get">
+        <div class="header">
+          <span class="method">GET</span>
+          <span class="url">/persons</span>
+          <span class="short">Alle informatie over alle personen</span>
+        </div>
+        <div class="description">
+          <p>
+            Retourneert de id, het e-mailadres, de volledige naam. Ook wordt de URL van ieder lid bijgevoegd.
+          </p>
+          <h4>Parameters</h4>
+          <code>geen</code>
+          <h4>Resultaat</h4>
+          <code>
+            [{"id": "peter", "href": "http://blip.i.bolkhuis.nl/persons/peter", "email": "peter@nieuwedelft.nl", "name": "Peter Dummy"}]
+          </code>
+        </div>
+      </div>
 
-    <h2><a name="quickstart">Quickstart</a></h2>
-    <p>Blip biedt een REST API voor de LDAP-service van De Bolk. </p>
+      <div class="spec post">
+        <div class="header">
+          <span class="method">POST</span>
+          <span class="url">/persons</span>
+          <span class="short">Maakt een nieuwe persoon</span>
+        </div>
+        <div class="description">
+          <p>
+            Accepteert een JSON-object dat een nieuwe persoon beschrijft, maakt deze aan in LDAP en retourneert de gegevens van de nieuwe persoon.
+          </p>
+          <h4>Parameters</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Input</th>
+                <th>Verplicht</th>
+                <th>Eisen</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>id</td>
+                <td>string(1,20)</td>
+                <td>ja</td>
+                <td>moet uniek zijn</td>
+              </tr>
+              <tr>
+                <td>name</td>
+                <td>string(1,200)</td>
+                <td>ja</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>email</td>
+                <td>geldig e-mailadres</td>
+                <td>ja</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          <h4>Resultaat</h4>
+          <code>
+            {"id": "peter", "href": "http://blip.i.bolkhuis.nl/persons/peter", "email": "peter@nieuwedelft.nl", "name": "Peter Dummy"}
+          </code>
+        </div>
+      </div>
+    </section>
 
-    <h2><a name="specificatie">Specificatie</a></h2>
-    <h2><a name="vragen">Vragen en Hulp</a></h2>
+    <h2>Vragen en Hulp</h2>
     <p>
       Heb je hulp nodig bij het gebruiken van Blip? Neem dan contact op met <a href="https://www.facebook.com/jakobbuis">Jakob</a>. Je kunt mijn contactgegevens krijgen bij <a href="mailto:bestuur@nieuwedelft.nl">het bestuur</a>.
     </p>

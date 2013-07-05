@@ -1,6 +1,7 @@
 html {
   background-color: #eee;
   font-family: Helvetica, Arial, sans-serif;
+  font-size: large;
 }
 
 body {
@@ -22,4 +23,90 @@ p {
 footer {
   color: #666;
   text-align: right;
+}
+
+/* Structure of a spec */
+.header {
+  width: 100%;
+  cursor: pointer;
+  margin-bottom: 0.5em;
+}
+.method, .url, .short {
+  display: inline-block;
+  padding: 0.4em;
+}
+
+.method {
+  color: white;
+  width: 100px;
+  text-align: center;
+  width: 100px;
+  text-transform: uppercase;
+  border-radius: 4px;
+}
+
+.url{
+  display: inline-block;
+}
+.short {
+  display: inline-block;
+  float: right;
+  text-align: right;
+}
+
+.description {
+  padding: 0.3em;
+  display: none;
+  margin-bottom: 1em;
+}
+
+.description h4 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.description p, .description code, .description table {
+  display: block;
+  margin-bottom: 1em;
+}
+
+/* Coloring */
+.spec.get {
+  background-color: #ebf3f9;
+}
+.spec.post {
+  background-color: #e7f6eb;
+}
+.spec.put {
+  background-color: #f5e8e8;
+}
+.spec.get .method {
+  background-color: #0064b7;
+}
+.spec.post .method {
+  background-color: #14a639;
+}
+.spec.put .method {
+  background-color: #a3201c;
+}
+.spec.get .short {
+  color: #6383c2;
+}
+.spec.post .short {
+  color: #3cb277;
+}
+.spec.put .short {
+  color: #b7503b;
+}
+
+/* Tables */
+.spec table th {
+  font-weight: normal;
+  text-align: left;
+  border-bottom: 1px solid #444;
+}
+
+td, th {
+  color: #444;
+  padding-right: 2em;
 }

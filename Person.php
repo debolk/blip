@@ -32,15 +32,15 @@ class PersonCollection extends BlipResource
 
     // Validation fails
     $v = new Valitron\Validator($candidate);
-    $v->rule('required', ['firstname', 'lastname', 'email']);
+    $v->rule('required', ['firstname', 'lastname', 'email', 'initials']);
     $v->rule('email', 'email');
-    $v->rule('alpha', ['firstname', 'lastname_prefix', 'lastname']);
+    $v->rule('alpha', ['firstname', 'lastname_prefix', 'lastname', 'initials']);
     if (!$v->validate()) {
       return new Tonic\Response(400, 'Validation failed: '.$this->format_errors($v->errors()));
     }
 
     // Create the user
-    return new Tonic\Response(200, $this->ldap->create($candidate));
+    return new Tonic\Response(200, json_encode($this->ldap->create($candidate), JSON_UNESCAPED_SLASHES));
   }
 }
 

@@ -98,8 +98,108 @@ class LDAP
    */
   public function create($data)
   {
-    // Rest of the method not yet implemented
-    throw new Exception('Method not implemented');
+    // Find a free UID
+    $uid = (string)$this->find_free_uid($data);
+
+    // Calculate UID-number
+    $uid_number = (string)$this->get_new_uid_number();
+
+    // Construct full name
+    if (isset($data->lastname_prefix)) {
+      $name = implode(' ', array_filter([$data->firstname, $data->lastname_prefix, $data->lastname]));
+    }
+    else {
+      $name = implode(' ', array_filter([$data->firstname, $data->lastname]));
+    }
+
+    // Build complete input array
+    $input = [
+      'uid' => $uid,
+      'cn' => $name,
+      'gecos' => $name,
+      'givenname' => $data->firstname,
+      'sn' => $data->lastname,
+      'mail' => $data->email,
+      'objectClass' => ['top', 'person', 'organizationalPerson', 'iNetOrgPerson','gosaAccount','posixAccount','shadowAccount','sambaSamAccount','sambaIdmapEntry','pptpServerAccount','gosaMailAccount','gosaIntranetAccount'],
+      'gosamaildeliverymode' => '[L]',
+      'gosamailserver' => 'mail',
+      'gosaspammailbox' => 'INBOX',
+      'gosaspamsortlevel' => '0',
+      'gotolastsystemlogin' => '01.01.1970 00:00:00',
+      'loginshell' => '/bin/bash',
+      'sambaacctflags' => '[U           ]',
+      'sambadomainname' => 'nieuwedelft',
+      'sambahomedrive' => 'Z:',
+      'sambahomepath' => '\\\samba\commissies',
+      'sambalogofftime' => '2147483647',
+      'sambalogontime' => '0',
+      'sambapwdlastset' => '0',
+      'sambamungeddial' => 'IAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAUAAQABoACAABAEMAdAB4AEMAZgBnAFAAcgBlAHMAZQBuAHQANTUxZTBiYjAYAAgAAQBDAHQAeABDAGYAZwBGAGwAYQBnAHMAMQAwMDAwMDEwMBYAAAABAEMAdAB4AEMAYQBsAGwAYgBhAGMAawASAAgAAQBDAHQAeABTAGgAYQBkAG8AdwAwMTAwMDAwMCIAAAABAEMAdAB4AEsAZQB5AGIAbwBhAHIAZABMAGEAeQBvAHUAdAAqAAIAAQBDAHQAeABNAGkAbgBFAG4AYwByAHkAcAB0AGkAbwBuAEwAZQB2AGUAbAAwMCAAAgABAEMAdAB4AFcAbwByAGsARABpAHIAZQBjAHQAbwByAHkAMDAgAAIAAQBDAHQAeABOAFcATABvAGcAbwBuAFMAZQByAHYAZQByADAwGAACAAEAQwB0AHgAVwBGAEgAbwBtAGUARABpAHIAMDAiAAIAAQBDAHQAeABXAEYASABvAG0AZQBEAGkAcgBEAHIAaQB2AGUAMDAgAAIAAQBDAHQAeABXAEYAUAByAG8AZgBpAGwAZQBQAGEAdABoADAwIgACAAEAQwB0AHgASQBuAGkAdABpAGEAbABQAHIAbwBnAHIAYQBtADAwIgACAAEAQwB0AHgAQwBhAGwAbABiAGEAYwBrAE4AdQBtAGIAZQByADAwKAAIAAEAQwB0AHgATQBhAHgAQwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDAwLgAIAAEAQwB0AHgATQBhAHgARABpAHMAYwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDAwHAAIAAEAQwB0AHgATQBhAHgASQBkAGwAZQBUAGkAbQBlADAwMDAwMDAw',
+      'userpassword' => uniqid(),
+      'homedirectory' => "/home/$uid",
+      'uidnumber' => $uid_number,
+      'sambasid' => 'S-1-5-21-1816619821-1419577557-1603852640-'.(1000+2*$uid_number),
+      'gidNumber' => '1084',
+      'sambaprimarygroupsid' => 'S-1-5-21-1816619821-1419577557-1603852640-3051',
+    ];
+
+    // Create LDAP-entry
+    $success = ldap_add($this->server, "uid=$uid,ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl", $input);
+
+    // Return the new user
+    return $this->find($uid);
+  }
+
+  /**
+   * Returns a free uid for a new user
+   * @param $data object describing the user
+   * @return string the free UID
+   * @throws Exception if no free UID can be found
+   */
+  private function find_free_uid($data)
+  {
+    $uid = null;
+    $options = array(
+      strtolower($data->initials[0].$data->lastname),
+      strtolower($data->initials.$data->lastname),
+      strtolower($data->firstname.$data->lastname),
+    );
+    if (isset($data->lastname_prefix)) {
+      $options[] = strtolower($data->initials.$data->lastname_prefix.$data->lastname);
+      $options[] = strtolower($data->firstname.$data->lastname_prefix.$data->lastname);
+    }
+    foreach ($options as $candidate_uid) {
+      if (! $this->user_exists($candidate_uid)) {
+        $uid = $candidate_uid;
+        break;
+      }
+    }
+    if ($uid == null) {
+      throw new Exception('Cannot create user: All UIDs taken');
+    }
+    return $uid;
+  }
+
+  /**
+   * Returns a new, unused uidNumber fromLDAP
+   * @return int
+   */
+  private function get_new_uid_number()
+  {
+    // Find all existing entries with a uidNumber
+    $search = $this->ldap_find('(objectClass=posixAccount)', array('uidNumber'));
+
+    // Slap array until it's formatted
+    $numbers = array_map(function($e){
+      return (int)$e['uidnumber'][0];
+    }, $search);
+
+    // Find the first free number
+    for ($i=1001; $i < 65000; $i++) { 
+      if (! in_array($i, $numbers)) {
+        return $i;
+      }
+    }
   }
 
   /**
@@ -216,5 +316,16 @@ class LDAP
     else {
       return $this->to_resource($search[0]);
     }
+  }
+
+  /**
+   * Returns whether a user with a given uid exists
+   * @param string $uid the UID of the user to find
+   * @return boolean whether the user exists
+   */
+  private function user_exists($uid)
+  {
+    $search = ldap_search($this->server, getenv('LDAP_BASEDN'), "(uid=$uid)", array());
+    return (ldap_count_entries($this->server, $search) > 0);
   }
 }

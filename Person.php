@@ -2,8 +2,6 @@
 
 require_once('BlipResource.php');
 
-use Respect\Validation\Validator as v;
-
 /**
  * @uri /persons
  * @provides application/json
@@ -33,18 +31,16 @@ class PersonCollection extends BlipResource
     }
 
     // Validation fails
-    $validator = v::attribute('name', v::string()->notEmpty()->length(1,200))
-                  ->attribute('id', v::string()->notEmpty()->length(1,20))
-                  ->attribute('email', v::email()->notEmpty());
-    try {
-      $validator->assert($candidate);
-    }
-    catch (InvalidArgumentException $e) {
-      return new Tonic\Response(400, json_encode($e->findMessages(array('name', 'id', 'email'))));
+    $v = new Valitron\Validator($candidate);
+    $v->rule('required', ['firstname', 'lastname', 'email']);
+    $v->rule('email', 'email');
+    $v->rule('alpha', ['firstname', 'lastname_prefix', 'lastname']);
+    if (!$v->validate()) {
+      return new Tonic\Response(400, 'Validation failed: '.$this->format_errors($v->errors()));
     }
 
-    //FIXME implement method
-    return new Tonic\Response(500, 'Something happens here with the data; not yet implemented');
+    // Create the user
+    return new Tonic\Response(200, $this->ldap->create($candidate));
   }
 }
 
@@ -84,7 +80,7 @@ class PersonResource extends BlipResource
 
     // Validation fails
     $validator = v::attribute('name', v::string()->length(1,200))
-                  ->attribute('id', v::string()->length(1,20))
+                  ->attribute('uid', v::string()->length(1,20))
                   ->attribute('email', v::email());
     try {
       $validator->assert($candidate);

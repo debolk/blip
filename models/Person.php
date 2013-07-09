@@ -18,7 +18,7 @@ class Person implements \JSONSerializable
   {
     return array(
       'id' => $this->id,
-      'href' => getenv('BASE_URL').$this->id,
+      'href' => getenv('BASE_URL').'persons/'.$this->id,
       'name' => $this->name(),
       'email' => $this->email,
     );

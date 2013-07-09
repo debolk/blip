@@ -4,7 +4,7 @@ namespace Models;
 
 class Person implements \JSONSerializable
 {
-  public $id;
+  public $uid;
   public $first_name;
   public $last_name;
   public $email;
@@ -17,8 +17,8 @@ class Person implements \JSONSerializable
   public function jsonSerialize()
   {
     return array(
-      'id' => $this->id,
-      'href' => getenv('BASE_URL').'persons/'.$this->id,
+      'uid' => $this->uid,
+      'href' => getenv('BASE_URL').'persons/'.$this->uid,
       'name' => $this->name(),
       'email' => $this->email,
     );

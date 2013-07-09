@@ -222,7 +222,7 @@ class LDAP
   private function to_resource($entry)
   {
     $person = new Models\Person;
-    $person->id = isset($entry['uid'][0]) ? ($entry['uid'][0]) : (null);
+    $person->uid = isset($entry['uid'][0]) ? ($entry['uid'][0]) : (null);
     $person->first_name = isset($entry['givenname'][0]) ? ($entry['givenname'][0]) : (null);
     $person->last_name = isset($entry['sn'][0]) ? ($entry['sn'][0]) : (null);
     $person->email = isset($entry['mail'][0]) ? ($entry['mail'][0]) : (null);

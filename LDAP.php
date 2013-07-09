@@ -141,6 +141,7 @@ class LDAP
       'sambasid' => 'S-1-5-21-1816619821-1419577557-1603852640-'.(1000+2*$uid_number),
       'gidNumber' => '1084',
       'sambaprimarygroupsid' => 'S-1-5-21-1816619821-1419577557-1603852640-3051',
+      'gender' => strtoupper($data->gender),
     ];
 
     // Create LDAP-entry

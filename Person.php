@@ -32,9 +32,10 @@ class PersonCollection extends BlipResource
 
     // Validation fails
     $v = new Valitron\Validator($candidate);
-    $v->rule('required', ['firstname', 'lastname', 'email', 'initials']);
+    $v->rule('required', ['firstname', 'lastname', 'email', 'initials', 'gender']);
     $v->rule('email', 'email');
     $v->rule('alpha', ['firstname', 'lastname_prefix', 'lastname', 'initials']);
+    $v->rule('regex', 'gender', '/^[FM]$/')->message('{field} must be F or M');
     if (!$v->validate()) {
       return new Tonic\Response(400, 'Validation failed: '.$this->format_errors($v->errors()));
     }

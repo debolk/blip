@@ -76,10 +76,10 @@ class LDAP
    * @throws LDAPNotFoundException if the member doesn't exist
    * @return Models\Person or null if the person does not exist
    */
-  public function find($id)
+  public function find($uid)
   {
     // Retrieve results
-    $search = ldap_search($this->server, getenv('LDAP_BASEDN'), "(uid=$id)", array('uid', 'givenname', 'sn', 'mail'));
+    $search = ldap_search($this->server, getenv('LDAP_BASEDN'), "(uid=$uid)", array());
     $result = ldap_get_entries($this->server, $search);
 
     // Remove the first, useless entry

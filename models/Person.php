@@ -12,7 +12,7 @@ class Person implements \JSONSerializable
    */
   public function __construct($attributes)
   {
-    $this->attributes = $attributes;
+    $this->attributes = (array)$attributes;
   }
 
   /**
@@ -75,6 +75,6 @@ class Person implements \JSONSerializable
     $input['gecos'] = $this->name();
 
     // Create and return model
-    return new Models\LDAPEntry($input);
+    return new LDAPEntry($input);
   }
 }

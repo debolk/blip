@@ -69,6 +69,15 @@ class LDAPEntry
     // Create and return model
     return new Person($input);
   }
+
+  /**
+   * Cast to array
+   * @return array
+   */
+  public function to_array()
+  {
+    return $this->attributes;
+  }
 }
 
 // /**

@@ -107,19 +107,44 @@ class LDAP
 
   /**
    * Creates a new LDAP-entry on the server
-   * @param  Models\LDAPEntry $entry
+   * @param  entry $stdClass
    * @return string the UID of the newly created entry or null on failure
    */
-  public function create(Models\LDAPEntry $entry)
+  public function create($entry)
   {
-    $attributes = (array) $entry;
+    $entry = new Models\Person($entry);
+    $entry = $entry->to_LDAPEntry()->to_array();
 
     // Generate some required attributes
-    $attributes['uid'] = $this->find_free_uid($entry);
-    $attributes['uidnumber'] = $this->get_new_uid_number($entry);
+    $uid = $entry['uid'] = $this->find_free_uid($entry);
+    $uid_number = $entry['uidnumber'] = $this->get_new_uid_number($entry);
+
+    // Generate default attributes not supplied by the user
+    $entry = array_merge([
+      'objectClass' => ['top', 'person', 'organizationalPerson', 'iNetOrgPerson','gosaAccount','posixAccount','shadowAccount','sambaSamAccount','sambaIdmapEntry','pptpServerAccount','gosaMailAccount','gosaIntranetAccount'],
+      'gosamaildeliverymode' => '[L]',
+      'gosamailserver' => 'mail',
+      'gosaspammailbox' => 'INBOX',
+      'gosaspamsortlevel' => '0',
+      'gotolastsystemlogin' => '01.01.1970 00:00:00',
+      'loginshell' => '/bin/bash',
+      'sambaacctflags' => '[U           ]',
+      'sambadomainname' => 'nieuwedelft',
+      'sambahomedrive' => 'Z:',
+      'sambahomepath' => '\\\samba\commissies',
+      'sambalogofftime' => '2147483647',
+      'sambalogontime' => '0',
+      'sambapwdlastset' => '0',
+      'sambamungeddial' => 'IAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAUAAQABoACAABAEMAdAB4AEMAZgBnAFAAcgBlAHMAZQBuAHQANTUxZTBiYjAYAAgAAQBDAHQAeABDAGYAZwBGAGwAYQBnAHMAMQAwMDAwMDEwMBYAAAABAEMAdAB4AEMAYQBsAGwAYgBhAGMAawASAAgAAQBDAHQAeABTAGgAYQBkAG8AdwAwMTAwMDAwMCIAAAABAEMAdAB4AEsAZQB5AGIAbwBhAHIAZABMAGEAeQBvAHUAdAAqAAIAAQBDAHQAeABNAGkAbgBFAG4AYwByAHkAcAB0AGkAbwBuAEwAZQB2AGUAbAAwMCAAAgABAEMAdAB4AFcAbwByAGsARABpAHIAZQBjAHQAbwByAHkAMDAgAAIAAQBDAHQAeABOAFcATABvAGcAbwBuAFMAZQByAHYAZQByADAwGAACAAEAQwB0AHgAVwBGAEgAbwBtAGUARABpAHIAMDAiAAIAAQBDAHQAeABXAEYASABvAG0AZQBEAGkAcgBEAHIAaQB2AGUAMDAgAAIAAQBDAHQAeABXAEYAUAByAG8AZgBpAGwAZQBQAGEAdABoADAwIgACAAEAQwB0AHgASQBuAGkAdABpAGEAbABQAHIAbwBnAHIAYQBtADAwIgACAAEAQwB0AHgAQwBhAGwAbABiAGEAYwBrAE4AdQBtAGIAZQByADAwKAAIAAEAQwB0AHgATQBhAHgAQwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDAwLgAIAAEAQwB0AHgATQBhAHgARABpAHMAYwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDAwHAAIAAEAQwB0AHgATQBhAHgASQBkAGwAZQBUAGkAbQBlADAwMDAwMDAw',
+      'userpassword' => uniqid(),
+      'homedirectory' => "/home/$uid",
+      'sambasid' => 'S-1-5-21-1816619821-1419577557-1603852640-'.(1000+2*$uid_number),
+      'gidNumber' => '1084',
+      'sambaprimarygroupsid' => 'S-1-5-21-1816619821-1419577557-1603852640-3051',
+    ], $entry);
 
     // Create LDAP-entry
-    $success = ldap_add($this->server, "uid=$uid,ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl", $attributes);
+    $success = ldap_add($this->server, "uid=$uid,ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl", $entry);
 
     // Return the new user
     return $this->find($uid);
@@ -131,7 +156,7 @@ class LDAP
    * @param  Models\LDAPEntry $entry
    * @return Models\Person the created entry or null on failure
    */
-  public function update($uid, Models\LDAPEntry $entry)
+  public function update($uid, $entry)
   {
     // User must exist
     if ($this->user_exists($uid)) {
@@ -163,28 +188,36 @@ class LDAP
 
   /**
    * Returns a free uid for a new user
-   * @param $data object describing the user
+   * @param array $data describing the user
    * @return string the free UID
    * @throws Exception if no free UID can be found
    */
   private function find_free_uid($data)
   {
-    $uid = null;
-    $options = array(
-      strtolower($data->initials[0].$data->lastname),
-      strtolower($data->initials.$data->lastname),
-      strtolower($data->firstname.$data->lastname),
-    );
+    // Try sensible options first
+    $options = [];
+
+    if (! empty($data['initials'])) {
+      $options[] = strtolower($data['initials'][0].$data['sn']);
+      $options[] = strtolower($data['initials'].$data['sn']);
+    }
+    $options[] = strtolower($data['givenname'].$data['sn']);
+
     foreach ($options as $candidate_uid) {
       if (! $this->user_exists($candidate_uid)) {
-        $uid = $candidate_uid;
-        break;
+        return $candidate_uid;
       }
     }
-    if ($uid == null) {
-      throw new Exception('Cannot create user: All UIDs taken');
+
+    // Try a numbered option
+    for ($i=1; true; $i++) { 
+      $candidate_uid = strtolower($data['givenname'].$data['sn']).$i;
+      if (! $this->user_exists($candidate_uid)) {
+        return $candidate_uid;
+      }
     }
-    return $uid;
+
+    throw new Exception('Cannot create user: All UIDs taken');
   }
 
   /**

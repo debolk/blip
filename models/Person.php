@@ -70,10 +70,6 @@ class Person implements \JSONSerializable
       }
     }
 
-    // Add some custom keys
-    $input['cn'] = $this->name();
-    $input['gecos'] = $this->name();
-
     // Create and return model
     return new LDAPEntry($input);
   }

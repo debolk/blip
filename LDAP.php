@@ -72,7 +72,7 @@ class LDAP
 
   /**
    * Find the information of a specific member
-   * @param int $id the id of the member to find
+   * @param int $uid the id of the member to find
    * @throws LDAPNotFoundException if the member doesn't exist
    * @return Models\Person or null if the person does not exist
    */
@@ -121,6 +121,8 @@ class LDAP
 
     // Generate default attributes not supplied by the user
     $entry = array_merge([
+      'cn' => $entry->name(),
+      'gecos' => $entry->name(),
       'objectClass' => ['top', 'person', 'organizationalPerson', 'iNetOrgPerson','gosaAccount','posixAccount','shadowAccount','sambaSamAccount','sambaIdmapEntry','pptpServerAccount','gosaMailAccount','gosaIntranetAccount'],
       'gosamaildeliverymode' => '[L]',
       'gosamailserver' => 'mail',
@@ -170,7 +172,7 @@ class LDAP
     $accepted = ['firstname', 'lastname', 'initials', 'dateofbirth', 'email', 'phone', 'mobile', 'phone_parents', 'address'];
     foreach (array_keys($attributes) as $key) {
       if (! in_array($key, $accepted)) {
-        unset($attributes[$key]);
+        throw new Exception("Setting $key is not allowed");
       }
     }
 

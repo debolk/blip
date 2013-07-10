@@ -142,11 +142,24 @@ class LDAP
       'gidNumber' => '1084',
       'sambaprimarygroupsid' => 'S-1-5-21-1816619821-1419577557-1603852640-3051',
       'gender' => strtoupper($data->gender),
-      'telephonenumber' => $data->phone,
-      'mobile' => $data->mobile,
-      'homephone' => $data->phone_parents,
-      'homepostaladdress' => $data->address,
     ];
+
+    // Add optional attributes
+    if (! empty($data->phone)) {
+      $input['telephonenumber'] = $data->phone;
+    }
+    if (! empty($data->mobile)) {
+      $input['mobile'] = $data->mobile;
+    }
+    if (! empty($data->phone_parents)) {
+      $input['homephone'] = $data->phone_parents;
+    }
+    if (! empty($data->address)) {
+      $input['homepostaladdress'] = $data->address;
+    }
+    if (! empty($data->dateofbirth)) {
+      $input['dateOfBirth'] = date('Y-m-d', strtotime($data->dateofbirth));
+    }
 
     // Create LDAP-entry
     $success = ldap_add($this->server, "uid=$uid,ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl", $input);

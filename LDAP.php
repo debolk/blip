@@ -1,6 +1,7 @@
 <?php
 
 require_once('models/Person.php');
+require_once('models/LDAPEntry.php');
 
 class LDAP
 {
@@ -24,8 +25,10 @@ class LDAP
    */
   public function find_all()
   {
-    $result = $this->ldap_find('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate)))', array('uid', 'givenname', 'sn', 'mail'));
-    return array_map(array($this, 'to_resource'), $result);
+    $result = $this->ldap_find('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate))(!(uid=nobody)))', array());
+    return array_map(function($entry){
+      return Models\LDAPEntry::from_result($entry)->to_Person();
+    }, $result);
   }
 
   /**
@@ -71,7 +74,7 @@ class LDAP
    * Find the information of a specific member
    * @param int $id the id of the member to find
    * @throws LDAPNotFoundException if the member doesn't exist
-   * @return Models\Person
+   * @return Models\Person or null if the person does not exist
    */
   public function find($id)
   {
@@ -88,85 +91,75 @@ class LDAP
     }
 
     // Return a resource object
-    return $this->to_resource($result[0]);
+    return Models\LDAPEntry::from_result($result[0])->to_Person();
   }
 
   /**
-   * Create a new member with the given data
-   * @param array $data containing the keys name, email and status. Status can be any string of: lid, kandidaat-lid, oud-lid or ex-lid.
-   * @return the results of LDAP::find() of the new member
+   * Returns whether a user with a given uid exists
+   * @param string $uid the UID of the user to find
+   * @return boolean whether the user exists
    */
-  public function create($data)
+  public function user_exists($uid)
   {
-    // Find a free UID
-    $uid = (string)$this->find_free_uid($data);
+    $search = ldap_search($this->server, getenv('LDAP_BASEDN'), "(uid=$uid)", array());
+    return (ldap_count_entries($this->server, $search) > 0);
+  }
 
-    // Calculate UID-number
-    $uid_number = (string)$this->get_new_uid_number();
+  /**
+   * Creates a new LDAP-entry on the server
+   * @param  Models\LDAPEntry $entry
+   * @return string the UID of the newly created entry or null on failure
+   */
+  public function create(Models\LDAPEntry $entry)
+  {
+    $attributes = (array) $entry;
 
-    // Construct full name
-    if (isset($data->lastname_prefix)) {
-      $name = implode(' ', array_filter([$data->firstname, $data->lastname_prefix, $data->lastname]));
-    }
-    else {
-      $name = implode(' ', array_filter([$data->firstname, $data->lastname]));
-    }
-
-    // Build complete input array
-    $input = [
-      'uid' => $uid,
-      'cn' => $name,
-      'gecos' => $name,
-      'givenname' => $data->firstname,
-      'sn' => $data->lastname,
-      'mail' => $data->email,
-      'objectClass' => ['top', 'person', 'organizationalPerson', 'iNetOrgPerson','gosaAccount','posixAccount','shadowAccount','sambaSamAccount','sambaIdmapEntry','pptpServerAccount','gosaMailAccount','gosaIntranetAccount'],
-      'gosamaildeliverymode' => '[L]',
-      'gosamailserver' => 'mail',
-      'gosaspammailbox' => 'INBOX',
-      'gosaspamsortlevel' => '0',
-      'gotolastsystemlogin' => '01.01.1970 00:00:00',
-      'loginshell' => '/bin/bash',
-      'sambaacctflags' => '[U           ]',
-      'sambadomainname' => 'nieuwedelft',
-      'sambahomedrive' => 'Z:',
-      'sambahomepath' => '\\\samba\commissies',
-      'sambalogofftime' => '2147483647',
-      'sambalogontime' => '0',
-      'sambapwdlastset' => '0',
-      'sambamungeddial' => 'IAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAUAAQABoACAABAEMAdAB4AEMAZgBnAFAAcgBlAHMAZQBuAHQANTUxZTBiYjAYAAgAAQBDAHQAeABDAGYAZwBGAGwAYQBnAHMAMQAwMDAwMDEwMBYAAAABAEMAdAB4AEMAYQBsAGwAYgBhAGMAawASAAgAAQBDAHQAeABTAGgAYQBkAG8AdwAwMTAwMDAwMCIAAAABAEMAdAB4AEsAZQB5AGIAbwBhAHIAZABMAGEAeQBvAHUAdAAqAAIAAQBDAHQAeABNAGkAbgBFAG4AYwByAHkAcAB0AGkAbwBuAEwAZQB2AGUAbAAwMCAAAgABAEMAdAB4AFcAbwByAGsARABpAHIAZQBjAHQAbwByAHkAMDAgAAIAAQBDAHQAeABOAFcATABvAGcAbwBuAFMAZQByAHYAZQByADAwGAACAAEAQwB0AHgAVwBGAEgAbwBtAGUARABpAHIAMDAiAAIAAQBDAHQAeABXAEYASABvAG0AZQBEAGkAcgBEAHIAaQB2AGUAMDAgAAIAAQBDAHQAeABXAEYAUAByAG8AZgBpAGwAZQBQAGEAdABoADAwIgACAAEAQwB0AHgASQBuAGkAdABpAGEAbABQAHIAbwBnAHIAYQBtADAwIgACAAEAQwB0AHgAQwBhAGwAbABiAGEAYwBrAE4AdQBtAGIAZQByADAwKAAIAAEAQwB0AHgATQBhAHgAQwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDAwLgAIAAEAQwB0AHgATQBhAHgARABpAHMAYwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDAwHAAIAAEAQwB0AHgATQBhAHgASQBkAGwAZQBUAGkAbQBlADAwMDAwMDAw',
-      'userpassword' => uniqid(),
-      'homedirectory' => "/home/$uid",
-      'uidnumber' => $uid_number,
-      'sambasid' => 'S-1-5-21-1816619821-1419577557-1603852640-'.(1000+2*$uid_number),
-      'gidNumber' => '1084',
-      'sambaprimarygroupsid' => 'S-1-5-21-1816619821-1419577557-1603852640-3051',
-      'gender' => strtoupper($data->gender),
-    ];
-
-    // Add optional attributes
-    if (! empty($data->phone)) {
-      $input['telephonenumber'] = $data->phone;
-    }
-    if (! empty($data->mobile)) {
-      $input['mobile'] = $data->mobile;
-    }
-    if (! empty($data->phone_parents)) {
-      $input['homephone'] = $data->phone_parents;
-    }
-    if (! empty($data->address)) {
-      $input['homepostaladdress'] = $data->address;
-    }
-    if (! empty($data->dateofbirth)) {
-      $input['dateOfBirth'] = date('Y-m-d', strtotime($data->dateofbirth));
-    }
+    // Generate some required attributes
+    $attributes['uid'] = $this->find_free_uid($entry);
+    $attributes['uidnumber'] = $this->get_new_uid_number($entry);
 
     // Create LDAP-entry
-    $success = ldap_add($this->server, "uid=$uid,ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl", $input);
+    $success = ldap_add($this->server, "uid=$uid,ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl", $attributes);
 
     // Return the new user
     return $this->find($uid);
   }
+
+  /**
+   * Updates an existing LDAP-entry on the server
+   * @param  string $uid the uid of the user
+   * @param  Models\LDAPEntry $entry
+   * @return Models\Person the created entry or null on failure
+   */
+  public function update($uid, Models\LDAPEntry $entry)
+  {
+    // User must exist
+    if ($this->user_exists($uid)) {
+      throw new Exception('User doesn\'t exist');
+    }
+
+    // Cast to array
+    $attributes = (array) $entry;
+
+    // Only allow whitelisted attributes
+    //FIXME
+    $accepted = array('givenname');
+    foreach (array_keys($attributes) as $key) {
+      if (! in_array($key, $accepted)) {
+        unset($attributes[$key]);
+      }
+    }
+
+    // Update the LDAP server
+    ldap_modify($this->server, "uid=$uid,ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl", $attributes);
+
+    // Return the updated user
+    return ($this->find($uid));
+  }
+
+  /*
+   * Private utility functions start here
+   */
 
   /**
    * Returns a free uid for a new user
@@ -182,10 +175,6 @@ class LDAP
       strtolower($data->initials.$data->lastname),
       strtolower($data->firstname.$data->lastname),
     );
-    if (isset($data->lastname_prefix)) {
-      $options[] = strtolower($data->initials.$data->lastname_prefix.$data->lastname);
-      $options[] = strtolower($data->firstname.$data->lastname_prefix.$data->lastname);
-    }
     foreach ($options as $candidate_uid) {
       if (! $this->user_exists($candidate_uid)) {
         $uid = $candidate_uid;
@@ -221,69 +210,9 @@ class LDAP
   }
 
   /**
-   * Update an existing member with the given data
-   * @param array $data
-   * @return the results of LDAP::find() of the member
-   * @throws LDAPNotFoundException if the member doesn't exist
-   */
-  public function update($data)
-  {
-    throw new Exception('Method not implemented');
-  }
-
-  /**
-   * Converts a LDAP-entry to a resource
-   * @param array $entry the LDAP-entry to convert
-   * @returns Models\Person the resulting resource
-   */
-  private function to_resource($entry)
-  {
-    $person = new Models\Person;
-    $person->uid = isset($entry['uid'][0]) ? ($entry['uid'][0]) : (null);
-    $person->first_name = isset($entry['givenname'][0]) ? ($entry['givenname'][0]) : (null);
-    $person->last_name = isset($entry['sn'][0]) ? ($entry['sn'][0]) : (null);
-    $person->email = isset($entry['mail'][0]) ? ($entry['mail'][0]) : (null);
-    return $person;
-  }
-
-  /**
-   * Converts a resource to a LDAP-entry
-   * @param array $resource the resource to convert
-   * @returns array the resulting LDAP-entry
-   */
-  private function from_resource($resource)
-  {
-    throw new Exception('Method not implemented');
-  }
-
-  /**
-   * Performs a LDAP search
-   * @param string $query the query to search
-   * @param array[string] $attributes attributes to include in the result set
-   * @param string $dn_prefix an extra part to prefix for the base_dn as defined in the configuration
-   * @return LDAP result set
-   */
-  private function ldap_find($query, $attributes = null, $dn_prefix = '')
-  {
-    // Prefix the dn to search to enable extension
-    if ($dn_prefix !== '') {
-      $dn_prefix = ','.$dn_prefix;
-    }
-    $dn = $dn_prefix.getenv('LDAP_BASEDN');
-
-    // Retrieve results
-    $search = ldap_search($this->server, $dn, $query, $attributes);
-    $result = ldap_get_entries($this->server, $search);
-
-    // Remove the first, useless entry
-    array_shift($result);
-    return $result;
-  }
-
-  /**
    * Returns all members of a specific group
    * @param $dn the DN of the group to find (excluding BASE_DN)
-   * @return array[Person]
+   * @return array[Models\Person]
    */
   private function ldap_group_members($dn)
   {
@@ -310,9 +239,9 @@ class LDAP
     // Find actual user objects
     $members = array();
     foreach ($results as $uid) {
-      $member = $this->find_member($uid);
-      if ($member !== null) {
-        array_push($members, $member);
+      $search = $this->ldap_find("(&(uid=$uid)(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate)))", array());
+      if ($search !== array()) {
+        array_push($members, [Models\LDAPEntry::from_result($search[0])->to_Person()]);
       }
     }
 
@@ -320,30 +249,26 @@ class LDAP
   }
 
   /**
-   * Find a member in LDAP and returns its corresponding model
-   * @param string $uid the UID of the user to find
-   * @return Models\Person
+   * Performs a LDAP search
+   * @param string $query the query to search
+   * @param array[string] $attributes attributes to include in the result set
+   * @param string $dn_prefix an extra part to prefix for the base_dn as defined in the configuration
+   * @return LDAP result set
    */
-  private function find_member($uid)
+  private function ldap_find($query, $attributes = null, $dn_prefix = '')
   {
-    $search = $this->ldap_find("(&(uid=$uid)(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate)))", array('uid', 'givenname', 'sn', 'mail'));
-    // No results
-    if ($search == array()) {
-      return null;
+    // Prefix the dn to search to enable extension
+    if ($dn_prefix !== '') {
+      $dn_prefix = ','.$dn_prefix;
     }
-    else {
-      return $this->to_resource($search[0]);
-    }
-  }
+    $dn = $dn_prefix.getenv('LDAP_BASEDN');
 
-  /**
-   * Returns whether a user with a given uid exists
-   * @param string $uid the UID of the user to find
-   * @return boolean whether the user exists
-   */
-  private function user_exists($uid)
-  {
-    $search = ldap_search($this->server, getenv('LDAP_BASEDN'), "(uid=$uid)", array());
-    return (ldap_count_entries($this->server, $search) > 0);
+    // Retrieve results
+    $search = ldap_search($this->server, $dn, $query, $attributes);
+    $result = ldap_get_entries($this->server, $search);
+
+    // Remove the first, useless entry
+    array_shift($result);
+    return $result;
   }
 }

@@ -31,4 +31,25 @@ class BlipResource extends Tonic\Resource
     }
     return implode(', ', $output);
   }
+
+  /**
+   * Applies default rules to validate a person
+   * @param Valitron\Validator $v validator instance to use
+   * @param boolean $required whether to require the presence of specific attributes
+   * @return Valitron\Validator the validator with the extra rules
+   */
+  protected function validation_rules($v, $required = true)
+  {
+    $v->rule('email', 'email');
+    $v->rule('alpha', ['firstname', 'lastname_prefix', 'lastname', 'initials']);
+    $v->rule('regex', 'gender', '/^[FM]$/')->message('{field} must be F or M');
+    $v->rule('dateBefore', 'dateofbirth', date('Y-m-d'));
+
+    // Validate attributes exist
+    if ($required) {
+      $v->rule('required', ['firstname', 'lastname', 'email', 'initials', 'gender']);
+    }
+
+    return $v;
+  }
 }

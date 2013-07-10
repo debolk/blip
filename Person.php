@@ -30,13 +30,9 @@ class PersonCollection extends BlipResource
       return new Tonic\Response(400, "Not valid JSON");
     }
 
-    // Validation fails
+    // Validate the input
     $v = new Valitron\Validator($candidate);
-    $v->rule('required', ['firstname', 'lastname', 'email', 'initials', 'gender']);
-    $v->rule('email', 'email');
-    $v->rule('alpha', ['firstname', 'lastname_prefix', 'lastname', 'initials']);
-    $v->rule('regex', 'gender', '/^[FM]$/')->message('{field} must be F or M');
-    $v->rule('dateBefore', 'dateofbirth', date('Y-m-d'));
+    $v = $this->validation_rules($v, true);
     if (!$v->validate()) {
       return new Tonic\Response(400, 'Validation failed: '.$this->format_errors($v->errors()));
     }
@@ -80,18 +76,14 @@ class PersonResource extends BlipResource
       return new Tonic\Response(400, "Not valid JSON");
     }
 
-    // Validation fails
-    $validator = v::attribute('name', v::string()->length(1,200))
-                  ->attribute('uid', v::string()->length(1,20))
-                  ->attribute('email', v::email());
-    try {
-      $validator->assert($candidate);
-    }
-    catch (InvalidArgumentException $e) {
-      return new Tonic\Response(400, json_encode($e->findMessages(array('name', 'id', 'email'))));
+    // Validate the input
+    $v = new Valitron\Validator($candidate);
+    $v = $this->validation_rules($v, false);
+    if (!$v->validate()) {
+      return new Tonic\Response(400, 'Validation failed: '.$this->format_errors($v->errors()));
     }
 
-    $this->ldap->update($candidate);
-    return new Tonic\Response(200);
+    // Update the user
+    return new Tonic\Response(200, json_encode($this->ldap->update($candidate), JSON_UNESCAPED_SLASHES));
   }
 }

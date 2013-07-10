@@ -52,9 +52,9 @@ class PersonResource extends BlipResource
    * @method GET
    * @return string
    */
-  public function show($id)
+  public function show($uid)
   {
-    $result = $this->ldap->find($id);
+    $result = $this->ldap->find($uid);
     // Result does not exist
     if ($result === null) {
       return new Tonic\Response(404, "Person not found");
@@ -67,7 +67,7 @@ class PersonResource extends BlipResource
    * @method PATCH
    * @return Tonic\Response
    */
-  public function update($id)
+  public function update($uid)
   {
     $candidate = json_decode($this->request->data);
 

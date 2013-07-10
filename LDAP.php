@@ -145,6 +145,7 @@ class LDAP
       'telephonenumber' => $data->phone,
       'mobile' => $data->mobile,
       'homephone' => $data->phone_parents,
+      'homepostaladdress' => $data->address,
     ];
 
     // Create LDAP-entry

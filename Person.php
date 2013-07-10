@@ -36,7 +36,6 @@ class PersonCollection extends BlipResource
     $v->rule('email', 'email');
     $v->rule('alpha', ['firstname', 'lastname_prefix', 'lastname', 'initials']);
     $v->rule('regex', 'gender', '/^[FM]$/')->message('{field} must be F or M');
-    $v->rule('numeric', ['phone', 'mobile', 'phone_parents']);
     if (!$v->validate()) {
       return new Tonic\Response(400, 'Validation failed: '.$this->format_errors($v->errors()));
     }

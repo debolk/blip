@@ -84,6 +84,6 @@ class PersonResource extends BlipResource
     }
 
     // Update the user
-    return new Tonic\Response(200, json_encode($this->ldap->update($candidate), JSON_UNESCAPED_SLASHES));
+    return new Tonic\Response(200, json_encode($this->ldap->update($uid, $candidate), JSON_UNESCAPED_SLASHES));
   }
 }

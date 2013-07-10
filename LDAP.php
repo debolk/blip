@@ -159,7 +159,7 @@ class LDAP
   public function update($uid, $entry)
   {
     // User must exist
-    if ($this->user_exists($uid)) {
+    if (! $this->user_exists($uid)) {
       throw new Exception('User doesn\'t exist');
     }
 
@@ -167,16 +167,19 @@ class LDAP
     $attributes = (array) $entry;
 
     // Only allow whitelisted attributes
-    //FIXME
-    $accepted = array('givenname');
+    $accepted = ['firstname', 'lastname', 'initials', 'dateofbirth', 'email', 'phone', 'mobile', 'phone_parents', 'address'];
     foreach (array_keys($attributes) as $key) {
       if (! in_array($key, $accepted)) {
         unset($attributes[$key]);
       }
     }
 
+    // Rewrite to LDAPEntry
+    $entry = new Models\Person($attributes);
+    $entry = $entry->to_LDAPEntry()->to_array();
+
     // Update the LDAP server
-    ldap_modify($this->server, "uid=$uid,ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl", $attributes);
+    ldap_modify($this->server, "uid=$uid,ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl", $entry);
 
     // Return the updated user
     return ($this->find($uid));

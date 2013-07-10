@@ -65,6 +65,9 @@ class LDAPEntry
     if (isset($this->attributes['homepostaladdress'])) {
       $input['address'] = $this->attributes['homepostaladdress'];
     }
+    if (isset($this->attributes['initials'])) {
+      $input['initials'] = $this->attributes['initials'];
+    }
 
     // Create and return model
     return new Person($input);

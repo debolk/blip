@@ -10,12 +10,16 @@ class LDAP
    * The connection to the Bolk LDAP-server
    */
   private $server;
+  private $ldap;
 
   /**
    * Construct a connection to the server
    */
   public function __construct()
   {
+    $ldap = Helper\LdapHelper::connect();
+    $ldap->bind(getenv('LDAP_USERNAME'), getenv('LDAP_PASSWORD'));
+
     $this->server = ldap_connect(getenv('LDAP_HOST'));
     ldap_bind($this->server, getenv('LDAP_USERNAME'), getenv('LDAP_PASSWORD'));
   }

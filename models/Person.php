@@ -5,6 +5,17 @@ namespace Models;
 class Person implements \JSONSerializable
 {
   private $attributes;
+  
+  protected $renaming = array(
+    'uid' => 'uid',
+    'firstname' => 'givenname',
+    'lastname' => 'sn',
+    'email' => 'mail',
+    'mobile' => 'mobile',
+    'phone' => 'telephonenumber',
+    'phone_parents' => 'homephone', 
+    'address' => 'homepostaladdress',
+  );
 
   /**
    * Constructs a new Person
@@ -12,7 +23,23 @@ class Person implements \JSONSerializable
    */
   public function __construct($attributes)
   {
-    $this->attributes = (array)$attributes;
+    $this->attributes = array();
+
+    foreach($this->renaming as $local => $ldap)
+      if(isset($attributes[$ldap]))
+        $this->attributes[$local] = $attributes[$ldap];
+  }
+
+  public static function fromUid($uid)
+  {
+    $ldap = \Helper\LdapHelper::connect();
+    $dn = $ldap->getDn($uid);
+
+    if(!$dn)
+      throw new \Exception('User not found!');
+
+    $attributes = $ldap->flatten($ldap->get($dn, 'iNetOrgPerson'));
+    return new Person($attributes);
   }
 
   /**

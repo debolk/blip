@@ -58,6 +58,7 @@ class PersonResource extends BlipResource
   public function show($uid)
   {
     $result = $this->ldap->find($uid);
+    $result = Models\Person::fromUid($uid);
     // Result does not exist
     if ($result === null) {
       return new Tonic\Response(404, "Person not found");

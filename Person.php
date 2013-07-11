@@ -10,6 +10,7 @@ class PersonCollection extends BlipResource
 {
   /**
    * @method GET
+   * @loggedIn lid
    * @return string
    */
   public function index()
@@ -19,6 +20,7 @@ class PersonCollection extends BlipResource
 
   /**
    * @method POST
+   * @loggedIn bestuur
    * @return Tonic\Response
    */
   public function create()
@@ -50,6 +52,7 @@ class PersonResource extends BlipResource
 {
   /**
    * @method GET
+   * @loggedIn lid
    * @return string
    */
   public function show($uid)
@@ -65,6 +68,7 @@ class PersonResource extends BlipResource
 
   /**
    * @method PATCH
+   * @loggedIn bestuur
    * @return Tonic\Response
    */
   public function update($uid)

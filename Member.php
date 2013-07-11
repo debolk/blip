@@ -13,6 +13,7 @@ class MemberCollection extends BlipResource
 {
   /**
    * @method GET
+   * @loggedIn lid
    * @return Tonic\Response
    */
   public function router($subset = '')

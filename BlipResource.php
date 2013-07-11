@@ -1,6 +1,7 @@
 <?php
 
 require_once('LDAP.php');
+require_once('OAuth2Helper.php');
 
 class BlipResource extends Tonic\Resource
 {
@@ -51,5 +52,18 @@ class BlipResource extends Tonic\Resource
     }
 
     return $v;
+  }
+
+  /**
+   * Only allow bestuur to access this API
+   * @param  Tonic\Resource $resource
+   * @return boolean
+   */
+  public function loggedIn($resource)
+  {
+    $unauthorized = OAuth2Helper::IsUnauthorized('bestuur');
+    if($unauthorized)
+      return $unauthorized;
+    return true;
   }
 }

@@ -92,7 +92,7 @@ class LDAP
     }
 
     // Find and append its membership status
-    $result[0]['membership'] = $this->determine_membership($uid);
+    $result[0]['membership'] = array($this->determine_membership($uid));
 
     // Return a resource object
     return Models\LDAPEntry::from_result($result[0])->to_Person();
@@ -329,28 +329,32 @@ class LDAP
    */
   private function determine_membership($uid)
   {
-    // Test for candidates
-    $query = ldap_read($this->server, 'cn=kandidaatleden,ou=groups,o=nieuwedelft,'.getenv('LDAP_BASEDN'), '(objectClass=*)', array('memberuid'));
-    $group = ldap_get_entries($this->server, $query);
-    if (isset($group[0]['memberuid']) and in_array($uid, $group[0]['memberuid'])) {
-      return 'kandidaatlid';
+    $groups = array(
+      'lid' => 'cn=leden,ou=groups,o=nieuwedelft',
+      'kandidaatlid' => 'cn=kandidaatleden,ou=groups,o=nieuwedelft',
+      'oudlid' => 'cn=oud-leden,ou=groups,o=nieuwedelft',
+    );
+
+    foreach($groups as $type => $group)
+    {
+      $dn = $group . ',' . getenv('LDAP_BASEDN');
+      $query = ldap_read($this->server, $dn, '(objectClass=posixGroup)', array('memberuid'));
+      if(!$query || ldap_count_entries($this->server, $query) < 1)
+        throw new Exception('Group "' . $group . '" does not exist in ldap');
+
+      $properties = ldap_get_entries($this->server, $query);
+      $properties = $properties[0];
+
+      $members = $properties['memberuid'];
+      unset($members['count']);
+
+      if(in_array($uid, $members))
+        return $type;
     }
 
-    // Test for members
-    $query = ldap_read($this->server, 'cn=leden,ou=groups,o=nieuwedelft,'.getenv('LDAP_BASEDN'), '(objectClass=*)', array('memberuid'));
-    $group = ldap_get_entries($this->server, $query);
-    if (isset($group[0]['memberuid']) and in_array($uid, $group[0]['memberuid'])) {
-      return 'lid';
-    }
-
-    // Test for past members
-    $query = ldap_read($this->server, 'cn=oud-leden,ou=groups,o=nieuwedelft,'.getenv('LDAP_BASEDN'), '(objectClass=*)', array('memberuid'));
-    $group = ldap_get_entries($this->server, $query);
-    if (isset($group[0]['memberuid']) and in_array($uid, $group[0]['memberuid'])) {
-      return 'oudlid';
-    }
-
+    return '';
     // Not a member
     return 'geen lid';
   }
+
 }

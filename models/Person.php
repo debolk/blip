@@ -17,6 +17,8 @@ class Person implements \JSONSerializable
     'address' => 'homepostaladdress',
   );
 
+  protected $dirty = array();
+
   /**
    * Constructs a new Person
    * @param array $attributes
@@ -145,5 +147,6 @@ class Person implements \JSONSerializable
   public function __set($name, $value)
   {
     $this->attributes[$name] = $value;
+    $dirty[$name] = true;
   }
 }

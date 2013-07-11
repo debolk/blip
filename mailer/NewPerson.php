@@ -29,7 +29,7 @@ class NewPerson
   {
     // Construct needed headers from configuration
     $headers = 'From: '.getenv('MAIL_FROM') . "\r\n" .
-               'Reply-To: '.getenv('MAIL_REPLYTO') . "\r\n" .
+               'Reply-To: '.getenv('MAIL_FROM') . "\r\n" .
                'X-Mailer: PHP/' . phpversion() . "\r\n" .
                "MIME-Version: 1.0\r\n" .
                "Content-type: text/html; charset=utf-8\r\n";
@@ -42,7 +42,7 @@ class NewPerson
       <li>Maak een VPN-verbinding met De Bolk. Hoe dat moet kun je lezen <a href="http://wiki.debolk.nl/index.php/VPN">op de wiki</a>. Je gebruikersnaam is "{$this->uid}" en je (tijdelijke) wachtwoord "{$this->password}".</li>
       <li>Ga naar de <a href="http://gosa.i.bolkhuis.nl/password.php?uid={$this->uid}&directory=BOLKHUIS">Gosa-interface</a> en stel een nieuw wachtwoord in. Gebruik als huidig wachtwoord "{$this->password}".
       </ol>
-    <p>Als je nog vragen hebt, kun je contact opnemen met de secretaris via <a href="mailto:{getenv('MAIL_REPLYTO')}">{getenv('MAIL_REPLYTO')}</a> of in de sociëteit.</p>
+    <p>Als je nog vragen hebt, kun je contact opnemen met de secretaris via <a href="mailto:{getenv('MAIL_FROM')}">{getenv('MAIL_FROM')}</a> of in de sociëteit.</p>
 MAIL;
 
     // Send the e-mail

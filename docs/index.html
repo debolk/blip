@@ -12,6 +12,33 @@
       Binnen De Bolk wordt de informatie over alle leden opgeslagen in LDAP. Het Bolks Ledeninformatiepunt (Blip) biedt een makkelijker manier om informatie over leden op te vragen en te gebruiken bij het bouwen van je eigen applicaties voor De Bolk. Je kunt het vergelijken met een <a href="https://en.wikipedia.org/wiki/Facade_pattern">Facade pattern</a>.
     </p>
 
+    <h2>Person</h2>
+    <p>De basiseenheid van de API is een Person. Je kunt deze aanmaken, updaten en lezen via de API. De attributen van een Person staan hieronder vermeld:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Attribuut</th>
+          <th>Inhoud</th>
+          <th>Leesbaar</th>
+          <th>Schrijfbaar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>uid</td><td>uniek id</td><td>ja</td><td>nee</td></tr>
+        <tr><td>href</td><td>URL van resource</td><td>ja</td><td>nee</td></tr>
+        <tr><td>initials</td><td>initialen</td><td>ja</td><td>ja</td></tr>
+        <tr><td>firstname</td><td>voornaam</td><td>ja</td><td>ja</td></tr>
+        <tr><td>lastname</td><td>achternaam</td><td>ja</td><td>ja</td></tr>
+        <tr><td>name</td><td>volledige naam</td><td>ja</td><td>nee</td></tr>
+        <tr><td>email</td><td>e-mailadres</td><td>ja</td><td>ja</td></tr>
+        <tr><td>phone</td><td>telefoonnummer vast</td><td>ja</td><td>ja</td></tr>
+        <tr><td>mobile</td><td>telefoonnummer mobiel</td><td>ja</td><td>ja</td></tr>
+        <tr><td>phone_parents</td><td>telefoonnummer ouders</td><td>ja</td><td>ja</td></tr>
+        <tr><td>address</td><td>adres van het lid</td><td>ja</td><td>ja</td></tr>
+      </tbody>
+    </table>
+
     <h2>Methodes</h2>
     <p>
       Alle methodes van de API accepteren en retourneren alleen JSON.

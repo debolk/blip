@@ -67,6 +67,29 @@ class Person implements \JSONSerializable
   }
 
   /**
+   * The membership status of this person
+   * @return string
+   */
+  public function membership()
+  {
+    $groups = array(
+      'lid' => 'cn=leden,ou=groups,o=nieuwedelft',
+      'kandidaatlid' => 'cn=kandidaatleden,ou=groups,o=nieuwedelft',
+      'oudlid' => 'cn=oud-leden,ou=groups,o=nieuwedelft',
+    );
+
+    $ldap = \Helper\LdapHelper::connect();
+    foreach($groups as $status => $group)
+    {
+      $dn = $group . ',' . $ldap->basedn;
+      if($ldap->memberOf($dn, $this->attributes['uid']))
+        return $status;
+    }
+    
+    return 'geen lid';
+  }
+
+  /**
    * Serializes this Person to JSON
    * @return array
    */
@@ -75,6 +98,7 @@ class Person implements \JSONSerializable
     return array_merge($this->attributes, [
       'href' => getenv('BASE_URL').'persons/'.$this->attributes['uid'],
       'name' => $this->name(),
+      'membership' => $this->membership(),
     ]);
   }
 

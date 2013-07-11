@@ -45,7 +45,7 @@ class NewPerson
     <p>Beste {$name},</p>
     <p>Je gegevens zijn toegevoegd aan de ledenadministratie van De Bolk. Je hebt hierdoor automatisch een Bolk-account gekregen. Hiermee heb je toegang tot verschillende systemen binnen De Bolk, zoals de <a href="http://wiki.debolk.nl">wiki met informatie</a>, je eigen <a href="http://webmail.bolkhuis.nl">e-mailaccount</a> en <a href="http://noms.debolk.nl">bolknoms</a>. Je account heeft nog wel een tijdelijk wachtwoord. Je moet dit wachtwoord veranderen om toegang te krijgen.</p>
     <ol>
-      <li>Maak een VPN-verbinding met De Bolk. Instructies kun je vinden op <a href="http://wiki.debolk.nl/index.php/VPN">op de wiki</a>. Je gebruikersnaam is "{$uid}" en je tijdelijke wachtwoord "{$password}".</li>
+      <li>Maak een VPN-verbinding met De Bolk. Instructies kun je vinden op <a href="http://wiki.debolk.nl/index.php/VPN">de wiki</a>. Je gebruikersnaam is "{$uid}" en je tijdelijke wachtwoord "{$password}".</li>
       <li><a href="http://gosa.i.bolkhuis.nl/password.php?uid={$uid}&directory=BOLKHUIS">Stel je wachtwoord opnieuw in.</a>. Gebruik als huidig wachtwoord "{$password}".
     </ol>
     <p>Hierdoor worden al je wachtwoorden gereset en krijg je toegang tot o.a. de commissie-schijf en je e-mailaccount. De volgende keer dat je verbinding maakt met de VPN, moet je wel je nieuwe wachtwoord invoeren, niet de tijdelijke.</p>

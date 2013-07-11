@@ -13,7 +13,7 @@ class LDAPEntry
    */
   public static function from_result($entry)
   {
-    $keys = ['uid', 'givenname', 'sn', 'mail', 'telephonenumber', 'mobile', 'homephone', 'homepostaladdress'];
+    $keys = ['uid', 'givenname', 'sn', 'mail', 'telephonenumber', 'mobile', 'homephone', 'homepostaladdress', 'membership'];
     foreach ($keys as $key) {
       if (isset($entry[$key][0])) {
         $parameters[$key] = $entry[$key][0];
@@ -67,6 +67,9 @@ class LDAPEntry
     }
     if (isset($this->attributes['initials'])) {
       $input['initials'] = $this->attributes['initials'];
+    }
+    if (isset($this->attributes['membership'])) {
+      $input['membership'] = $this->attributes['membership'];
     }
 
     // Create and return model

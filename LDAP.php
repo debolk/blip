@@ -91,6 +91,9 @@ class LDAP
       return null;
     }
 
+    // Find and append its membership status
+    $result[0]['membership'] = $this->determine_membership($uid);
+
     // Return a resource object
     return Models\LDAPEntry::from_result($result[0])->to_Person();
   }
@@ -317,5 +320,37 @@ class LDAP
     // Remove the first, useless entry
     array_shift($result);
     return $result;
+  }
+
+  /**
+   * Returns a string indicating the users membership
+   * @param  string $uid the UID of the user
+   * @return string      either 'kandidaatlid', 'lid', 'oudlid' or 'geen lid'
+   */
+  private function determine_membership($uid)
+  {
+    // Test for candidates
+    $query = ldap_read($this->server, 'cn=kandidaatleden,ou=groups,o=nieuwedelft,'.getenv('LDAP_BASEDN'), '(objectClass=*)', array('memberuid'));
+    $group = ldap_get_entries($this->server, $query);
+    if (isset($group[0]['memberuid']) and in_array($uid, $group[0]['memberuid'])) {
+      return 'kandidaatlid';
+    }
+
+    // Test for members
+    $query = ldap_read($this->server, 'cn=leden,ou=groups,o=nieuwedelft,'.getenv('LDAP_BASEDN'), '(objectClass=*)', array('memberuid'));
+    $group = ldap_get_entries($this->server, $query);
+    if (isset($group[0]['memberuid']) and in_array($uid, $group[0]['memberuid'])) {
+      return 'lid';
+    }
+
+    // Test for past members
+    $query = ldap_read($this->server, 'cn=oud-leden,ou=groups,o=nieuwedelft,'.getenv('LDAP_BASEDN'), '(objectClass=*)', array('memberuid'));
+    $group = ldap_get_entries($this->server, $query);
+    if (isset($group[0]['memberuid']) and in_array($uid, $group[0]['memberuid'])) {
+      return 'oudlid';
+    }
+
+    // Not a member
+    return 'geen lid';
   }
 }

@@ -1,11 +1,12 @@
 <?php
-
 namespace Models;
 
 class Group
 {
+  protected $attributes;
+
   /**
-   * Constructs a new Person
+   * Constructs a new Group
    * @param array $attributes
    */
   public function __construct($attributes)
@@ -18,7 +19,7 @@ class Group
     $ldap = \Helper\LdapHelper::connect();
 
     $attributes = $ldap->flatten($ldap->get($dn, 'posixGroup'));
-    return new Person($attributes);
+    return new Group($attributes);
   }
 
   /**
@@ -39,10 +40,10 @@ class Group
    */
   public function hasMember($uid)
   {
-    if(!isset($attributes['memberuid']))
+    if(!isset($this->attributes['memberuid']))
       return false;
 
-    return in_array($uid, $attributes['memberuid']);
+    return in_array($uid, $this->attributes['memberuid']);
   }
 
   /**

@@ -2,6 +2,8 @@
 
 namespace Models;
 
+require_once('Group.php');
+
 class Person implements \JSONSerializable
 {
   private $attributes;
@@ -97,16 +99,15 @@ class Person implements \JSONSerializable
   public function membership()
   {
     $groups = array(
-      'lid' => 'cn=leden,ou=groups,o=nieuwedelft',
-      'kandidaatlid' => 'cn=kandidaatleden,ou=groups,o=nieuwedelft',
-      'oudlid' => 'cn=oud-leden,ou=groups,o=nieuwedelft',
+      'lid' => 'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+      'kandidaatlid' => 'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+      'oudlid' => 'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
     );
 
-    $ldap = \Helper\LdapHelper::connect();
-    foreach($groups as $status => $group)
+    foreach($groups as $status => $dn)
     {
-      $dn = $group . ',' . $ldap->basedn;
-      if($ldap->memberOf($dn, $this->attributes['uid']))
+      $group = Group::fromDn($dn);
+      if($group->hasMember($this->attributes['uid']))
         return $status;
     }
     

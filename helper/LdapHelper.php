@@ -68,21 +68,6 @@ class LdapHelper
     return $this->stripCounts($results);
   }
 
-  public function memberOf($groupdn, $uid)
-  {
-    $group = $this->get($groupdn, 'posixGroup', array('memberuid'));
-    if(!$group)
-      throw new Exception("Group '" . $groupdn . "' not found!");
-
-    if(!isset($group['memberuid']))
-      return false;
-
-    if(!in_array($uid, $group['memberuid']))
-      return false;
-
-    return true;
-  }
-
   public function get($dn, $objectClass = '*', $attributes = null)
   {
     $objectClass = $this->escapeArgument($objectClass);
@@ -121,7 +106,10 @@ class LdapHelper
     $result = array();
     foreach($ldap_object as $key => $value)
       if(!is_int($key))
-        $result[$key] = $value[0];
+        if(count($value) == 1)
+          $result[$key] = $value[0];
+        else
+          $result[$key] = $value;
 
     return $result;
   }

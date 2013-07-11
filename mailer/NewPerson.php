@@ -34,15 +34,21 @@ class NewPerson
                "MIME-Version: 1.0\r\n" .
                "Content-type: text/html; charset=utf-8\r\n";
 
+    // Construct mail parameters
+    $name = $this->name;
+    $password = $this->password;
+    $uid = $this->uid;
+    $sec_email = getenv('MAIL_FROM');
+
     // Build message
     $message = <<<MAIL
-    <p>Beste {$this->name},</p>
+    <p>Beste {$name},</p>
     <p>Je gegevens zijn toegevoegd aan de ledenadministratie van De Bolk. Je hebt hierdoor automatisch een Bolk-account gekregen. Hiermee heb je toegang tot verschillende systemen binnen De Bolk. Je account heeft nog wel een tijdelijk wachtwoord. Je moet dit wachtwoord veranderen om toegang te krijgen.</p>
     <ol>
-      <li>Maak een VPN-verbinding met De Bolk. Hoe dat moet kun je lezen <a href="http://wiki.debolk.nl/index.php/VPN">op de wiki</a>. Je gebruikersnaam is "{$this->uid}" en je (tijdelijke) wachtwoord "{$this->password}".</li>
-      <li>Ga naar de <a href="http://gosa.i.bolkhuis.nl/password.php?uid={$this->uid}&directory=BOLKHUIS">Gosa-interface</a> en stel een nieuw wachtwoord in. Gebruik als huidig wachtwoord "{$this->password}".
+      <li>Maak een VPN-verbinding met De Bolk. Hoe dat moet kun je lezen <a href="http://wiki.debolk.nl/index.php/VPN">op de wiki</a>. Je gebruikersnaam is "{$uid}" en je (tijdelijke) wachtwoord "{$password}".</li>
+      <li>Ga naar de <a href="http://gosa.i.bolkhuis.nl/password.php?uid={$uid}&directory=BOLKHUIS">Gosa-interface</a> en stel een nieuw wachtwoord in. Gebruik als huidig wachtwoord "{$password}".
       </ol>
-    <p>Als je nog vragen hebt, kun je contact opnemen met de secretaris via <a href="mailto:{getenv('MAIL_FROM')}">{getenv('MAIL_FROM')}</a> of in de sociëteit.</p>
+    <p>Als je nog vragen hebt, kun je contact opnemen met de secretaris via <a href="mailto:{$sec_email}">{$sec_email}</a> of in de sociëteit.</p>
 MAIL;
 
     // Send the e-mail

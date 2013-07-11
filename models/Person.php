@@ -73,4 +73,26 @@ class Person implements \JSONSerializable
     // Create and return model
     return new LDAPEntry($input);
   }
+
+  /**
+   * Gets a property of a Person
+   * @param  string $name the property to read
+   * @return mixed        the value of the property
+   */
+  public function __get($name)
+  {
+    if (isset($this->attributes[$name])) {
+      return $this->attributes[$name];
+    }
+  }
+
+  /**
+   * Sets a property of a Person
+   * @param string $name  the property to set
+   * @param mixed $value  the value to set
+   */
+  public function __set($name, $value)
+  {
+    $this->attributes[$name] = $value;
+  }
 }

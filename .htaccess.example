@@ -4,6 +4,8 @@ SetEnv LDAP_USERNAME          CN=user1,DC=foo,DC=net
 SetEnv LDAP_PASSWORD          password
 SetEnv LDAP_BASEDN            OU=sales,DC=foo,DC=net
 SetEnv BASE_URL               http://leden.i.bolkhuis.nl/
+SetEnv MAIL_FROM              ledenadministratie@nieuwedelft.nl
+SetEnv MAIL_REPLYTO           secretaris@nieuwedelft.nl
 
 # Rewriting requests
 RewriteEngine On

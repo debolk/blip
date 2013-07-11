@@ -2,6 +2,7 @@
 
 require_once('models/Person.php');
 require_once('models/LDAPEntry.php');
+require_once('mailer/NewPerson.php');
 
 class LDAP
 {
@@ -112,17 +113,23 @@ class LDAP
    */
   public function create($entry)
   {
+    // Parse the entry
     $entry = new Models\Person($entry);
+
+    // Generate some useful attributes
+    $uid = $this->find_free_uid($entry);
+    $uid_number = $this->get_new_uid_number();
+    $name = $entry->name();
+
+    // Convert the model to an array for insertion in LDAP
     $entry = $entry->to_LDAPEntry()->to_array();
 
-    // Generate some required attributes
-    $uid = $entry['uid'] = $this->find_free_uid($entry);
-    $uid_number = $entry['uidnumber'] = $this->get_new_uid_number($entry);
-
-    // Generate default attributes not supplied by the user
+    // Create default attributes not supplied by the user
     $entry = array_merge([
-      'cn' => $entry->name(),
-      'gecos' => $entry->name(),
+      'uid' => $uid,
+      'uidnumber' => $uid_number,
+      'cn' => $name,
+      'gecos' => $name,
       'objectClass' => ['top', 'person', 'organizationalPerson', 'iNetOrgPerson','gosaAccount','posixAccount','shadowAccount','sambaSamAccount','sambaIdmapEntry','pptpServerAccount','gosaMailAccount','gosaIntranetAccount'],
       'gosamaildeliverymode' => '[L]',
       'gosamailserver' => 'mail',
@@ -147,6 +154,10 @@ class LDAP
 
     // Create LDAP-entry
     $success = ldap_add($this->server, "uid=$uid,ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl", $entry);
+
+    // Send an email
+    $mail = new Mailer\NewPerson($entry['mail'], $uid, $entry['cn'], $entry['userpassword']);
+    $mail->send();
 
     // Return the new user
     return $this->find($uid);
@@ -202,11 +213,11 @@ class LDAP
     // Try sensible options first
     $options = [];
 
-    if (! empty($data['initials'])) {
-      $options[] = strtolower($data['initials'][0].$data['sn']);
-      $options[] = strtolower($data['initials'].$data['sn']);
+    if (! empty($data->initials)) {
+      $options[] = strtolower($data->initials[0].$data->lastname);
+      $options[] = strtolower($data->initials.$data->lastname);
     }
-    $options[] = strtolower($data['givenname'].$data['sn']);
+    $options[] = strtolower($data->firstname.$data->lastname);
 
     foreach ($options as $candidate_uid) {
       if (! $this->user_exists($candidate_uid)) {
@@ -216,13 +227,11 @@ class LDAP
 
     // Try a numbered option
     for ($i=1; true; $i++) { 
-      $candidate_uid = strtolower($data['givenname'].$data['sn']).$i;
+      $candidate_uid = strtolower($data->firstname.$data->lastname).$i;
       if (! $this->user_exists($candidate_uid)) {
         return $candidate_uid;
       }
     }
-
-    throw new Exception('Cannot create user: All UIDs taken');
   }
 
   /**

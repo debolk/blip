@@ -28,21 +28,44 @@ class MemberCollection extends BlipResource
 
   private function all()
   {
-    return new Tonic\Response(200, json_encode($this->ldap->find_all_members(), JSON_UNESCAPED_SLASHES));
+    $groups = array(
+      'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+      'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+      'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+    );
+
+    $people = Models\Group::peopleInGroups($groups);
+    return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
   }
 
   private function current()
   {
-    return new Tonic\Response(200, json_encode($this->ldap->find_current_members(), JSON_UNESCAPED_SLASHES));
+    $groups = array(
+      'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+      'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+    );
+
+    $people = Models\Group::peopleInGroups($groups);
+    return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
   }
 
   private function candidate()
   {
-    return new Tonic\Response(200, json_encode($this->ldap->find_candidate_members(), JSON_UNESCAPED_SLASHES));
+    $groups = array(
+      'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+    );
+
+    $people = Models\Group::peopleInGroups($groups);
+    return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
   }
 
   private function past()
   {
-    return new Tonic\Response(200, json_encode($this->ldap->find_past_members(), JSON_UNESCAPED_SLASHES));
+    $groups = array(
+      'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+    );
+
+    $people = Models\Group::peopleInGroups($groups);
+    return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
   }
 }

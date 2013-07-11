@@ -23,6 +23,21 @@ class Group
   }
 
   /**
+   * Returns the People in an array of groups
+   * @param array $groups  An array of DNs to look up
+   * @return array         The people in the specified groups
+   */
+  public static function peopleInGroups($groups)
+  {
+    $results = array();
+
+    foreach($groups as $group)
+      $results = array_merge($results, Group::fromDn($group)->people());
+
+    return $results;
+  }
+
+  /**
    * Gets a property of a Group
    * @param  string $name the property to read
    * @return mixed        the value of the property
@@ -32,6 +47,22 @@ class Group
     if (isset($this->attributes[$name])) {
       return $this->attributes[$name];
     }
+  }
+
+  /**
+   * Returns the array of people that belong to this group
+   * @return array   The array of People in this group
+   */
+  public function people()
+  {
+    $result = array();
+    if(!isset($this->attributes['memberuid']))
+      return $result;
+
+    foreach($this->attributes['memberuid'] as $uid)
+      $result[] = Person::fromUid($uid);
+
+    return $result;
   }
 
   /**

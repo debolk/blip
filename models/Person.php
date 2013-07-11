@@ -46,17 +46,21 @@ class Person implements \JSONSerializable
     return new Person($attributes);
   }
 
-  public static function all()
+  public static function where($query)
   {
     $ldap = \Helper\LdapHelper::connect();
-
-    $query = $ldap->search('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate))(!(uid=nobody)))');
-
+    $search = $ldap->search('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate))(!(uid=nobody))' . $query . ')');
+    
     $results = array();
-    foreach($query as $object)
+    foreach($search as $object)
       $results[] = new Person($ldap->flatten($object));
 
     return $results;
+  }
+
+  public static function all()
+  {
+    return self::where("");
   }
 
   public function to_array()

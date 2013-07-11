@@ -52,7 +52,7 @@ class Person implements \JSONSerializable
 
     $results = array();
     foreach($query as $object)
-      $results[] = new Person($ldap->flatten($attributes));
+      $results[] = new Person($ldap->flatten($object));
 
     return $results;
   }

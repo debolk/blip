@@ -56,7 +56,11 @@ class LdapHelper
     if($basedn == null)
       $basedn = $this->basedn;
 
-    $query = ldap_search($this->ldap, $basedn, $filter, $attributes);
+    if($attributes == null)
+      $query = ldap_search($this->ldap, $basedn, $filter);
+    else
+      $query = ldap_search($this->ldap, $basedn, $filter, $attributes);
+
     if(!$query)
       return array();
 

@@ -30,6 +30,7 @@ class LDAP
    */
   public function find_all()
   {
+    throw new Exception('deprecated');
     $result = $this->ldap_find('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate))(!(uid=nobody)))', array());
     return array_map(function($entry){
       return Models\LDAPEntry::from_result($entry)->to_Person();

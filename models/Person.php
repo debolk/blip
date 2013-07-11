@@ -44,6 +44,28 @@ class Person implements \JSONSerializable
     return new Person($attributes);
   }
 
+  public static function all()
+  {
+    $ldap = \Helper\LdapHelper::connect();
+
+    $query = $ldap->search('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate))(!(uid=nobody)))');
+
+    $results = array();
+    foreach($query as $object)
+      $results[] = new Person($ldap->flatten($attributes));
+
+    return $results;
+  }
+
+  public function to_array()
+  {
+    return array_merge($this->attributes, [
+      'href' => getenv('BASE_URL').'persons/'.$this->attributes['uid'],
+      'name' => $this->name(),
+      'membership' => $this->membership(),
+    ]);
+  }
+
   /**
    * The full name of this person
    * @return string
@@ -97,11 +119,7 @@ class Person implements \JSONSerializable
    */
   public function jsonSerialize()
   {
-    return array_merge($this->attributes, [
-      'href' => getenv('BASE_URL').'persons/'.$this->attributes['uid'],
-      'name' => $this->name(),
-      'membership' => $this->membership(),
-    ]);
+    return $this->to_array();
   }
 
   /**

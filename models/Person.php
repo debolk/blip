@@ -6,7 +6,20 @@ require_once('Group.php');
 
 class Person implements \JSONSerializable
 {
-  private $attributes;
+  private $attributes = array();
+  private $ldapPerson = null;
+
+  public $allowed = array(
+    'initials',
+    'fistname',
+    'lastname',
+    'email',
+    'phone',
+    'mobile',
+    'phone_parents',
+    'address',
+    'dateofbirth'
+  );
   
   protected $renaming = array(
     'uid' => 'uid',
@@ -19,19 +32,34 @@ class Person implements \JSONSerializable
     'address' => 'homepostaladdress',
   );
 
+  protected $groupIds = array(
+    'lid' => 1025,
+    'kandidaatlid' => 1084,
+    'oud-leden' => 1095,
+    'geen lid' => 1097,
+  );
+
   protected $dirty = array();
 
   /**
    * Constructs a new Person
    * @param array $attributes
    */
-  public function __construct($attributes)
+  public function __construct($attributes = array())
   {
-    $this->attributes = array();
+    $this->attributes = $attributes;
+  }
 
-    foreach($this->renaming as $local => $ldap)
-      if(isset($attributes[$ldap]))
-        $this->attributes[$local] = $attributes[$ldap];
+  public static function fromLdapPerson($person)
+  {
+    $result = new self();
+    foreach($result->renaming as $local => $ldap)
+      if(isset($person->$ldap))
+        $result->attributes[$local] = $person->$ldap;
+
+    $result->ldapPerson = $person;
+
+    return $result;
   }
 
   /**
@@ -42,14 +70,11 @@ class Person implements \JSONSerializable
    */
   public static function fromUid($uid)
   {
-    $ldap = \Helper\LdapHelper::connect();
-    $dn = $ldap->getDn($uid);
-
-    if(!$dn)
+    $person = LdapPerson::fromUid($uid);
+    if(!$person)
       throw new \Exception('User not found!');
 
-    $attributes = $ldap->flatten($ldap->get($dn, 'iNetOrgPerson'));
-    return new Person($attributes);
+    return self::fromLdapPerson($person);
   }
 
   public static function where($query)
@@ -73,6 +98,50 @@ class Person implements \JSONSerializable
   {
     return self::where("");
   }
+
+  public function save()
+  {
+    if($this->ldapPerson == null)
+    {
+      $this->attributes['uid'] = $this->findUid();
+      $this->ldapPerson = LdapPerson::fromPerson($this);
+    } else {
+      $this->ldapPerson->mergePerson($this);
+    }
+
+    $this->ldapPerson->save();
+  }
+
+  protected function findUid()
+  {
+    $ldap = \Helper\LdapHelper::connect();
+
+    // Try sensible options first
+    $options = [];
+
+    if (! empty($this->attributes['initials'])) {
+      $options[] = strtolower($this->attributes['initials'][0].$this->attributes['lastname']);
+      $options[] = strtolower($this->attributes['initials'].$this->attributes['lastname']);
+    }
+    $options[] = strtolower($this->attributes['firstname'].$this->attributes['lastname']);
+
+    foreach ($options as $candidate_uid) {
+      if (! $ldap->getDn($candidate_uid)) {
+        return $candidate_uid;
+      }
+    }
+
+    // Try a numbered option
+    for ($i=1; true; $i++) { 
+      $candidate_uid = strtolower($this->attributes['firstname'].$this->attributes['lastname']).$i;
+      if (! $ldap->getDn($candidate_uid)) {
+        return $candidate_uid;
+      }
+    }
+
+  }
+
+  
 
   /**
    * Returns an array-representation of this Person

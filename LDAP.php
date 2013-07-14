@@ -25,45 +25,6 @@ class LDAP
   }
 
   /**
-   * Find the information of a specific member
-   * @param int $uid the id of the member to find
-   * @throws LDAPNotFoundException if the member doesn't exist
-   * @return Models\Person or null if the person does not exist
-   */
-  public function find($uid)
-  {
-    throw new Exception('deprecated');
-    // Retrieve results
-    $search = ldap_search($this->server, getenv('LDAP_BASEDN'), "(uid=$uid)", array());
-    $result = ldap_get_entries($this->server, $search);
-
-    // Remove the first, useless entry
-    array_shift($result);
-
-    // Person doesn't exist
-    if (empty($result)) {
-      return null;
-    }
-
-    // Find and append its membership status
-    $result[0]['membership'] = array($this->determine_membership($uid));
-
-    // Return a resource object
-    return Models\LDAPEntry::from_result($result[0])->to_Person();
-  }
-
-  /**
-   * Returns whether a user with a given uid exists
-   * @param string $uid the UID of the user to find
-   * @return boolean whether the user exists
-   */
-  public function user_exists($uid)
-  {
-    $search = ldap_search($this->server, getenv('LDAP_BASEDN'), "(uid=$uid)", array());
-    return (ldap_count_entries($this->server, $search) > 0);
-  }
-
-  /**
    * Creates a new LDAP-entry on the server
    * @param  entry $stdClass
    * @return string the UID of the newly created entry or null on failure
@@ -110,6 +71,7 @@ class LDAP
     ], $entry);
 
     // Create LDAP-entry
+    die ($uid);
     $success = ldap_add($this->server, "uid=$uid,ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl", $entry);
 
     // Send an email

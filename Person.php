@@ -40,7 +40,9 @@ class PersonCollection extends BlipResource
     }
 
     // Create the user
-    return new Tonic\Response(200, json_encode($this->ldap->create($candidate), JSON_UNESCAPED_SLASHES));
+    $person = new Models\Person((array)$candidate);
+    $person->save();
+    return new Tonic\Response(200, json_encode($person->to_array(), JSON_UNESCAPED_SLASHES));
   }
 }
 
@@ -88,6 +90,14 @@ class PersonResource extends BlipResource
     }
 
     // Update the user
-    return new Tonic\Response(200, json_encode($this->ldap->update($uid, $candidate), JSON_UNESCAPED_SLASHES));
+    $person = Models\Person::fromUid($uid);
+
+    foreach($candidate as $key => $value)
+    {
+      if(in_array($key, $person->allowed))
+        $person->$key = $value;
+    }
+    $person->save();
+    return new Tonic\Response(200, json_encode($person->to_array(), JSON_UNESCAPED_SLASHES));
   }
 }

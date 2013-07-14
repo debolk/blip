@@ -117,9 +117,11 @@ class LdapHelper
    * @param  array $attributes   array of attributes to return
    * @return array               filtered array of desired attributes, or false if the entry was not found
    */
-  public function get($dn, $objectClass = '*', $attributes = null)
+  public function get($dn, $objectClass = null, $attributes = null)
   {
     $objectClass = $this->escapeArgument($objectClass);
+    if($objectClass == null)
+      $objectClass = '*';
     $query = '(objectClass=' . $objectClass . ')';
 
     if($attributes == null)
@@ -134,6 +136,28 @@ class LdapHelper
     $result = $results[0];
 
     return $this->stripCounts($result);
+  }
+
+  /**
+   * Adds an object to ldap
+   * @param string $dn          DN of the entry
+   * @param array  $data        the data the object should contain
+   * @return bool               TRUE on success or FALSE on failure
+   */
+  public function add($dn, $data)
+  {
+    return ldap_add($this->ldap, $dn, $data);
+  }
+
+  /**
+   * Modifies an object in ldap
+   * @param string $dn          DN of the entry
+   * @param array  $data        the changed data the object should contain
+   * @return bool               TRUE on success or FALSE on failure
+   */
+  public function modify($dn, $data)
+  {
+    return ldap_modify($this->ldap, $dn, $data);
   }
 
   /**
@@ -165,7 +189,7 @@ class LdapHelper
     $result = array();
     foreach($ldap_object as $key => $value)
       if(!is_int($key))
-        if(count($value) == 1)
+        if(is_array($value) && count($value) == 1)
           $result[$key] = $value[0];
         else
           $result[$key] = $value;

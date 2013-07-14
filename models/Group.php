@@ -13,6 +13,11 @@ class Group
     $this->attributes = $attributes;
   }
 
+  /**
+   * Construct a Person-object from its DN
+   * @param  string $dn DN to load
+   * @return Person     complete Person-object
+   */
   public static function fromDn($dn)
   {
     $ldap = \Helper\LdapHelper::connect();

@@ -3,8 +3,15 @@ namespace Helper;
 
 class LdapHelper
 {
+  /**
+   * Stores the singleton instance of this class
+   * @var LdapHelper
+   */
   static private $instance = null;
 
+  /**
+   * Return a singleton connection to the LDAP-server
+   */
   static function Connect() {
     if(self::$instance == null)
       self::$instance = new LdapHelper;
@@ -12,15 +19,32 @@ class LdapHelper
     return self::$instance;
   }
 
+  /**
+   * Connection to the LDAP-server
+   * @var resource
+   */
   protected $ldap;
+
+  /**
+   * Base DN of all LDAP-entries
+   * @var string
+   */
   public $basedn;
 
+  /**
+   * Connect to the LDAP-server and set basic configuration
+   */
   public function __construct()
   {
     $this->ldap = ldap_connect(getenv('LDAP_HOST'));
     $this->basedn = getenv('LDAP_BASEDN');
   }
 
+  /**
+   * Escape arguments for safe searches in LDAP
+   * @param  string $argument argument to escape
+   * @return string           escaped string
+   */
   public function escapeArgument($argument)
   {
     $sanitized=array('\\' => '\5c',
@@ -31,6 +55,11 @@ class LdapHelper
     return str_replace(array_keys($sanitized),array_values($sanitized),$argument);
   }
 
+  /**
+   * Returns the full DN for a LDAP-entry
+   * @param  string $uid the UID to find
+   * @return string      full DN
+   */
   public function getDn($uid)
   {
     $uid = $this->escapeArgument($uid);
@@ -44,6 +73,12 @@ class LdapHelper
     return $users[0]['dn'];
   }
 
+  /**
+   * Binds to the LDAP-server
+   * @param  string $dn   the full DN of the user to bind to
+   * @param  string $pass password
+   * @return boolean      whether the bind succeeded
+   */
   public function bind($dn, $pass)
   {
     if(!$dn || empty($pass))
@@ -51,6 +86,13 @@ class LdapHelper
     return ldap_bind($this->ldap, $dn, $pass);
   }
 
+  /**
+   * Searches an LDAP-entry
+   * @param  string $filter     the filter to use
+   * @param  array $attributes  attributes to include in the result set
+   * @param  string $basedn     the DN to search
+   * @return array              a filtered array of results (without counts)
+   */
   public function search($filter, $attributes = null, $basedn = null)
   {
     if($basedn == null)
@@ -68,6 +110,12 @@ class LdapHelper
     return $this->stripCounts($results);
   }
 
+  /**
+   * Finds whether an user is a member of a group
+   * @param  string $groupdn DN of the group
+   * @param  string $uid     UID of the user
+   * @return boolean         whether the user is included in the group
+   */
   public function memberOf($groupdn, $uid)
   {
     $group = $this->get($groupdn, 'posixGroup', array('memberuid'));
@@ -83,6 +131,13 @@ class LdapHelper
     return true;
   }
 
+  /**
+   * Gets an entry from LDAP
+   * @param  string $dn          DN of the entry
+   * @param  string $objectClass optional objectClass filter, default *
+   * @param  array $attributes   array of attributes to return
+   * @return array               filtered array of desired attributes, or false if the entry was not found
+   */
   public function get($dn, $objectClass = '*', $attributes = null)
   {
     $objectClass = $this->escapeArgument($objectClass);
@@ -102,6 +157,11 @@ class LdapHelper
     return $this->stripCounts($result);
   }
 
+  /**
+   * Recursively strip all unneeded 'count' parameters from a LDAP-result
+   * @param  array $array array to filter
+   * @return array        filtered array
+   */
   protected function stripCounts($array)
   {
     $result = array();
@@ -116,6 +176,11 @@ class LdapHelper
     return $result;
   }
 
+  /**
+   * Flatten a LDAP-object
+   * @param  object $ldap_object object to flatten
+   * @return object              flattened object
+   */
   public function flatten($ldap_object)
   {
     $result = array();

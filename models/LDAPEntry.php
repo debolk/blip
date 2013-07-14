@@ -8,7 +8,8 @@ class LDAPEntry
 
   /**
    * Converts a LDAP-resultset to a LDAPEntry-instance
-   * @class  array $entry
+   * @static
+   * @param  array $entry
    * @return Models\LDAPEntry
    */
   public static function from_result($entry)

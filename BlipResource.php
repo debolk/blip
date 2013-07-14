@@ -21,7 +21,7 @@ class BlipResource extends Tonic\Resource
 
   /**
    * Formats error messages in a human-readable format
-   * @param array the set of error messages
+   * @param  array  the set of error messages
    * @return string
    */
   protected function format_errors($array)
@@ -35,9 +35,9 @@ class BlipResource extends Tonic\Resource
 
   /**
    * Applies default rules to validate a person
-   * @param Valitron\Validator $v validator instance to use
-   * @param boolean $required whether to require the presence of specific attributes
-   * @return Valitron\Validator the validator with the extra rules
+   * @param  Valitron\Validator $v        validator instance to use
+   * @param  boolean            $required whether to require the presence of specific attributes
+   * @return Valitron\Validator           the validator with the extra rules
    */
   protected function validation_rules($v, $required = true)
   {

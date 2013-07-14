@@ -34,6 +34,12 @@ class Person implements \JSONSerializable
         $this->attributes[$local] = $attributes[$ldap];
   }
 
+  /**
+   * Constructs a new Person based off its UID
+   * @static
+   * @param  string $uid UID of the Person to find
+   * @return Person      complete Person-object
+   */
   public static function fromUid($uid)
   {
     $ldap = \Helper\LdapHelper::connect();
@@ -58,11 +64,20 @@ class Person implements \JSONSerializable
     return $results;
   }
 
+  /**
+   * Returns all users from LDAP
+   * @static
+   * @return array[Person] all persons
+   */
   public static function all()
   {
     return self::where("");
   }
 
+  /**
+   * Returns an array-representation of this Person
+   * @return array representation of this Person
+   */
   public function to_array()
   {
     return array_merge($this->attributes, [

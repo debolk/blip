@@ -25,58 +25,6 @@ class LDAP
   }
 
   /**
-   * Find the information of every member
-   * @return array[Models\Person]
-   */
-  public function find_all()
-  {
-    throw new Exception('deprecated');
-    $result = $this->ldap_find('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate))(!(uid=nobody)))', array());
-    return array_map(function($entry){
-      return Models\LDAPEntry::from_result($entry)->to_Person();
-    }, $result);
-  }
-
-  /**
-   * Finds all current, past and candidate members
-   * @return array[Models\Person]
-   */
-  public function find_all_members()
-  {
-    $members = $this->ldap_group_members('cn=leden,ou=groups,o=nieuwedelft');
-    $members = array_merge($members, $this->ldap_group_members('cn=kandidaatleden,ou=groups,o=nieuwedelft'));
-    $members = array_merge($members, $this->ldap_group_members('cn=oud-leden,ou=groups,o=nieuwedelft'));
-    return $members;
-  }
-
-  /**
-   * Finds all current members
-   * @return array[Models\Person]
-   */
-  public function find_current_members()
-  {
-    return $this->ldap_group_members('cn=leden,ou=groups,o=nieuwedelft');
-  }
-
-  /**
-   * Finds all candidate members
-   * @return array[Models\Person]
-   */
-  public function find_candidate_members()
-  {
-    return $this->ldap_group_members('cn=kandidaatleden,ou=groups,o=nieuwedelft');
-  }
-
-  /**
-   * Finds all past members
-   * @return array[Models\Person]
-   */
-  public function find_past_members()
-  {
-    return $this->ldap_group_members('cn=oud-leden,ou=groups,o=nieuwedelft');
-  }
-
-  /**
    * Find the information of a specific member
    * @param int $uid the id of the member to find
    * @throws LDAPNotFoundException if the member doesn't exist
@@ -84,6 +32,7 @@ class LDAP
    */
   public function find($uid)
   {
+    throw new Exception('deprecated');
     // Retrieve results
     $search = ldap_search($this->server, getenv('LDAP_BASEDN'), "(uid=$uid)", array());
     $result = ldap_get_entries($this->server, $search);

@@ -1,11 +1,12 @@
 <?php
-
 namespace Models;
 
 class Group
 {
+  protected $attributes;
+
   /**
-   * Constructs a new Person
+   * Constructs a new Group
    * @param array $attributes
    */
   public function __construct($attributes)
@@ -24,7 +25,22 @@ class Group
     $ldap = \Helper\LdapHelper::connect();
 
     $attributes = $ldap->flatten($ldap->get($dn, 'posixGroup'));
-    return new Person($attributes);
+    return new Group($attributes);
+  }
+
+  /**
+   * Returns the People in an array of groups
+   * @param array $groups  An array of DNs to look up
+   * @return array         The people in the specified groups
+   */
+  public static function peopleInGroups($groups)
+  {
+    $results = array();
+
+    foreach($groups as $group)
+      $results = array_merge($results, Group::fromDn($group)->people());
+
+    return $results;
   }
 
   /**
@@ -40,15 +56,31 @@ class Group
   }
 
   /**
+   * Returns the array of people that belong to this group
+   * @return array   The array of People in this group
+   */
+  public function people()
+  {
+    $result = array();
+    if(!isset($this->attributes['memberuid']))
+      return $result;
+
+    foreach($this->attributes['memberuid'] as $uid)
+      $result[] = Person::fromUid($uid);
+
+    return $result;
+  }
+
+  /**
    * @param string $uid the uid to look up
    * @return bool       wether the uid belongs to this group
    */
   public function hasMember($uid)
   {
-    if(!isset($attributes['memberuid']))
+    if(!isset($this->attributes['memberuid']))
       return false;
 
-    return in_array($uid, $attributes['memberuid']);
+    return in_array($uid, $this->attributes['memberuid']);
   }
 
   /**

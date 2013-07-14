@@ -111,27 +111,6 @@ class LdapHelper
   }
 
   /**
-   * Finds whether an user is a member of a group
-   * @param  string $groupdn DN of the group
-   * @param  string $uid     UID of the user
-   * @return boolean         whether the user is included in the group
-   */
-  public function memberOf($groupdn, $uid)
-  {
-    $group = $this->get($groupdn, 'posixGroup', array('memberuid'));
-    if(!$group)
-      throw new Exception("Group '" . $groupdn . "' not found!");
-
-    if(!isset($group['memberuid']))
-      return false;
-
-    if(!in_array($uid, $group['memberuid']))
-      return false;
-
-    return true;
-  }
-
-  /**
    * Gets an entry from LDAP
    * @param  string $dn          DN of the entry
    * @param  string $objectClass optional objectClass filter, default *
@@ -186,7 +165,10 @@ class LdapHelper
     $result = array();
     foreach($ldap_object as $key => $value)
       if(!is_int($key))
-        $result[$key] = $value[0];
+        if(count($value) == 1)
+          $result[$key] = $value[0];
+        else
+          $result[$key] = $value;
 
     return $result;
   }

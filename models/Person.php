@@ -2,6 +2,8 @@
 
 namespace Models;
 
+require_once('Group.php');
+
 class Person implements \JSONSerializable
 {
   private $attributes;
@@ -50,6 +52,18 @@ class Person implements \JSONSerializable
     return new Person($attributes);
   }
 
+  public static function where($query)
+  {
+    $ldap = \Helper\LdapHelper::connect();
+    $search = $ldap->search('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate))(!(uid=nobody))' . $query . ')');
+    
+    $results = array();
+    foreach($search as $object)
+      $results[] = new Person($ldap->flatten($object));
+
+    return $results;
+  }
+
   /**
    * Returns all users from LDAP
    * @static
@@ -57,15 +71,7 @@ class Person implements \JSONSerializable
    */
   public static function all()
   {
-    $ldap = \Helper\LdapHelper::connect();
-
-    $query = $ldap->search('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate))(!(uid=nobody)))');
-
-    $results = array();
-    foreach($query as $object)
-      $results[] = new Person($ldap->flatten($object));
-
-    return $results;
+    return self::where("");
   }
 
   /**
@@ -112,16 +118,15 @@ class Person implements \JSONSerializable
   public function membership()
   {
     $groups = array(
-      'lid' => 'cn=leden,ou=groups,o=nieuwedelft',
-      'kandidaatlid' => 'cn=kandidaatleden,ou=groups,o=nieuwedelft',
-      'oudlid' => 'cn=oud-leden,ou=groups,o=nieuwedelft',
+      'lid' => 'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+      'kandidaatlid' => 'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+      'oudlid' => 'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
     );
 
-    $ldap = \Helper\LdapHelper::connect();
-    foreach($groups as $status => $group)
+    foreach($groups as $status => $dn)
     {
-      $dn = $group . ',' . $ldap->basedn;
-      if($ldap->memberOf($dn, $this->attributes['uid']))
+      $group = Group::fromDn($dn);
+      if($group->hasMember($this->attributes['uid']))
         return $status;
     }
     

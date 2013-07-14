@@ -16,7 +16,6 @@ class PersonCollection extends BlipResource
   public function index()
   {
     return json_encode(Models\Person::all(), JSON_UNESCAPED_SLASHES);
-    //return json_encode($this->ldap->find_all(), JSON_UNESCAPED_SLASHES);
   }
 
   /**

@@ -32,6 +32,7 @@ class MemberCollection extends BlipResource
       'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
       'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
       'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+      'cn=ledenvanverdienste,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
     );
 
     $people = Models\LdapGroup::peopleInGroups($groups);

@@ -39,6 +39,13 @@ class Person implements \JSONSerializable
     'gender' => 'gender',
   );
 
+  protected $additionalClasses = array(
+    'lid' => array('pptpServerAccount', 'gosaIntranetAccount'),
+    'oudlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
+    'geen lid' => array(),
+    'kandidaatlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
+  );
+
   /**
    * The mapping from membership status to guidnumber
    */
@@ -250,10 +257,19 @@ class Person implements \JSONSerializable
     
     return 'geen lid';
   }
-
+  
+  /**
+   * Adds this user to the group belonging to the new membership status
+   * and saves the member
+   * @param string $membership      the new membership status
+   */
   public function setMembership($membership)
   {
     if(!array_key_exists($membership, LdapGroup::$memberGroups))
+      return;
+
+    $prev = $this->membership();
+    if($membership == $prev)
       return;
 
     //Remove from current groups
@@ -268,6 +284,35 @@ class Person implements \JSONSerializable
     $group = LdapGroup::fromDn(LdapGroup::$memberGroups[$membership]);
     $group->addMember($this->attributes['uid']);
     $group->save();
+
+    $this->save();
+
+    //Remove objectclasses from previous status
+    foreach($this->additionalClasses[$prev] as $class)
+    {
+      if(!in_array($class, $this->ldapPerson->objectclass))
+        continue;
+
+      $new = array();
+      foreach($this->ldapPerson->objectclass as $prevclass)
+        if($prevclass != $class)
+          $new[] = $prevclass;
+
+      $this->ldapPerson->objectclass = $new;
+    }
+
+    //Add new objectclasses
+    foreach($this->additionalClasses[$membership] as $class)
+    {
+      if(in_array($class, $this->ldapPerson->objectclass))
+        continue;
+
+      $new = array_merge($this->ldapPerson->objectclass, array($class));
+      print_r($new);
+      $this->ldapPerson->objectclass = $new;
+    }
+    
+    $this->save();
   }
 
   /**

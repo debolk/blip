@@ -34,7 +34,7 @@ class MemberCollection extends BlipResource
       'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
     );
 
-    $people = Models\Group::peopleInGroups($groups);
+    $people = Models\LdapGroup::peopleInGroups($groups);
     return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
   }
 
@@ -45,7 +45,7 @@ class MemberCollection extends BlipResource
       'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
     );
 
-    $people = Models\Group::peopleInGroups($groups);
+    $people = Models\LdapGroup::peopleInGroups($groups);
     return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
   }
 
@@ -55,7 +55,7 @@ class MemberCollection extends BlipResource
       'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
     );
 
-    $people = Models\Group::peopleInGroups($groups);
+    $people = Models\LdapGroup::peopleInGroups($groups);
     return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
   }
 
@@ -65,7 +65,7 @@ class MemberCollection extends BlipResource
       'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
     );
 
-    $people = Models\Group::peopleInGroups($groups);
+    $people = Models\LdapGroup::peopleInGroups($groups);
     return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
   }
 }

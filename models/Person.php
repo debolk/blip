@@ -21,6 +21,7 @@ class Person implements \JSONSerializable
     'address',
     'dateofbirth',
     'gender',
+    'membership',
   );
   
   /**
@@ -44,7 +45,7 @@ class Person implements \JSONSerializable
   protected $groupIds = array(
     'lid' => 1025,
     'kandidaatlid' => 1084,
-    'oud-leden' => 1095,
+    'oudlid' => 1095,
     'geen lid' => 1097,
   );
 
@@ -252,7 +253,21 @@ class Person implements \JSONSerializable
 
   public function setMembership($membership)
   {
+    if(!array_key_exists($membership, LdapGroup::$memberGroups))
+      return;
 
+    //Remove from current groups
+    foreach(LdapGroup::$memberGroups as $type => $dn)
+    {
+      $group = LdapGroup::fromDn($dn);
+      $group->removeMember($this->attributes['uid']);
+      $group->save();
+    }
+    
+    //Add to new group
+    $group = LdapGroup::fromDn(LdapGroup::$memberGroups[$membership]);
+    $group->addMember($this->attributes['uid']);
+    $group->save();
   }
 
   /**
@@ -283,6 +298,11 @@ class Person implements \JSONSerializable
    */
   public function __set($name, $value)
   {
+    if($name == "membership")
+    {
+      $this->setMembership($value);
+      return;
+    }
     $this->attributes[$name] = $value;
     $dirty[$name] = true;
   }

@@ -3,8 +3,6 @@ namespace Models;
 
 class LdapGroup extends LdapObject
 {
-  protected $attributes;
-
   /**
    * The mappings from membership status to the group they should belong to
    */
@@ -19,9 +17,9 @@ class LdapGroup extends LdapObject
    * Constructs a new Group
    * @param array $attributes
    */
-  public function __construct($attributes)
+  public function __construct($attributes = array())
   {
-    $this->attributes = $attributes;
+    parent::__construct($attributes);
   }
 
   /**
@@ -35,7 +33,10 @@ class LdapGroup extends LdapObject
     $ldap = \Helper\LdapHelper::connect();
 
     $attributes = $ldap->flatten($ldap->get($dn, 'posixGroup'));
-    return new self($attributes);
+    $result = new self($attributes);
+    $result->exists = true;
+    $result->dn = $dn;
+    return $result;
   }
 
   /**
@@ -48,21 +49,9 @@ class LdapGroup extends LdapObject
     $results = array();
 
     foreach($groups as $group)
-      $results = array_merge($results, Group::fromDn($group)->people());
+      $results = array_merge($results, self::fromDn($group)->people());
 
     return $results;
-  }
-
-  /**
-   * Gets a property of a Group
-   * @param  string $name the property to read
-   * @return mixed        the value of the property
-   */
-  public function __get($name)
-  {
-    if (isset($this->attributes[$name])) {
-      return $this->attributes[$name];
-    }
   }
 
   /**
@@ -74,6 +63,10 @@ class LdapGroup extends LdapObject
     $result = array();
     if(!isset($this->attributes['memberuid']))
       return $result;
+    
+    //Convert to array if this is a string 
+    if(is_string($this->attributes['memberuid']))
+      $this->attributes['memberuid'] = array($this->attributes['memberuid']);
 
     foreach($this->attributes['memberuid'] as $uid)
       $result[] = Person::fromUid($uid);
@@ -90,17 +83,41 @@ class LdapGroup extends LdapObject
     if(!isset($this->attributes['memberuid']))
       return false;
 
+    if(is_string($this->attributes['memberuid']))
+      return $this->attributes['memberuid'] == $uid;
+
     return in_array($uid, $this->attributes['memberuid']);
   }
 
-  /**
-   * Sets a property of a Group
-   * @param string $name  the property to set
-   * @param mixed $value  the value to set
-   */
-  public function __set($name, $value)
+  public function addMember($uid)
   {
-    $this->attributes[$name] = $value;
-    $dirty[$name] = true;
+    if(!isset($this->attributes['memberuid']))
+      $this->attributes['memberuid'] = array();
+   
+    //Convert to array if this is a string 
+    if(is_string($this->attributes['memberuid']))
+      $this->attributes['memberuid'] = array($this->attributes['memberuid']);
+
+    $this->__set('memberuid', array_merge($this->attributes['memberuid'], array($uid)));
+  }
+
+  public function removeMember($uid)
+  {
+    if(!isset($this->attributes['memberuid']))
+      return;
+
+    //Convert to array if this is a string 
+    if(is_string($this->attributes['memberuid']))
+      $this->attributes['memberuid'] = array($this->attributes['memberuid']);
+
+    if(!in_array($uid, $this->attributes['memberuid']))
+      return;
+
+    $new = array();
+    foreach($this->attributes['memberuid'] as $name)
+      if($name != $uid)
+        $new[] = $name;
+
+    $this->__set('memberuid', $new);
   }
 }

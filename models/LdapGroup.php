@@ -1,9 +1,19 @@
 <?php
 namespace Models;
 
-class Group
+class LdapGroup extends LdapObject
 {
   protected $attributes;
+
+  /**
+   * The mappings from membership status to the group they should belong to
+   */
+  public static $memberGroups = array(
+      'lid' => 'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+      'kandidaatlid' => 'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+      'oudlid' => 'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+      'geen lid' => 'cn=exleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+  );
 
   /**
    * Constructs a new Group
@@ -25,7 +35,7 @@ class Group
     $ldap = \Helper\LdapHelper::connect();
 
     $attributes = $ldap->flatten($ldap->get($dn, 'posixGroup'));
-    return new Group($attributes);
+    return new self($attributes);
   }
 
   /**

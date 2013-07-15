@@ -2,8 +2,6 @@
 
 namespace Models;
 
-require_once('Group.php');
-
 class Person implements \JSONSerializable
 {
   private $attributes = array();
@@ -244,12 +242,17 @@ class Person implements \JSONSerializable
 
     foreach($groups as $status => $dn)
     {
-      $group = Group::fromDn($dn);
+      $group = LdapGroup::fromDn($dn);
       if($group->hasMember($this->attributes['uid']))
         return $status;
     }
     
     return 'geen lid';
+  }
+
+  public function setMembership($membership)
+  {
+
   }
 
   /**

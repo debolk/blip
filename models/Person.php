@@ -9,6 +9,9 @@ class Person implements \JSONSerializable
   private $attributes = array();
   private $ldapPerson = null;
 
+  /**
+   * The list of properties that can be set by the user
+   */
   public $allowed = array(
     'initials',
     'firstname',
@@ -22,6 +25,9 @@ class Person implements \JSONSerializable
     'gender',
   );
   
+  /**
+   * The mapping from local properties to properties in LdapPerson
+   */
   protected $renaming = array(
     'uid' => 'uid',
     'firstname' => 'givenname',
@@ -34,6 +40,9 @@ class Person implements \JSONSerializable
     'gender' => 'gender',
   );
 
+  /**
+   * The mapping from membership status to guidnumber
+   */
   protected $groupIds = array(
     'lid' => 1025,
     'kandidaatlid' => 1084,
@@ -53,6 +62,11 @@ class Person implements \JSONSerializable
     $this->attributes = $attributes;
   }
 
+  /**
+   * Creates a new Person from an LdapPerson
+   * @param LdapPerson $person    the LdapPerson to create a Person from
+   * @returns Person              the resulting Person
+   */
   public static function fromLdapPerson($person)
   {
     $result = new self();
@@ -65,6 +79,10 @@ class Person implements \JSONSerializable
     return $result;
   }
 
+  /**
+   * Generates a password and stores it to be saved
+   * After save the user will be notified by mail
+   */
   public function generatePassword()
   {
     $this->pass = bin2hex(openssl_random_pseudo_bytes(5));
@@ -85,6 +103,11 @@ class Person implements \JSONSerializable
     return self::fromLdapPerson($person);
   }
 
+  /**
+   * Searches for persons with a given ldap query
+   * @param string $query     the ldap query
+   * @returns array           the persons matching the query
+   */
   public static function where($query)
   {
     $ldap = \Helper\LdapHelper::connect();
@@ -110,6 +133,9 @@ class Person implements \JSONSerializable
     return self::where("");
   }
 
+  /**
+   * Saves the current person to ldap, creates a new LdapPerson if needed
+   */
   public function save()
   {
     if($this->ldapPerson == null)
@@ -134,6 +160,10 @@ class Person implements \JSONSerializable
     $this->ldapPerson->save();
   }
 
+  /**
+   * Finds an unused uid for a new user
+   * @returns string          an unused uid
+   */
   protected function findUid()
   {
     $ldap = \Helper\LdapHelper::connect();
@@ -160,9 +190,7 @@ class Person implements \JSONSerializable
         return $candidate_uid;
       }
     }
-
   }
-
   
 
   /**

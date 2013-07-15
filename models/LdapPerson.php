@@ -36,6 +36,10 @@ class LdapPerson extends LdapObject {
 
   }
   
+  /**
+   * Finds an unused uidnumber in ldap
+   * @returns int         an unused uidnumber
+   */
   protected static function findUidnumber()
   {
     $ldap = \Helper\LdapHelper::connect();
@@ -98,6 +102,10 @@ class LdapPerson extends LdapObject {
     return $result;
   }
 
+  /**
+   * Returns a default user (template)
+   * @returns LdapPerson        a default LdapPerson
+   */
   public static function getDefault()
   {
     $default = array(
@@ -145,6 +153,10 @@ class LdapPerson extends LdapObject {
     return parent::__get($name);
   }
 
+  /**
+   * Saves the current LdapPerson to ldap, creates a new entry if needed
+   * This notifies the user if their password is reset
+   */
   public function save()
   {
     if(!$this->exists)

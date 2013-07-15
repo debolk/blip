@@ -51,6 +51,11 @@ class LdapObject {
     }
   }
 
+  /**
+   * Determines if a property has been set
+   * @param string $name  the property to look up
+   * @return bool         wether the property exists
+   */
   public function __isset($name)
   {
     return isset($this->attributes[$name]);

@@ -7,22 +7,6 @@ namespace Models;
 class LdapPerson extends LdapObject {
 
   private $calculations;
-  private $groupIds = array(
-    'lid' => 1025,
-    'kandidaatlid' => 1084,
-    'oud-leden' => 1095,
-    'geen lid' => 1097,
-  );
-  protected $renaming = array(
-    'uid' => 'uid',
-    'firstname' => 'givenname',
-    'lastname' => 'sn',
-    'email' => 'mail',
-    'mobile' => 'mobile',
-    'phone' => 'telephonenumber',
-    'phone_parents' => 'homephone', 
-    'address' => 'homepostaladdress',
-  );
 
   /**
    * Creates a new LdapEntry
@@ -114,34 +98,7 @@ class LdapPerson extends LdapObject {
     return $result;
   }
 
-  public function mergePerson($person)
-  {
-    $renaming = array(
-      'uid' => 'uid',
-      'firstname' => 'givenname',
-      'lastname' => 'sn',
-      'email' => 'mail',
-      'mobile' => 'mobile',
-      'phone' => 'telephonenumber',
-      'phone_parents' => 'homephone', 
-      'address' => 'homepostaladdress',
-    );
-
-    $data = $person->to_array();
-    foreach($data as $key => $value)
-    {
-      if(!isset($this->renaming[$key]))
-        continue;
-
-      $ldapkey = $this->renaming[$key];
-      $this->$ldapkey = $value;
-    }
-
-    $this->gidnumber = $this->groupIds[$data['membership']];
-
-  }
-
-  public static function fromPerson($person)
+  public static function getDefault()
   {
     $default = array(
       'objectClass' => array(
@@ -175,8 +132,6 @@ class LdapPerson extends LdapObject {
     );
     
     $result = new self($default);
-    $result->mergePerson($person);
-
     return $result;
   }
 
@@ -194,6 +149,13 @@ class LdapPerson extends LdapObject {
   {
     if(!$this->exists)
       $this->__set('uidnumber', self::findUidnumber());
+
+    //Send mail if password changes
+    if(isset($this->dirty['userpassword']))
+    {
+      $mail = new \Mailer\NewPerson($this->attributes['mail'], $this->attributes['uid'], $this->attributes['cn'], $this->attributes['userpassword']);
+      $mail->send();
+    }
 
     parent::save();
   }

@@ -37,6 +37,7 @@ class LdapHelper
   public function __construct()
   {
     $this->ldap = ldap_connect(getenv('LDAP_HOST'));
+    $this->bind(getenv('LDAP_USERNAME'), getenv('LDAP_PASSWORD'));
     $this->basedn = getenv('LDAP_BASEDN');
   }
 

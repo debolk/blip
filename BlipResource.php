@@ -1,6 +1,5 @@
 <?php
 
-require_once('LDAP.php');
 require_once('OAuth2Helper.php');
 
 class BlipResource extends Tonic\Resource
@@ -16,7 +15,6 @@ class BlipResource extends Tonic\Resource
   public function __construct(Tonic\Application $application, Tonic\Request $request)
   {
     parent::__construct($application, $request);
-    $this->ldap = new LDAP();
   }
 
   /**

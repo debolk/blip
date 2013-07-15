@@ -11,14 +11,15 @@ class Person implements \JSONSerializable
 
   public $allowed = array(
     'initials',
-    'fistname',
+    'firstname',
     'lastname',
     'email',
     'phone',
     'mobile',
     'phone_parents',
     'address',
-    'dateofbirth'
+    'dateofbirth',
+    'gender',
   );
   
   protected $renaming = array(
@@ -30,6 +31,7 @@ class Person implements \JSONSerializable
     'phone' => 'telephonenumber',
     'phone_parents' => 'homephone', 
     'address' => 'homepostaladdress',
+    'gender' => 'gender',
   );
 
   protected $groupIds = array(
@@ -40,6 +42,7 @@ class Person implements \JSONSerializable
   );
 
   protected $dirty = array();
+  protected $pass;
 
   /**
    * Constructs a new Person
@@ -60,6 +63,11 @@ class Person implements \JSONSerializable
     $result->ldapPerson = $person;
 
     return $result;
+  }
+
+  public function generatePassword()
+  {
+    $this->pass = bin2hex(openssl_random_pseudo_bytes(5));
   }
 
   /**
@@ -84,7 +92,10 @@ class Person implements \JSONSerializable
     
     $results = array();
     foreach($search as $object)
-      $results[] = new Person($ldap->flatten($object));
+    {
+      $person = new LdapPerson($ldap->flatten($object));
+      $results[] = Person::fromLdapPerson($person);
+    }
 
     return $results;
   }
@@ -104,10 +115,21 @@ class Person implements \JSONSerializable
     if($this->ldapPerson == null)
     {
       $this->attributes['uid'] = $this->findUid();
-      $this->ldapPerson = LdapPerson::fromPerson($this);
-    } else {
-      $this->ldapPerson->mergePerson($this);
+      $this->ldapPerson = LdapPerson::getDefault();
     }
+
+    $data = $this->to_array();
+    foreach($data as $key => $value)
+    {
+      if(!isset($this->renaming[$key]))
+        continue;
+
+      $ldapkey = $this->renaming[$key];
+      $this->ldapPerson->$ldapkey = $value;
+    }
+    $this->ldapPerson->gidnumber = $this->groupIds[$data['membership']];
+    if(isset($this->pass))
+      $this->ldapPerson->userpassword = $this->pass;
 
     $this->ldapPerson->save();
   }
@@ -209,29 +231,6 @@ class Person implements \JSONSerializable
   public function jsonSerialize()
   {
     return $this->to_array();
-  }
-
-  /**
-   * Converts this Person-model to a LDAP-entry
-   * @return Models\LDAPEntry
-   */
-  public function to_LDAPEntry()
-  {
-    $input = $this->attributes;
-
-    // Rename keys
-    $renaming = ['firstname' => 'givenname', 'lastname' => 'sn', 'email' => 'mail',
-                 'phone' => 'telephonenumber', 'phone_parents' => 'homephone', 
-                 'address' => 'homepostaladdress'];
-    foreach(array_keys($input) as $key) {
-      if (isset($renaming[$key])) {
-        $input[$renaming[$key]] = $input[$key];
-        unset($input[$key]);
-      }
-    }
-
-    // Create and return model
-    return new LDAPEntry($input);
   }
 
   /**

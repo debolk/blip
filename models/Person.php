@@ -108,6 +108,9 @@ class Person implements \JSONSerializable
     if(!$person)
       throw new \Exception('User not found!');
 
+    if(in_array('gosaUserTemplate', $person->objectclass))
+      return false;
+
     return self::fromLdapPerson($person);
   }
 

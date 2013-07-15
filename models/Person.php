@@ -43,6 +43,7 @@ class Person implements \JSONSerializable
     'lid' => array('pptpServerAccount', 'gosaIntranetAccount'),
     'oudlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
     'geen lid' => array(),
+    'lid van verdienste' => array(),
     'kandidaatlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
   );
 
@@ -53,6 +54,7 @@ class Person implements \JSONSerializable
     'lid' => 1025,
     'kandidaatlid' => 1084,
     'oudlid' => 1095,
+    'oudlid' => 1098,
     'geen lid' => 1097,
   );
 

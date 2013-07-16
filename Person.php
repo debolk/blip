@@ -41,7 +41,6 @@ class PersonCollection extends BlipResource
 
     // Create the user
     $person = new Models\Person((array)$candidate);
-    $person->generatePassword();
     $person->save();
     return new Tonic\Response(200, json_encode($person->to_array(), JSON_UNESCAPED_SLASHES));
   }

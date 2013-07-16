@@ -37,6 +37,7 @@ class Person implements \JSONSerializable
     'phone_parents' => 'homephone', 
     'address' => 'homepostaladdress',
     'gender' => 'gender',
+		'initials' => 'initials',
   );
 
   protected $additionalClasses = array(

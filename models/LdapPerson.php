@@ -1,6 +1,7 @@
 <?php
 
 namespace Models;
+
 /**
  * Handles creation of new users in Ldap
  */

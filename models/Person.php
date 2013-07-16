@@ -289,6 +289,10 @@ class Person implements \JSONSerializable
 
     $this->save();
 
+    if(in_array($membership, array('lid', 'kandidaatlid')))
+      if(!isset($this->ldapPerson->userpassword))
+        $this->generatePassword();
+
     //Remove objectclasses from previous status
     foreach($this->additionalClasses[$prev] as $class)
     {
@@ -310,7 +314,6 @@ class Person implements \JSONSerializable
         continue;
 
       $new = array_merge($this->ldapPerson->objectclass, array($class));
-      print_r($new);
       $this->ldapPerson->objectclass = $new;
     }
     

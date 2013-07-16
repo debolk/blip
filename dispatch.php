@@ -3,7 +3,7 @@
 // Load Tonic
 require_once('vendor/autoload.php');
 
-$app = new Tonic\Application(array('load' => array('helper/*.php', 'models/LdapObject.php', 'models/*.php', 'Person.php', 'Member.php', 'Photo.php')));
+$app = new Tonic\Application(array('load' => array('helper/*.php', 'mailer/NewPerson.php', 'models/LdapObject.php', 'models/*.php', 'Person.php', 'Member.php', 'Photo.php')));
 $request = new Tonic\Request();
 
 $resource = $app->getResource($request);

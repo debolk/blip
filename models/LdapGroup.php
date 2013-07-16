@@ -10,7 +10,7 @@ class LdapGroup extends LdapObject
       'lid' => 'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
       'kandidaatlid' => 'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
       'oudlid' => 'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      'lid van verdienste' => 'cn=ledenvanverdienste,ou=groups,0=nieuwedelft,dc=bolkhuis,dc=nl',
+      'lid van verdienste' => 'cn=ledenvanverdienste,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
       'geen lid' => 'cn=exleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
   );
 

@@ -68,6 +68,24 @@ class PersonResource extends BlipResource
     return json_encode($result, JSON_UNESCAPED_SLASHES);
   }
 
+	/**
+	 * @method OPTIONS
+	 * @loggedIn lid
+	 * @return string
+	 */
+	public function options($uid)
+	{
+		$model = Models\Person::fromUid($uid);
+
+		// Result does not exist
+		if ($model === null)
+      return new Tonic\Response(404, "Person not found");
+
+		$result = new Tonic\Response(200, "");
+		$result->allow = "GET,HEAD,PATCH";
+		return $result;
+	}
+
   /**
    * @method PATCH
    * @loggedIn bestuur

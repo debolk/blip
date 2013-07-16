@@ -9,6 +9,7 @@ $request = new Tonic\Request();
 $resource = $app->getResource($request);
 $response = $resource->exec();
 $response->AccessControlAllowOrigin = '*';
+$response->AccessControlAllowMethods = "GET, POST, PUT, PATCH";
 if($response->ContentType == "text/html")
   $response->ContentType = 'application/json';
 $response->output();

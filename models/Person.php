@@ -186,10 +186,10 @@ class Person implements \JSONSerializable
     $options = [];
 
     if (! empty($this->attributes['initials'])) {
-      $options[] = strtolower($this->attributes['initials'][0].$this->attributes['lastname']);
-      $options[] = strtolower($this->attributes['initials'].$this->attributes['lastname']);
+      $options[] = str_replace(' ', '', strtolower($this->attributes['initials'][0].$this->attributes['lastname']));
+      $options[] = str_replace(' ', '', strtolower($this->attributes['initials'].$this->attributes['lastname']));
     }
-    $options[] = strtolower($this->attributes['firstname'].$this->attributes['lastname']);
+    $options[] = str_replace(' ', '', strtolower($this->attributes['firstname'].$this->attributes['lastname']));
 
     foreach ($options as $candidate_uid) {
       if (! $ldap->getDn($candidate_uid)) {
@@ -199,7 +199,7 @@ class Person implements \JSONSerializable
 
     // Try a numbered option
     for ($i=1; true; $i++) { 
-      $candidate_uid = strtolower($this->attributes['firstname'].$this->attributes['lastname']).$i;
+      $candidate_uid = str_replace(' ', '', strtolower($this->attributes['firstname'].$this->attributes['lastname']).$i);
       if (! $ldap->getDn($candidate_uid)) {
         return $candidate_uid;
       }

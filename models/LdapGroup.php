@@ -70,7 +70,11 @@ class LdapGroup extends LdapObject
       $this->attributes['memberuid'] = array($this->attributes['memberuid']);
 
     foreach($this->attributes['memberuid'] as $uid)
-      $result[] = Person::fromUid($uid);
+    {
+      $person = Person::fromUid($uid);
+      if($person)
+        $result[] = $person;
+    }
 
     return $result;
   }

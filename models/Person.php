@@ -39,6 +39,7 @@ class Person implements \JSONSerializable
     'address' => 'homepostaladdress',
 		'dateofbirth' => 'dateofbirth',
     'gender' => 'gender',
+		'initials' => 'initials',
   );
 
   protected $additionalClasses = array(
@@ -109,6 +110,9 @@ class Person implements \JSONSerializable
     $person = LdapPerson::fromUid($uid);
     if(!$person)
       throw new \Exception('User not found!');
+
+    if(in_array('gosaUserTemplate', $person->objectclass))
+      return false;
 
     return self::fromLdapPerson($person);
   }

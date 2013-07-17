@@ -23,7 +23,8 @@ class LdapPerson extends LdapObject {
 
       'uid' => function() {
         $this->__set('homedirectory', '/home/' . $this->attributes['uid']);
-        $this->dn = 'uid=' . $this->attributes['uid'] . ',ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl';
+				if(!isset($this->dn))
+					$this->dn = 'uid=' . $this->attributes['uid'] . ',ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl';
       },
 
       'uidnumber' => function() {

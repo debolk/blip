@@ -11,6 +11,7 @@ class Photo extends BlipResource
    * @method GET
    * @loggedIn lid
    * @return string
+	 * @cache 86400
    */
   public function index($uid, $width, $height)
   {

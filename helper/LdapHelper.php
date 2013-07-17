@@ -147,6 +147,11 @@ class LdapHelper
    */
   public function add($dn, $data)
   {
+		// Remove unset parameters
+		foreach($data as $key => $value)
+			if(is_array($value) && count($value) == 0)
+				unset($data[$key]);
+
     return ldap_add($this->ldap, $dn, $data);
   }
 

@@ -29,13 +29,15 @@ class Person implements \JSONSerializable
    */
   protected $renaming = array(
     'uid' => 'uid',
+		'initials' => 'initials',
     'firstname' => 'givenname',
     'lastname' => 'sn',
     'email' => 'mail',
-    'mobile' => 'mobile',
     'phone' => 'telephonenumber',
+    'mobile' => 'mobile',
     'phone_parents' => 'homephone', 
     'address' => 'homepostaladdress',
+		'dateofbirth' => 'dateofbirth',
     'gender' => 'gender',
   );
 

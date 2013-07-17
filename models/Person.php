@@ -186,12 +186,13 @@ class Person implements \JSONSerializable
     $options = [];
 
     if (! empty($this->attributes['initials'])) {
-      $options[] = str_replace(' ', '', strtolower($this->attributes['initials'][0].$this->attributes['lastname']));
-      $options[] = str_replace(' ', '', strtolower($this->attributes['initials'].$this->attributes['lastname']));
+      $options[] = strtolower($this->attributes['initials'][0].$this->attributes['lastname']);
+      $options[] = strtolower($this->attributes['initials'].$this->attributes['lastname']);
     }
-    $options[] = str_replace(' ', '', strtolower($this->attributes['firstname'].$this->attributes['lastname']));
+    $options[] = strtolower($this->attributes['firstname'].$this->attributes['lastname']);
 
     foreach ($options as $candidate_uid) {
+      $candidate_uid = str_replace(' ', '', $candidate_uid);
       if (! $ldap->getDn($candidate_uid)) {
         return $candidate_uid;
       }

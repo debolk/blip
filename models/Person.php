@@ -172,6 +172,9 @@ class Person implements \JSONSerializable
       $this->ldapPerson->userpassword = $this->pass;
 
     $this->ldapPerson->save();
+
+		if(isset($this->attributes['membership']))
+			$this->setMembership($this->attributes['membership']);
   }
 
   /**
@@ -312,8 +315,8 @@ class Person implements \JSONSerializable
 
       $this->ldapPerson->objectclass = $new;
     }
-
-    //Add new objectclasses
+    
+		//Add new objectclasses
     foreach($this->additionalClasses[$membership] as $class)
     {
       if(in_array($class, $this->ldapPerson->objectclass))

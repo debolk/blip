@@ -111,7 +111,7 @@ class LdapPerson extends LdapObject {
   public static function getDefault()
   {
     $default = array(
-      'objectClass' => array(
+      'objectclass' => array(
         'top',
         'person',
         'organizationalPerson',

@@ -98,7 +98,6 @@ class LdapObject {
         $diff[$key] = $this->attributes[$key];
 
       $result = $ldap->modify($this->dn, $diff);
-			print_r(array($result));
     }
 
     $this->dirty = array();

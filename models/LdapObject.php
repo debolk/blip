@@ -83,23 +83,26 @@ class LdapObject {
   public function save()
   {
     if(count($this->dirty) == 0)
-      return;
+      return true;
 
     $ldap = \Helper\LdapHelper::connect();
 
     if(!$this->exists)
     {
       $this->exists = true;
-      $ldap->add($this->dn, $this->attributes);
+      $result = $ldap->add($this->dn, $this->attributes);
     } else {
       $diff = array();
 
       foreach($this->dirty as $key => $value)
         $diff[$key] = $this->attributes[$key];
 
-      $ldap->modify($this->dn, $diff);
+      $result = $ldap->modify($this->dn, $diff);
+			print_r(array($result));
     }
 
     $this->dirty = array();
+
+		return $result;
   }
 }

@@ -24,7 +24,11 @@ class Photo extends BlipResource
 
     if(!isset($data->jpegphoto))
     {
-      $off = rand(0,500);
+			$nr = base_convert(md5($uid), 16, 10);
+			$nr = substr($nr, -6);
+			$nr = (int)$nr;
+			$off = $nr % 500;
+
       $c = curl_init('http://placekitten.com/g/' . ($width + $off) . '/' . ($height + $off));
       curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 

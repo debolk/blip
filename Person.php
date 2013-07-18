@@ -115,7 +115,13 @@ class PersonResource extends BlipResource
       if(in_array($key, $person->allowed))
         $person->$key = $value;
     }
-    $person->save();
+
+    if(!$person->save())
+		{
+			$ldap = \Helper\LdapHelper::connect();
+			return new Tonic\Response(400, 'Ldap error: ' . $ldap->lastError());
+		}
+
     return new Tonic\Response(200, json_encode($person->to_array(), JSON_UNESCAPED_SLASHES));
   }
 }

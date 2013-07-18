@@ -77,8 +77,11 @@ class LdapPerson extends LdapObject {
 
     $name = implode(" ", $parts);
 
-    $this->__set('gecos', $name);
-    $this->__set('cn', $name);
+		setlocale(LC_ALL, 'en_US.UTF8');
+		$gecos = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $name);
+
+    $this->__set('gecos', $gecos);
+    $this->__set('cn', $gecos);
   }
 
   /**
@@ -167,11 +170,11 @@ class LdapPerson extends LdapObject {
     //Send mail if password changes
     if(isset($this->dirty['userpassword']))
     {
-      $mail = new \Mailer\NewPerson($this->attributes['mail'], $this->attributes['uid'], $this->attributes['cn'], $this->attributes['userpassword']);
-      $mail->send();
+      //$mail = new \Mailer\NewPerson($this->attributes['mail'], $this->attributes['uid'], $this->attributes['cn'], $this->attributes['userpassword']);
+      //$mail->send();
     }
-
-    parent::save();
+    
+		return parent::save();
   }
 
   /**

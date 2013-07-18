@@ -46,7 +46,7 @@ class Person implements \JSONSerializable
     'lid' => array('pptpServerAccount', 'gosaIntranetAccount'),
     'oudlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
     'geen lid' => array(),
-    'lid van verdienste' => array(),
+    'lidvanverdienste' => array(),
     'kandidaatlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
   );
 
@@ -57,7 +57,7 @@ class Person implements \JSONSerializable
     'lid' => 1025,
     'kandidaatlid' => 1084,
     'oudlid' => 1095,
-    'oudlid' => 1098,
+    'lidvanverdienste' => 1098,
     'geen lid' => 1097,
   );
 
@@ -156,6 +156,7 @@ class Person implements \JSONSerializable
     {
       $this->attributes['uid'] = $this->findUid();
       $this->ldapPerson = LdapPerson::getDefault();
+			$setgroup = true;
     }
 
     $data = $this->to_array();
@@ -171,10 +172,13 @@ class Person implements \JSONSerializable
     if(isset($this->pass))
       $this->ldapPerson->userpassword = $this->pass;
 
-    $this->ldapPerson->save();
+    $result = $this->ldapPerson->save();
 
-		if(isset($this->attributes['membership']))
+		//Set membership after saving
+		if(isset($setgroup) && isset($this->attributes['membership']))
 			$this->setMembership($this->attributes['membership']);
+
+		return $result;
   }
 
   /**
@@ -183,18 +187,26 @@ class Person implements \JSONSerializable
    */
   protected function findUid()
   {
+		$strip = function($uid)
+		{
+			setlocale(LC_ALL, 'en_US.UTF8');
+			$uid = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $uid);
+			return preg_replace('#[^a-z0-9]#', '', $uid);
+		};
+
     $ldap = \Helper\LdapHelper::connect();
 
     // Try sensible options first
     $options = [];
 
     if (! empty($this->attributes['initials'])) {
-      $options[] = str_replace(' ', '', strtolower($this->attributes['initials'][0].$this->attributes['lastname']));
-      $options[] = str_replace(' ', '', strtolower($this->attributes['initials'].$this->attributes['lastname']));
+      $options[] = strtolower($this->attributes['initials'][0].$this->attributes['lastname']);
+      $options[] = strtolower($this->attributes['initials'].$this->attributes['lastname']);
     }
-    $options[] = str_replace(' ', '', strtolower($this->attributes['firstname'].$this->attributes['lastname']));
+    $options[] = strtolower($this->attributes['firstname'].$this->attributes['lastname']);
 
     foreach ($options as $candidate_uid) {
+      $candidate_uid = $strip($candidate_uid);
       if (! $ldap->getDn($candidate_uid)) {
         return $candidate_uid;
       }
@@ -202,7 +214,7 @@ class Person implements \JSONSerializable
 
     // Try a numbered option
     for ($i=1; true; $i++) { 
-      $candidate_uid = str_replace(' ', '', strtolower($this->attributes['firstname'].$this->attributes['lastname']).$i);
+      $candidate_uid = $strip(strtolower($this->attributes['firstname'].$this->attributes['lastname']).$i);
       if (! $ldap->getDn($candidate_uid)) {
         return $candidate_uid;
       }

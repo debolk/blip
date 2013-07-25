@@ -44,6 +44,10 @@ class PersonCollection extends BlipResource
     // Create the user
     $person = new Models\Person((array)$candidate);
     $person->save();
+
+    // Invalidate caching
+    Helper\Memcache::flush();
+
     return new Tonic\Response(200, json_encode($person->to_array(), JSON_UNESCAPED_SLASHES));
   }
 }
@@ -125,6 +129,9 @@ class PersonResource extends BlipResource
 			$ldap = \Helper\LdapHelper::connect();
 			return new Tonic\Response(400, 'Ldap error: ' . $ldap->lastError());
 		}
+
+    // Invalidate caching
+    Helper\Memcache::flush();
 
     return new Tonic\Response(200, json_encode($person->to_array(), JSON_UNESCAPED_SLASHES));
   }

@@ -27,7 +27,7 @@ class Memcache
    * @param  callable $callable function to call if the object is not found
    * @return object             cached result
    */
-  public function cache($key, callable $callable)
+  public static function cache($key, callable $callable)
   {
     $memcache = self::connect();
 
@@ -46,7 +46,7 @@ class Memcache
    * Flushes the memcache server
    * @return boolean indicating success
    */
-  public function flush()
+  public static function flush()
   {
     $memcache = self::connect();
 

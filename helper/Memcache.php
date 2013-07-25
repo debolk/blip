@@ -8,6 +8,20 @@ namespace Helper;
 class Memcache
 {
   /**
+   * Connect to the memcache server
+   * @return Memcache the Memcache class
+   */
+  private static function connect()
+  {
+    $memcache = new \Memcache();
+    if (! $memcache->connect(getenv('MEMCACHE_HOST'), getenv('MEMCACHE_PORT'))) {
+      throw new Exception('Could not connect to memcache server');
+    }
+
+    return $memcache;
+  }
+
+  /**
    * Write-through caching
    * @param  string $key        ID of the object to find in memcache
    * @param  callable $callable function to call if the object is not found
@@ -15,11 +29,7 @@ class Memcache
    */
   public function cache($key, callable $callable)
   {
-    // Connect to memcache
-    $memcache = new \Memcache();
-    if (! $memcache->connect(getenv('MEMCACHE_HOST'), getenv('MEMCACHE_PORT'))) {
-      throw new Exception('Could not connect to memcache server');
-    }
+    $memcache = self::connect();
 
     // Return the cached entry if we can
     if ($memcache->get($key)) {
@@ -32,5 +42,15 @@ class Memcache
     return $result;
   }
 
-  //FIXME Some way to invalidate the cache
+  /**
+   * Flushes the memcache server
+   * @return boolean indicating success
+   */
+  public function flush()
+  {
+    $memcache = self::connect();
+
+    // Flush all memcache objects
+    return $memcache->flush();
+  }
 }

@@ -18,8 +18,7 @@ class Memcache
     // Connect to memcache
     $memcache = new \Memcache();
     if (! $memcache->connect(getenv('MEMCACHE_HOST'), getenv('MEMCACHE_PORT'))) {
-      //FIXME log here that memcache is unavailable
-      return $callable();
+      throw new Exception('Could not connect to memcache server');
     }
 
     // Return the cached entry if we can

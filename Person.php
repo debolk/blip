@@ -61,13 +61,15 @@ class PersonResource extends BlipResource
    */
   public function show($uid)
   {
-    $result = Models\Person::fromUid($uid);
-    // Result does not exist
-    if ($result === null) {
-      return new Tonic\Response(404, "Person not found");
-    }
+    return Helper\Memcache::cache("persons_$uid", function(){
+      $result = Models\Person::fromUid($uid);
+      // Result does not exist
+      if ($result === null) {
+        return new Tonic\Response(404, "Person not found");
+      }
 
-    return json_encode($result, JSON_UNESCAPED_SLASHES);
+      return json_encode($result, JSON_UNESCAPED_SLASHES);
+    });
   }
 
 	/**

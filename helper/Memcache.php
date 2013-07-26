@@ -38,7 +38,7 @@ class Memcache
 
     // Get result, store in memcache and return
     $result = $callable();
-    $memcache->set($key, $result);
+    $memcache->set($key, $result, null, 60 * 60 * 24 * 7);
     return $result;
   }
 

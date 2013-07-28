@@ -74,17 +74,15 @@ class LdapGroup extends LdapObject
       return $result;
     
     //Convert to array if this is a string 
-    if(is_string($this->attributes['memberuid']))
+    if(is_string($this->memberuid))
       $this->attributes['memberuid'] = array($this->memberuid);
 
-    foreach($this->memberuid as $uid)
-    {
-      $person = Person::fromUid($uid);
-      if($person)
-        $result[] = $person;
-    }
+		$query = '(|';
+		foreach($this->memberuid as $uid)
+			$query .= "(uid=$uid)";
+		$query .= ')';
 
-    return $result;
+		return Person::where($query);
   }
 
   /**

@@ -22,17 +22,17 @@ class LdapPerson extends LdapObject {
       'sn' => function() { $this->setName; },
 
       'uid' => function() {
-        $this->__set('homedirectory', '/home/' . $this->attributes['uid']);
+        $this->__set('homedirectory', '/home/' . $this->uid);
 				if(!isset($this->dn))
-					$this->dn = 'uid=' . $this->attributes['uid'] . ',ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl';
+					$this->dn = 'uid=' . $this->uid . ',ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl';
       },
 
       'uidnumber' => function() {
-        $this->__set('sambasid', 'S-1-5-21-1816619821-1419577557-1603852640-'.(1000+2*$this->attributes['uidnumber']));
+        $this->__set('sambasid', 'S-1-5-21-1816619821-1419577557-1603852640-'.(1000+2*$this->uidnumber));
       },
 
       'gidnumber' => function() {
-        $this->__set('sambaprimarygroupsid', 'S-1-5-21-1816619821-1419577557-1603852640-'.(1001+2*$this->attributes['gidnumber']));
+        $this->__set('sambaprimarygroupsid', 'S-1-5-21-1816619821-1419577557-1603852640-'.(1001+2*$this->gidnumber));
       },
     );
 
@@ -71,9 +71,9 @@ class LdapPerson extends LdapObject {
     $parts = array();
     
     if(isset($this->attributes['givenname']))
-      $parts[] = $this->attributes['givenname'];
+      $parts[] = $this->givenname;
     if(isset($this->attributes['sn']))
-      $parts[] = $this->attributes['sn'];
+      $parts[] = $this->sn;
 
     $name = implode(" ", $parts);
 
@@ -98,7 +98,7 @@ class LdapPerson extends LdapObject {
       return false;
 
     $data = $ldap->get($dn, 'iNetOrgPerson');
-    $data = $ldap->flatten($data);
+    #$data = $ldap->flatten($data);
 
     $result = new self($data);
     $result->exists = true;

@@ -14,6 +14,8 @@ class LdapGroup extends LdapObject
       'geen lid' => 'cn=exleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
   );
 
+	protected static $cache = array();
+
   /**
    * Constructs a new Group
    * @param array $attributes
@@ -31,12 +33,18 @@ class LdapGroup extends LdapObject
    */
   public static function fromDn($dn)
   {
+		if(isset(self::$cache[$dn]))
+			return self::$cache[$dn];
+
     $ldap = \Helper\LdapHelper::connect();
 
     $attributes = $ldap->get($dn, 'posixGroup');
     $result = new self($attributes);
     $result->exists = true;
     $result->dn = $dn;
+
+		self::$cache[$dn] = $result;
+
     return $result;
   }
 

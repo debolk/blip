@@ -29,7 +29,7 @@ class Photo extends BlipResource
 			$nr = (int)$nr;
 			$off = $nr % 500;
 
-      $c = curl_init('http://placekitten.com/g/' . ($width + $off) . '/' . ($height + $off));
+      $c = curl_init('http://placekitten.com/g/' . (1024 + $off) . '/' . (1024 + $off));
       curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 
       $photo = curl_exec($c);

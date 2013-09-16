@@ -15,7 +15,7 @@ class Memcache
   {
     $memcache = new \Memcache();
     if (! $memcache->connect(getenv('MEMCACHE_HOST'), getenv('MEMCACHE_PORT'))) {
-      throw new Exception('Could not connect to memcache server');
+      throw new \Exception('Could not connect to memcache server');
     }
 
     return $memcache;

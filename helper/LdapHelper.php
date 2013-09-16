@@ -182,6 +182,7 @@ class LdapHelper
    */
   protected function stripCounts($array)
   {
+		return $array;
     $result = array();
     foreach($array as $key => $value)
     {

@@ -109,7 +109,7 @@ class Person implements \JSONSerializable
   {
     $person = LdapPerson::fromUid($uid);
     if(!$person)
-      throw new \Exception('User not found!');
+      throw new \Exception("User ($uid) not found!");
 
     if(in_array('gosaUserTemplate', $person->objectclass))
       return false;
@@ -128,9 +128,11 @@ class Person implements \JSONSerializable
     $search = $ldap->search('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate))(!(uid=nobody))' . $query . ')');
     
     $results = array();
-    foreach($search as $object)
+    foreach($search as $key => $object)
     {
-      $person = new LdapPerson($ldap->flatten($object));
+			if($key === 'count')
+				continue;
+      $person = new LdapPerson($object);
       $results[] = Person::fromLdapPerson($person);
     }
 
@@ -229,7 +231,7 @@ class Person implements \JSONSerializable
   public function to_array()
   {
     return array_merge($this->attributes, [
-      'href' => getenv('BASE_URL').'persons/'.$this->attributes['uid'],
+      'href' => getenv('BASE_URL').'persons/'.$this->__get('uid'),
       'name' => $this->name(),
       'membership' => $this->membership(),
     ]);
@@ -274,7 +276,7 @@ class Person implements \JSONSerializable
     foreach($groups as $status => $dn)
     {
       $group = LdapGroup::fromDn($dn);
-      if($group->hasMember($this->attributes['uid']))
+      if($group->hasMember($this->uid))
         return $status;
     }
     

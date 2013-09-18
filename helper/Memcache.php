@@ -23,11 +23,12 @@ class Memcache
 
   /**
    * Write-through caching
-   * @param  string $key        ID of the object to find in memcache
-   * @param  callable $callable function to call if the object is not found
-   * @return object             cached result
+   * @param  string        $key         ID of the object to find in memcache
+   * @param  callable     $callable   function to call if the object is not found
+   * @param  anything   $param     parameter to pass to the caching callback   
+   * @return                   object        cached result
    */
-  public static function cache($key, callable $callable)
+  public static function cache($key, callable $callable, $param = null)
   {
     $memcache = self::connect();
 
@@ -37,7 +38,7 @@ class Memcache
     }
 
     // Get result, store in memcache and return
-    $result = $callable();
+    $result = $callable($param);
     $memcache->set($key, $result, null, getenv('MEMCACHE_EXPIRY'));
     return $result;
   }

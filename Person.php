@@ -65,7 +65,7 @@ class PersonResource extends BlipResource
    */
   public function show($uid)
   {
-    return Helper\Memcache::cache("persons_$uid", function(){
+    return Helper\Memcache::cache("persons_$uid", function($uid){
       $result = Models\Person::fromUid($uid);
       // Result does not exist
       if ($result === null) {
@@ -73,7 +73,7 @@ class PersonResource extends BlipResource
       }
 
       return json_encode($result, JSON_UNESCAPED_SLASHES);
-    });
+    }, $uid);
   }
 
 	/**

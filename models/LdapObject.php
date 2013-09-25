@@ -49,22 +49,32 @@ class LdapObject {
     if (!isset($this->attributes[$name]))
       return;
 
-		if(in_array($name, $this->dirty))
-			return $this->attributes[$name];
+		return strip($this->attributes[$name]);
+  }
 
-		if(!is_array($this->attributes[$name]) || !isset($this->attributes[$name]['count']))
-			return $this->attributes[$name];
+	/**
+	 * Strips the count entry from a value
+	 * @param mixed $val		the value to strip from
+	 * @return mixed				the stripped result
+	 */
+	protected function strip($val)
+	{
+		if(!is_array($val))
+			return $val;
 
-		if($this->attributes[$name]['count'] == 1)
-			return $this->attributes[$name][0];
+		if(!isset($val['count']))
+			return $val;
+
+		if($val['count'] == 1)
+			return $val[0];
 
 		$result = array();
-		foreach($this->attributes[$name] as $key => $value)
+		foreach($val as $key => $value)
 			$result[$key] = $value;
 		unset($result['count']);
 
 		return $result;
-  }
+	}
 
   /**
    * Determines if a property has been set

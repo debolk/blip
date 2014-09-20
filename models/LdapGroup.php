@@ -10,9 +10,11 @@ class LdapGroup extends LdapObject
       'lid' => 'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
       'kandidaatlid' => 'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
       'oudlid' => 'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      'lid van verdienste' => 'cn=ledenvanverdienste,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+      'lidvanverdienste' => 'cn=ledenvanverdienste,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
       'geen lid' => 'cn=exleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
   );
+
+	protected static $cache = array();
 
   /**
    * Constructs a new Group
@@ -31,12 +33,18 @@ class LdapGroup extends LdapObject
    */
   public static function fromDn($dn)
   {
+		if(isset(self::$cache[$dn]))
+			return self::$cache[$dn];
+
     $ldap = \Helper\LdapHelper::connect();
 
-    $attributes = $ldap->flatten($ldap->get($dn, 'posixGroup'));
+    $attributes = $ldap->get($dn, 'posixGroup');
     $result = new self($attributes);
     $result->exists = true;
     $result->dn = $dn;
+
+		self::$cache[$dn] = $result;
+
     return $result;
   }
 
@@ -66,13 +74,15 @@ class LdapGroup extends LdapObject
       return $result;
     
     //Convert to array if this is a string 
-    if(is_string($this->attributes['memberuid']))
-      $this->attributes['memberuid'] = array($this->attributes['memberuid']);
+    if(is_string($this->memberuid))
+      $this->attributes['memberuid'] = array($this->memberuid);
 
-    foreach($this->attributes['memberuid'] as $uid)
-      $result[] = Person::fromUid($uid);
+		$query = '(|';
+		foreach($this->memberuid as $uid)
+			$query .= "(uid=$uid)";
+		$query .= ')';
 
-    return $result;
+		return Person::where($query);
   }
 
   /**
@@ -85,9 +95,9 @@ class LdapGroup extends LdapObject
       return false;
 
     if(is_string($this->attributes['memberuid']))
-      return $this->attributes['memberuid'] == $uid;
+      return $this->memberuid == $uid;
 
-    return in_array($uid, $this->attributes['memberuid']);
+    return in_array($uid, $this->memberuid);
   }
 
   public function addMember($uid)
@@ -96,8 +106,8 @@ class LdapGroup extends LdapObject
       $this->attributes['memberuid'] = array();
    
     //Convert to array if this is a string 
-    if(is_string($this->attributes['memberuid']))
-      $this->attributes['memberuid'] = array($this->attributes['memberuid']);
+    if(is_string($this->memberuid))
+      $this->attributes['memberuid'] = array($this->memberuid);
 
     $this->__set('memberuid', array_merge($this->attributes['memberuid'], array($uid)));
   }
@@ -108,14 +118,14 @@ class LdapGroup extends LdapObject
       return;
 
     //Convert to array if this is a string 
-    if(is_string($this->attributes['memberuid']))
-      $this->attributes['memberuid'] = array($this->attributes['memberuid']);
+    if(is_string($this->memberuid))
+      $this->attributes['memberuid'] = array($this->memberuid);
 
-    if(!in_array($uid, $this->attributes['memberuid']))
+    if(!in_array($uid, $this->memberuid))
       return;
 
     $new = array();
-    foreach($this->attributes['memberuid'] as $name)
+    foreach($this->memberuid as $name)
       if($name != $uid)
         $new[] = $name;
 

@@ -29,21 +29,24 @@ class Person implements \JSONSerializable
    */
   protected $renaming = array(
     'uid' => 'uid',
+		'initials' => 'initials',
     'firstname' => 'givenname',
     'lastname' => 'sn',
     'email' => 'mail',
-    'mobile' => 'mobile',
     'phone' => 'telephonenumber',
+    'mobile' => 'mobile',
     'phone_parents' => 'homephone', 
     'address' => 'homepostaladdress',
+		'dateofbirth' => 'dateofbirth',
     'gender' => 'gender',
+		'initials' => 'initials',
   );
 
   protected $additionalClasses = array(
     'lid' => array('pptpServerAccount', 'gosaIntranetAccount'),
     'oudlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
     'geen lid' => array(),
-    'lid van verdienste' => array(),
+    'lidvanverdienste' => array(),
     'kandidaatlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
   );
 
@@ -54,7 +57,7 @@ class Person implements \JSONSerializable
     'lid' => 1025,
     'kandidaatlid' => 1084,
     'oudlid' => 1095,
-    'oudlid' => 1098,
+    'lidvanverdienste' => 1098,
     'geen lid' => 1097,
   );
 
@@ -106,7 +109,10 @@ class Person implements \JSONSerializable
   {
     $person = LdapPerson::fromUid($uid);
     if(!$person)
-      throw new \Exception('User not found!');
+      throw new \Exception("User ($uid) not found!");
+
+    if(in_array('gosaUserTemplate', $person->objectclass))
+      return false;
 
     return self::fromLdapPerson($person);
   }
@@ -122,9 +128,11 @@ class Person implements \JSONSerializable
     $search = $ldap->search('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate))(!(uid=nobody))' . $query . ')');
     
     $results = array();
-    foreach($search as $object)
+    foreach($search as $key => $object)
     {
-      $person = new LdapPerson($ldap->flatten($object));
+			if($key === 'count')
+				continue;
+      $person = new LdapPerson($object);
       $results[] = Person::fromLdapPerson($person);
     }
 
@@ -150,6 +158,7 @@ class Person implements \JSONSerializable
     {
       $this->attributes['uid'] = $this->findUid();
       $this->ldapPerson = LdapPerson::getDefault();
+			$setgroup = true;
     }
 
     $data = $this->to_array();
@@ -165,7 +174,13 @@ class Person implements \JSONSerializable
     if(isset($this->pass))
       $this->ldapPerson->userpassword = $this->pass;
 
-    $this->ldapPerson->save();
+    $result = $this->ldapPerson->save();
+
+		//Set membership after saving
+		if(isset($setgroup) && isset($this->attributes['membership']))
+			$this->setMembership($this->attributes['membership']);
+
+		return $result;
   }
 
   /**
@@ -174,6 +189,13 @@ class Person implements \JSONSerializable
    */
   protected function findUid()
   {
+		$strip = function($uid)
+		{
+			setlocale(LC_ALL, 'en_US.UTF8');
+			$uid = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $uid);
+			return preg_replace('#[^a-z0-9]#', '', $uid);
+		};
+
     $ldap = \Helper\LdapHelper::connect();
 
     // Try sensible options first
@@ -186,6 +208,7 @@ class Person implements \JSONSerializable
     $options[] = strtolower($this->attributes['firstname'].$this->attributes['lastname']);
 
     foreach ($options as $candidate_uid) {
+      $candidate_uid = $strip($candidate_uid);
       if (! $ldap->getDn($candidate_uid)) {
         return $candidate_uid;
       }
@@ -193,7 +216,7 @@ class Person implements \JSONSerializable
 
     // Try a numbered option
     for ($i=1; true; $i++) { 
-      $candidate_uid = strtolower($this->attributes['firstname'].$this->attributes['lastname']).$i;
+      $candidate_uid = $strip(strtolower($this->attributes['firstname'].$this->attributes['lastname']).$i);
       if (! $ldap->getDn($candidate_uid)) {
         return $candidate_uid;
       }
@@ -208,7 +231,7 @@ class Person implements \JSONSerializable
   public function to_array()
   {
     return array_merge($this->attributes, [
-      'href' => getenv('BASE_URL').'persons/'.$this->attributes['uid'],
+      'href' => getenv('BASE_URL').'persons/'.$this->__get('uid'),
       'name' => $this->name(),
       'membership' => $this->membership(),
     ]);
@@ -253,7 +276,7 @@ class Person implements \JSONSerializable
     foreach($groups as $status => $dn)
     {
       $group = LdapGroup::fromDn($dn);
-      if($group->hasMember($this->attributes['uid']))
+      if($group->hasMember($this->uid))
         return $status;
     }
     
@@ -306,8 +329,8 @@ class Person implements \JSONSerializable
 
       $this->ldapPerson->objectclass = $new;
     }
-
-    //Add new objectclasses
+    
+		//Add new objectclasses
     foreach($this->additionalClasses[$membership] as $class)
     {
       if(in_array($class, $this->ldapPerson->objectclass))

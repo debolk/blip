@@ -55,6 +55,15 @@ class LdapHelper
         "\x00" => '\00');
     return str_replace(array_keys($sanitized),array_values($sanitized),$argument);
   }
+	
+	/**
+	 * Returns the last thrown error
+	 * @return string						the last error returned from ldap
+	 */
+	public function lastError()
+	{
+		return ldap_error($this->ldap);
+	}
 
   /**
    * Returns the full DN for a LDAP-entry
@@ -147,7 +156,12 @@ class LdapHelper
    */
   public function add($dn, $data)
   {
-    return ldap_add($this->ldap, $dn, $data);
+		// Remove unset parameters
+		foreach($data as $key => $value)
+			if(is_array($value) && count($value) == 0)
+				unset($data[$key]);
+
+    return @ldap_add($this->ldap, $dn, $data);
   }
 
   /**
@@ -158,7 +172,7 @@ class LdapHelper
    */
   public function modify($dn, $data)
   {
-    return ldap_modify($this->ldap, $dn, $data);
+    return @ldap_modify($this->ldap, $dn, $data);
   }
 
   /**
@@ -168,6 +182,7 @@ class LdapHelper
    */
   protected function stripCounts($array)
   {
+		return $array;
     $result = array();
     foreach($array as $key => $value)
     {

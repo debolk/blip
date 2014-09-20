@@ -15,7 +15,9 @@ class PersonCollection extends BlipResource
    */
   public function index()
   {
-    return json_encode(Models\Person::all(), JSON_UNESCAPED_SLASHES);
+    return Helper\Memcache::cache('persons_all', function(){
+      return json_encode(Models\Person::all(), JSON_UNESCAPED_SLASHES);
+    });
   }
 
   /**
@@ -42,6 +44,10 @@ class PersonCollection extends BlipResource
     // Create the user
     $person = new Models\Person((array)$candidate);
     $person->save();
+
+    // Invalidate caching
+    Helper\Memcache::flush();
+
     return new Tonic\Response(200, json_encode($person->to_array(), JSON_UNESCAPED_SLASHES));
   }
 }
@@ -59,14 +65,34 @@ class PersonResource extends BlipResource
    */
   public function show($uid)
   {
-    $result = Models\Person::fromUid($uid);
-    // Result does not exist
-    if ($result === null) {
-      return new Tonic\Response(404, "Person not found");
-    }
+    return Helper\Memcache::cache("persons_$uid", function($uid){
+      $result = Models\Person::fromUid($uid);
+      // Result does not exist
+      if ($result === null) {
+        return new Tonic\Response(404, "Person not found");
+      }
 
-    return json_encode($result, JSON_UNESCAPED_SLASHES);
+      return json_encode($result, JSON_UNESCAPED_SLASHES);
+    }, $uid);
   }
+
+	/**
+	 * @method OPTIONS
+	 * @loggedIn lid
+	 * @return string
+	 */
+	public function options($uid)
+	{
+		$model = Models\Person::fromUid($uid);
+
+		// Result does not exist
+		if ($model === null)
+      return new Tonic\Response(404, "Person not found");
+
+		$result = new Tonic\Response(200, "");
+		$result->allow = "GET,HEAD,PATCH";
+		return $result;
+	}
 
   /**
    * @method PATCH
@@ -97,7 +123,16 @@ class PersonResource extends BlipResource
       if(in_array($key, $person->allowed))
         $person->$key = $value;
     }
-    $person->save();
+
+    if(!$person->save())
+		{
+			$ldap = \Helper\LdapHelper::connect();
+			return new Tonic\Response(400, 'Ldap error: ' . $ldap->lastError());
+		}
+
+    // Invalidate caching
+    Helper\Memcache::flush();
+
     return new Tonic\Response(200, json_encode($person->to_array(), JSON_UNESCAPED_SLASHES));
   }
 }

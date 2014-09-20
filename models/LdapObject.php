@@ -31,7 +31,7 @@ class LdapObject {
     $ldap = \Helper\LdapHelper::connect();
 
     $attributes = $ldap->get($dn);
-    $attributes = $ldap->flatten($attributes);
+    #$attributes = $ldap->flatten($attributes);
 
     $result = new self($attributes);
     $result->exists = true;
@@ -46,10 +46,25 @@ class LdapObject {
    */
   public function __get($name)
   {
-    if (isset($this->attributes[$name])) {
-      return $this->attributes[$name];
-    }
-  }
+    if (!isset($this->attributes[$name]))
+      return;
+
+		if(!is_array($this->attributes[$name]))
+			return $this->attributes[$name];
+
+		if(!isset($this->attributes[$name]['count']))
+			return $this->attributes[$name];
+
+		if($this->attributes[$name]['count'] == 1)
+			return $this->attributes[$name][0];
+
+		$result = array();
+		foreach($this->attributes[$name] as $key => $value)
+			$result[$key] = $value;
+		unset($result['count']);
+
+		return $result;
+	}
 
   /**
    * Determines if a property has been set
@@ -70,8 +85,11 @@ class LdapObject {
   {
     if(!isset($this->attributes[$name]) || $this->attributes[$name] != $value)
       $this->dirty[$name] = true;
-
-    $this->attributes[$name] = $value;
+		
+		if(empty($value))
+			$this->attributes[$name] = array();
+		else
+	    $this->attributes[$name] = $value;
   }
 
   /**
@@ -80,23 +98,25 @@ class LdapObject {
   public function save()
   {
     if(count($this->dirty) == 0)
-      return;
+      return true;
 
     $ldap = \Helper\LdapHelper::connect();
 
     if(!$this->exists)
     {
       $this->exists = true;
-      $ldap->add($this->dn, $this->attributes);
+      $result = $ldap->add($this->dn, $this->attributes);
     } else {
       $diff = array();
 
       foreach($this->dirty as $key => $value)
-        $diff[$key] = $this->attributes[$key];
+        $diff[$key] = $this->__get($key);
 
-      $ldap->modify($this->dn, $diff);
+      $result = $ldap->modify($this->dn, $diff);
     }
 
     $this->dirty = array();
+
+		return $result;
   }
 }

@@ -6,6 +6,9 @@ SetEnv LDAP_BASEDN            OU=sales,DC=foo,DC=net
 SetEnv BASE_URL               http://leden.i.bolkhuis.nl/
 SetEnv MAIL_FROM              ledenadministratie@nieuwedelft.nl
 SetEnv OAUTH2_RESOURCE        https://login.i.bolkhuis.nl/
+SetEnv MEMCACHE_HOST          localhost
+SetEnv MEMCACHE_PORT          11211
+SetEnv MEMCACHE_EXPIRY        604800 # one week
 
 # Rewriting requests
 RewriteEngine On
@@ -16,3 +19,6 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule .* dispatch.php [L]
 
 DirectoryIndex docs/index.html
+
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, PUT, PATCH"

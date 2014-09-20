@@ -28,45 +28,53 @@ class MemberCollection extends BlipResource
 
   private function all()
   {
-    $groups = array(
-      'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      'cn=ledenvanverdienste,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-    );
+    return Helper\Memcache::cache('members_all', function(){
+      $groups = array(
+        'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+        'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+        'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+        'cn=ledenvanverdienste,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+      );
 
-    $people = Models\LdapGroup::peopleInGroups($groups);
-    return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
+      $people = Models\LdapGroup::peopleInGroups($groups);
+      return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
+    });
   }
 
   private function current()
   {
-    $groups = array(
-      'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-    );
+    return Helper\Memcache::cache('members_current', function(){
+      $groups = array(
+        'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+        'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+      );
 
-    $people = Models\LdapGroup::peopleInGroups($groups);
-    return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
+      $people = Models\LdapGroup::peopleInGroups($groups);
+      return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
+    });
   }
 
   private function candidate()
   {
-    $groups = array(
-      'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-    );
+    return Helper\Memcache::cache('members_candidate', function(){
+      $groups = array(
+        'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+      );
 
-    $people = Models\LdapGroup::peopleInGroups($groups);
-    return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
+      $people = Models\LdapGroup::peopleInGroups($groups);
+      return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
+    });
   }
 
   private function past()
   {
-    $groups = array(
-      'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-    );
+    return Helper\Memcache::cache('members_past', function(){
+      $groups = array(
+        'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+      );
 
-    $people = Models\LdapGroup::peopleInGroups($groups);
-    return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
+      $people = Models\LdapGroup::peopleInGroups($groups);
+      return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
+    });
   }
 }

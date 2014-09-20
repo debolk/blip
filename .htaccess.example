@@ -19,3 +19,6 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule .* dispatch.php [L]
 
 DirectoryIndex docs/index.html
+
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, PUT, PATCH"

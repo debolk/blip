@@ -9,12 +9,17 @@
   <body>
     <h1>Blip API-documentatie</h1>
     <p>
-      Binnen De Bolk wordt de informatie over alle leden opgeslagen in LDAP. Het Bolks Ledeninformatiepunt (Blip) biedt een makkelijker manier om informatie over leden op te vragen en te gebruiken bij het bouwen van je eigen applicaties voor De Bolk. Je kunt het vergelijken met een <a href="https://en.wikipedia.org/wiki/Facade_pattern">Facade pattern</a>.
+      Binnen De Bolk wordt de informatie over alle leden opgeslagen in <a href="http://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol">LDAP</a>. Het Bolks Ledeninformatiepunt (Blip) biedt een makkelijke manier om informatie over leden op te vragen en te gebruiken bij het bouwen van je eigen applicaties voor De Bolk. Je kunt het vergelijken met een <a href="https://en.wikipedia.org/wiki/Facade_pattern">Facade pattern</a>.
     </p>
 
     <h2>Beveiliging</h2>
     <p>
-      De informatie wordt beveiligd met OAuth via <a href="https://login.i.bolkhuis.nl/">https://login.i.bolkhuis.nl/</a>.
+      Dit is een OAuth2 resource server. De informatie wordt beveiligd met OAuth2 via <a href="https://auth.debolk.nl/">https://auth.debolk.nl/</a>. Voor ieder endpoint heb je een correct OAuth2-token nodig. Je kunt dat aanleveren als GET-parameter /?access_token=1234 of als header "Bearer: 1234".
+    </p>
+
+    <h2>Toegang</h2>
+    <p>
+        De API is bereikbaar op <a href="https://people.i.bolkhuis.nl">https://people.i.bolkhuis.nl</a>. Dat vereist dat je toegang hebt tot het interne netwerk (Bolknet of VPN). Specifieke functies met minder informatie zijn ook van buiten beschikbaar op <a href="https://myinfo.debolk.nl/">https://myinfo.debolk.nl/</a>. Dat staat expliciet aangegeven bij die endpoints.
     </p>
 
     <h2>Person</h2>
@@ -132,6 +137,27 @@
           <h4>Resultaat</h4>
           <code>
             {"name": "Peter Dummy"}
+          </code>
+        </div>
+      </div>
+
+      <div class="spec get">
+        <div class="header">
+          <span class="method">GET</span>
+          <span class="url">/persons/{uid}/photo/{width}/{height}</span>
+          <span class="short">Foto van een gebruiker</span>
+        </div>
+        <div class="description">
+          <p>
+            Retourneert een foto van de gebruiker. De benodigde parameters zijn de userid, breedte en hoogte van de foto. Dit endpoint is ook buiten het interne netwerk beschikbaar via <a href="https://myinfo.debolk.nl/persons/{uid}/photo/{width}/{height}">https://myinfo.debolk.nl/persons/{uid}/photo/{width}/{height}</a>.
+          </p>
+          <h4>OAuth toegangsniveau</h4>
+          <p>Alleen leden</p>
+          <h4>Parameters</h4>
+          <p>geen</p>
+          <h4>Resultaat</h4>
+          <code>
+            data:image/jpeg;base64,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
           </code>
         </div>
       </div>

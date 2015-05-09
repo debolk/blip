@@ -23,14 +23,14 @@ class MemberCollection extends BlipResource
       case 'current': { return $this->current(); break; }
       case 'candidate': { return $this->candidate(); break; }
       case 'past': { return $this->past(); break; }
-      case 'list': { return $this->list(); break; }
+      case 'list': { return $this->limitedList(); break; }
     }
   }
 
   /**
    * Return a list of all members
    */
-  private function list()
+  private function limitedList()
   {
     return Helper\Memcache::cache('members_list', function(){
       $groups = array(

@@ -44,7 +44,7 @@ class MemberCollection extends BlipResource
       $people = array_map(function($person){
         $t = new stdClass();
         $t->uid = $person->uid;
-        $t->name = $person->name;
+        $t->name = $person->name();
         return $t;
       }, $people);
 

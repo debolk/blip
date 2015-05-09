@@ -56,7 +56,7 @@ class PersonCollection extends BlipResource
  * @uri /persons/:id/name
  * @provides application/json
  */
-class PersonNameResource
+class PersonNameResource extends BlipResource
 {
     /**
      * @method GET

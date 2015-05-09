@@ -53,6 +53,36 @@ class PersonCollection extends BlipResource
 }
 
 /**
+ * @uri /persons/:id/name
+ * @provides application/json
+ */
+class PersonNameResource
+{
+    /**
+     * @method GET
+     * @loggedIn lid
+     */
+    public function index($uid)
+    {
+        return Helper\Memcache::cache("persons_basic_$uid", function($uid){
+            // Find person
+            $person = Models\Person::fromUid($uid);
+
+            // Result does not exist
+            if ($person === null) {
+                return new Tonic\Response(404, "Person not found");
+            }
+
+            $result = new stdClass();
+            $result->name = $person->name();
+
+            // Output JSON
+            return json_encode($result, JSON_UNESCAPED_SLASHES);
+        }, $uid);
+    }
+}
+
+/**
  * @uri /persons/:id
  * @provides application/json
  */

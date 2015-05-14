@@ -53,15 +53,13 @@ class BlipResource extends Tonic\Resource
   }
 
   /**
-   * Only allow bestuur to access this API
-   * @param  Tonic\Resource $resource
+   * Check if the user can access an access level resource
+   * @param  Tonic\Resource $resource can be any valid access level resource
+   *                                  bekend (default), bestuur, ictcom, lid or mp3control
    * @return boolean
    */
-  public function loggedIn($resource)
+  public function loggedIn($resource = 'bekend')
   {
-    $unauthorized = OAuth2Helper::IsUnauthorized('bestuur');
-    if($unauthorized)
-      return $unauthorized;
-    return true;
+    return OAuth2Helper::isAuthorisedFor($resource);
   }
 }

@@ -22,3 +22,5 @@ DirectoryIndex docs/index.html
 
 Header set Access-Control-Allow-Origin "*"
 Header set Access-Control-Allow-Methods "GET, POST, PUT, PATCH"
+
+Header add Strict-Transport-Security "max-age=15768000;includeSubDomains"

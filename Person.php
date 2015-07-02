@@ -53,10 +53,10 @@ class PersonCollection extends BlipResource
 }
 
 /**
- * @uri /persons/:id/name
+ * @uri /persons/:id/basic
  * @provides application/json
  */
-class PersonNameResource extends BlipResource
+class PersonBasicResource extends BlipResource
 {
     /**
      * @method GET
@@ -75,6 +75,7 @@ class PersonNameResource extends BlipResource
 
             $result = new stdClass();
             $result->name = $person->name();
+            $result->email = $person->email;
 
             // Output JSON
             return json_encode($result, JSON_UNESCAPED_SLASHES);

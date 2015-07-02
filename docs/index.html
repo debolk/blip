@@ -161,12 +161,12 @@
       <div class="spec get">
         <div class="header">
           <span class="method">GET</span>
-          <span class="url">/persons/{uid}/name</span>
-          <span class="short">Volledige naam van een gebruiker</span>
+          <span class="url">/persons/{uid}/basic</span>
+          <span class="short">Basale details van een gebruiker</span>
         </div>
         <div class="description">
           <p>
-            Retourneert alleen de volledige naam van een gebruiker. Dit endpoint is ook buiten het interne netwerk beschikbaar via <a href="https://people.debolk.nl/persons/{uid}/name">https://people.debolk.nl/persons/{uid}/name</a>.
+            Retourneert alleen de volledige naam en e-mailadres van een gebruiker. Dit endpoint is ook buiten het interne netwerk beschikbaar via <a href="https://people.debolk.nl/persons/{uid}/basic">https://people.debolk.nl/persons/{uid}/basic</a>.
           </p>
           <h4>OAuth toegangsniveau</h4>
           <p>Alleen leden</p>
@@ -174,7 +174,7 @@
           <p>geen</p>
           <h4>Resultaat</h4>
           <code>
-            {"name": "Peter Dummy"}
+            {"name": "Peter Dummy", "email": "peter@debolk.nl"}
           </code>
         </div>
       </div>

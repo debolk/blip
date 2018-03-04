@@ -1,5 +1,6 @@
 <?php
-class OAuth2Helper {
+class OAuth2Helper
+{
 
     /**
      * Return a boolean whether the user can access a resource
@@ -8,12 +9,13 @@ class OAuth2Helper {
      */
     public static function isAuthorisedFor($resource)
     {
-        if(isset($_POST['access_token']))
+        if (isset($_POST['access_token'])) {
             $access_token = $_POST['access_token'];
-        elseif(isset($_GET['access_token']))
+        } elseif (isset($_GET['access_token'])) {
             $access_token = $_GET['access_token'];
-        else
+        } else {
             return new Tonic\Response(401, '{"error":"invalid_token","error_description":"No access token was provided"}');
+        }
 
         $base = getenv('OAUTH2_RESOURCE');
         $path = $base . $resource . '?access_token=' . urlencode($access_token);
@@ -26,8 +28,9 @@ class OAuth2Helper {
         $code = curl_getinfo($c, CURLINFO_HTTP_CODE);
         curl_close($c);
 
-        if($code == 200)
+        if ($code == 200) {
             return true;
+        }
 
         return new Tonic\Response($code, $body);
     }

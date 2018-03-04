@@ -9,7 +9,7 @@ class Photo extends BlipResource
 {
     /**
      * @method GET
-     * @loggedIn lid
+     * @loggedIn bekend
      * @return string
      */
     public function index($uid, $width, $height)

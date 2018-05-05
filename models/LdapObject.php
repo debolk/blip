@@ -91,7 +91,7 @@ class LdapObject
         if (!isset($this->attributes[$name]) || $this->attributes[$name] != $value) {
             $this->dirty[$name] = true;
         }
-        
+
         if (empty($value)) {
             $this->attributes[$name] = array();
         } else {

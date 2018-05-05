@@ -51,13 +51,13 @@ class LdapHelper
     public function escapeArgument($argument)
     {
         $sanitized=array('\\' => '\5c',
-        '*' => '\2a',
-        '(' => '\28',
-        ')' => '\29',
-        "\x00" => '\00');
+            '*' => '\2a',
+            '(' => '\28',
+            ')' => '\29',
+            "\x00" => '\00');
         return str_replace(array_keys($sanitized), array_values($sanitized), $argument);
     }
-    
+
     /**
      * Returns the last thrown error
      * @return string						the last error returned from ldap
@@ -80,7 +80,7 @@ class LdapHelper
         if (!$users || ldap_count_entries($this->ldap, $users) == 0) {
             return false;
         }
-    
+
         $users = ldap_get_entries($this->ldap, $users);
 
         return $users[0]['dn'];

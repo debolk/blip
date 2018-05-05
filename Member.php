@@ -19,13 +19,13 @@ class MemberCollection extends BlipResource
     public function router($subset = '')
     {
         switch ($subset) {
-      case '': { return $this->all(); break; }
-      case 'current': { return $this->current(); break; }
-      case 'candidate': { return $this->candidate(); break; }
-      case 'past': { return $this->past(); break; }
-      case 'list': { return $this->limitedList(); break; }
-    }
-    }
+          case '': { return $this->all(); break; }
+          case 'current': { return $this->current(); break; }
+          case 'candidate': { return $this->candidate(); break; }
+          case 'past': { return $this->past(); break; }
+          case 'list': { return $this->limitedList(); break; }
+      }
+  }
 
     /**
      * Return a list of all members
@@ -34,9 +34,9 @@ class MemberCollection extends BlipResource
     {
         return Helper\Memcache::cache('members_list', function () {
             $groups = array(
-        'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-        'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      );
+                'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+                'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+            );
 
             $people = Models\LdapGroup::peopleInGroups($groups);
 
@@ -56,11 +56,11 @@ class MemberCollection extends BlipResource
     {
         return Helper\Memcache::cache('members_all', function () {
             $groups = array(
-        'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-        'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-        'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-        'cn=ledenvanverdienste,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      );
+                'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+                'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+                'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+                'cn=ledenvanverdienste,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+            );
 
             $people = Models\LdapGroup::peopleInGroups($groups);
             return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
@@ -71,9 +71,9 @@ class MemberCollection extends BlipResource
     {
         return Helper\Memcache::cache('members_current', function () {
             $groups = array(
-        'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-        'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      );
+                'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+                'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+            );
 
             $people = Models\LdapGroup::peopleInGroups($groups);
             return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
@@ -84,8 +84,8 @@ class MemberCollection extends BlipResource
     {
         return Helper\Memcache::cache('members_candidate', function () {
             $groups = array(
-        'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      );
+                'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+            );
 
             $people = Models\LdapGroup::peopleInGroups($groups);
             return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
@@ -96,8 +96,8 @@ class MemberCollection extends BlipResource
     {
         return Helper\Memcache::cache('members_past', function () {
             $groups = array(
-        'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      );
+                'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+            );
 
             $people = Models\LdapGroup::peopleInGroups($groups);
             return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));

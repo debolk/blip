@@ -17,31 +17,31 @@ class LdapPerson extends LdapObject
     {
         parent::__construct($attributes);
         $this->calculations = array(
-      'givenname' => function () {
-          $this->setName();
-      },
+          'givenname' => function () {
+              $this->setName();
+          },
 
-      'sn' => function () {
-          $this->setName;
-      },
+          'sn' => function () {
+              $this->setName;
+          },
 
-      'uid' => function () {
-          $this->__set('homedirectory', '/home/' . $this->uid);
-          if (!isset($this->dn)) {
-              $this->dn = 'uid=' . $this->uid . ',ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl';
-          }
-      },
+          'uid' => function () {
+              $this->__set('homedirectory', '/home/' . $this->uid);
+              if (!isset($this->dn)) {
+                  $this->dn = 'uid=' . $this->uid . ',ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl';
+              }
+          },
 
-      'uidnumber' => function () {
-          $this->__set('sambasid', 'S-1-5-21-1816619821-1419577557-1603852640-'.(1000+2*$this->uidnumber));
-      },
+          'uidnumber' => function () {
+              $this->__set('sambasid', 'S-1-5-21-1816619821-1419577557-1603852640-'.(1000+2*$this->uidnumber));
+          },
 
-      'gidnumber' => function () {
-          $this->__set('sambaprimarygroupsid', 'S-1-5-21-1816619821-1419577557-1603852640-'.(1001+2*$this->gidnumber));
-      },
-    );
+          'gidnumber' => function () {
+              $this->__set('sambaprimarygroupsid', 'S-1-5-21-1816619821-1419577557-1603852640-'.(1001+2*$this->gidnumber));
+          },
+      );
     }
-  
+
     /**
      * Finds an unused uidnumber in ldap
      * @returns int         an unused uidnumber
@@ -75,7 +75,7 @@ class LdapPerson extends LdapObject
     protected function setName()
     {
         $parts = array();
-    
+
         if (isset($this->attributes['givenname'])) {
             $parts[] = $this->givenname;
         }
@@ -123,36 +123,36 @@ class LdapPerson extends LdapObject
     public static function getDefault()
     {
         $default = array(
-      'objectclass' => array(
-        'top',
-        'person',
-        'organizationalPerson',
-        'iNetOrgPerson',
-        'gosaAccount',
-        'posixAccount',
-        'shadowAccount',
-        'sambaSamAccount',
-        'sambaIdmapEntry',
+          'objectclass' => array(
+            'top',
+            'person',
+            'organizationalPerson',
+            'iNetOrgPerson',
+            'gosaAccount',
+            'posixAccount',
+            'shadowAccount',
+            'sambaSamAccount',
+            'sambaIdmapEntry',
 #        'pptpServerAccount',
-        'gosaMailAccount',
+            'gosaMailAccount',
 #        'gosaIntranetAccount',
-      ),
-      'gosamaildeliverymode' => '[L]',
-      'gosamailserver' => 'mail',
-      'gosaspammailbox' => 'INBOX',
-      'gosaspamsortlevel' => '0',
-      'gotolastsystemlogin' => '01.01.1970 00:00:00',
-      'loginshell' => '/bin/bash',
-      'sambaacctflags' => '[U           ]',
-      'sambadomainname' => 'nieuwedelft',
-      'sambahomedrive' => 'Z:',
-      'sambahomepath' => '\\\samba\commissies',
-      'sambalogofftime' => '2147483647',
-      'sambalogontime' => '0',
-      'sambapwdlastset' => '0',
-      'sambamungeddial' => 'IAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAUAAQABoACAABAEMAdAB4AEMAZgBnAFAAcgBlAHMAZQBuAHQANTUxZTBiYjAYAAgAAQBDAHQAeABDAGYAZwBGAGwAYQBnAHMAMQAwMDAwMDEwMBYAAAABAEMAdAB4AEMAYQBsAGwAYgBhAGMAawASAAgAAQBDAHQAeABTAGgAYQBkAG8AdwAwMTAwMDAwMCIAAAABAEMAdAB4AEsAZQB5AGIAbwBhAHIAZABMAGEAeQBvAHUAdAAqAAIAAQBDAHQAeABNAGkAbgBFAG4AYwByAHkAcAB0AGkAbwBuAEwAZQB2AGUAbAAwMCAAAgABAEMAdAB4AFcAbwByAGsARABpAHIAZQBjAHQAbwByAHkAMDAgAAIAAQBDAHQAeABOAFcATABvAGcAbwBuAFMAZQByAHYAZQByADAwGAACAAEAQwB0AHgAVwBGAEgAbwBtAGUARABpAHIAMDAiAAIAAQBDAHQAeABXAEYASABvAG0AZQBEAGkAcgBEAHIAaQB2AGUAMDAgAAIAAQBDAHQAeABXAEYAUAByAG8AZgBpAGwAZQBQAGEAdABoADAwIgACAAEAQwB0AHgASQBuAGkAdABpAGEAbABQAHIAbwBnAHIAYQBtADAwIgACAAEAQwB0AHgAQwBhAGwAbABiAGEAYwBrAE4AdQBtAGIAZQByADAwKAAIAAEAQwB0AHgATQBhAHgAQwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDAwLgAIAAEAQwB0AHgATQBhAHgARABpAHMAYwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDAwHAAIAAEAQwB0AHgATQBhAHgASQBkAGwAZQBUAGkAbQBlADAwMDAwMDAw',
-    );
-    
+        ),
+          'gosamaildeliverymode' => '[L]',
+          'gosamailserver' => 'mail',
+          'gosaspammailbox' => 'INBOX',
+          'gosaspamsortlevel' => '0',
+          'gotolastsystemlogin' => '01.01.1970 00:00:00',
+          'loginshell' => '/bin/bash',
+          'sambaacctflags' => '[U           ]',
+          'sambadomainname' => 'nieuwedelft',
+          'sambahomedrive' => 'Z:',
+          'sambahomepath' => '\\\samba\commissies',
+          'sambalogofftime' => '2147483647',
+          'sambalogontime' => '0',
+          'sambapwdlastset' => '0',
+          'sambamungeddial' => 'IAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAUAAQABoACAABAEMAdAB4AEMAZgBnAFAAcgBlAHMAZQBuAHQANTUxZTBiYjAYAAgAAQBDAHQAeABDAGYAZwBGAGwAYQBnAHMAMQAwMDAwMDEwMBYAAAABAEMAdAB4AEMAYQBsAGwAYgBhAGMAawASAAgAAQBDAHQAeABTAGgAYQBkAG8AdwAwMTAwMDAwMCIAAAABAEMAdAB4AEsAZQB5AGIAbwBhAHIAZABMAGEAeQBvAHUAdAAqAAIAAQBDAHQAeABNAGkAbgBFAG4AYwByAHkAcAB0AGkAbwBuAEwAZQB2AGUAbAAwMCAAAgABAEMAdAB4AFcAbwByAGsARABpAHIAZQBjAHQAbwByAHkAMDAgAAIAAQBDAHQAeABOAFcATABvAGcAbwBuAFMAZQByAHYAZQByADAwGAACAAEAQwB0AHgAVwBGAEgAbwBtAGUARABpAHIAMDAiAAIAAQBDAHQAeABXAEYASABvAG0AZQBEAGkAcgBEAHIAaQB2AGUAMDAgAAIAAQBDAHQAeABXAEYAUAByAG8AZgBpAGwAZQBQAGEAdABoADAwIgACAAEAQwB0AHgASQBuAGkAdABpAGEAbABQAHIAbwBnAHIAYQBtADAwIgACAAEAQwB0AHgAQwBhAGwAbABiAGEAYwBrAE4AdQBtAGIAZQByADAwKAAIAAEAQwB0AHgATQBhAHgAQwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDAwLgAIAAEAQwB0AHgATQBhAHgARABpAHMAYwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDAwHAAIAAEAQwB0AHgATQBhAHgASQBkAGwAZQBUAGkAbQBlADAwMDAwMDAw',
+      );
+
         $result = new self($default);
         return $result;
     }
@@ -182,7 +182,7 @@ class LdapPerson extends LdapObject
             $mail = new \Mailer\NewPerson($this->attributes['mail'], $this->attributes['uid'], $this->attributes['cn'], $this->attributes['userpassword']);
             $mail->send();
         }
-    
+
         return parent::save();
     }
 

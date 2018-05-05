@@ -11,55 +11,55 @@ class Person implements \JSONSerializable
      * The list of properties that can be set by the user
      */
     public $allowed = array(
-    'initials',
-    'firstname',
-    'lastname',
-    'email',
-    'phone',
-    'mobile',
-    'phone_parents',
-    'address',
-    'dateofbirth',
-    'gender',
-    'membership',
-  );
-  
+        'initials',
+        'firstname',
+        'lastname',
+        'email',
+        'phone',
+        'mobile',
+        'phone_parents',
+        'address',
+        'dateofbirth',
+        'gender',
+        'membership',
+    );
+
     /**
      * The mapping from local properties to properties in LdapPerson
      */
     protected $renaming = array(
-    'uid' => 'uid',
+        'uid' => 'uid',
         'initials' => 'initials',
-    'firstname' => 'givenname',
-    'lastname' => 'sn',
-    'email' => 'mail',
-    'phone' => 'telephonenumber',
-    'mobile' => 'mobile',
-    'phone_parents' => 'homephone',
-    'address' => 'homepostaladdress',
+        'firstname' => 'givenname',
+        'lastname' => 'sn',
+        'email' => 'mail',
+        'phone' => 'telephonenumber',
+        'mobile' => 'mobile',
+        'phone_parents' => 'homephone',
+        'address' => 'homepostaladdress',
         'dateofbirth' => 'dateofbirth',
-    'gender' => 'gender',
+        'gender' => 'gender',
         'initials' => 'initials',
-  );
+    );
 
     protected $additionalClasses = array(
-    'lid' => array('pptpServerAccount', 'gosaIntranetAccount'),
-    'oudlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
-    'geen lid' => array(),
-    'lidvanverdienste' => array(),
-    'kandidaatlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
-  );
+        'lid' => array('pptpServerAccount', 'gosaIntranetAccount'),
+        'oudlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
+        'geen lid' => array(),
+        'lidvanverdienste' => array(),
+        'kandidaatlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
+    );
 
     /**
      * The mapping from membership status to guidnumber
      */
     protected $groupIds = array(
-    'lid' => 1025,
-    'kandidaatlid' => 1084,
-    'oudlid' => 1095,
-    'lidvanverdienste' => 1098,
-    'geen lid' => 1097,
-  );
+        'lid' => 1025,
+        'kandidaatlid' => 1084,
+        'oudlid' => 1095,
+        'lidvanverdienste' => 1098,
+        'geen lid' => 1097,
+    );
 
     protected $dirty = array();
     protected $pass;
@@ -130,7 +130,7 @@ class Person implements \JSONSerializable
     {
         $ldap = \Helper\LdapHelper::connect();
         $search = $ldap->search('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate))(!(uid=nobody))' . $query . ')');
-    
+
         $results = array();
         foreach ($search as $key => $object) {
             if ($key === 'count') {
@@ -226,7 +226,7 @@ class Person implements \JSONSerializable
             }
         }
     }
-  
+
 
     /**
      * Returns an array-representation of this Person
@@ -235,10 +235,10 @@ class Person implements \JSONSerializable
     public function to_array()
     {
         return array_merge($this->attributes, [
-      'href' => getenv('BASE_URL').'persons/'.$this->__get('uid'),
-      'name' => $this->name(),
-      'membership' => $this->membership(),
-    ]);
+          'href' => getenv('BASE_URL').'persons/'.$this->__get('uid'),
+          'name' => $this->name(),
+          'membership' => $this->membership(),
+      ]);
     }
 
     /**
@@ -269,10 +269,10 @@ class Person implements \JSONSerializable
     public function membership()
     {
         $groups = array(
-      'lid' => 'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      'kandidaatlid' => 'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      'oudlid' => 'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-    );
+          'lid' => 'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+          'kandidaatlid' => 'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+          'oudlid' => 'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
+      );
 
         foreach ($groups as $status => $dn) {
             $group = LdapGroup::fromDn($dn);
@@ -280,10 +280,10 @@ class Person implements \JSONSerializable
                 return $status;
             }
         }
-    
+
         return 'geen lid';
     }
-  
+
     /**
      * Adds this user to the group belonging to the new membership status
      * and saves the member
@@ -306,7 +306,7 @@ class Person implements \JSONSerializable
             $group->removeMember($this->attributes['uid']);
             $group->save();
         }
-    
+
         //Add to new group
         $group = LdapGroup::fromDn(LdapGroup::$memberGroups[$membership]);
         $group->addMember($this->attributes['uid']);
@@ -335,7 +335,7 @@ class Person implements \JSONSerializable
 
             $this->ldapPerson->objectclass = $new;
         }
-    
+
         //Add new objectclasses
         foreach ($this->additionalClasses[$membership] as $class) {
             if (in_array($class, $this->ldapPerson->objectclass)) {
@@ -345,7 +345,7 @@ class Person implements \JSONSerializable
             $new = array_merge($this->ldapPerson->objectclass, array($class));
             $this->ldapPerson->objectclass = $new;
         }
-    
+
         $this->save();
     }
 

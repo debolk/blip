@@ -75,7 +75,7 @@ class LdapGroup extends LdapObject
         if (!isset($this->attributes['memberuid'])) {
             return $result;
         }
-    
+
         //Convert to array if this is a string
         if (is_string($this->memberuid)) {
             $this->attributes['memberuid'] = array($this->memberuid);
@@ -112,7 +112,7 @@ class LdapGroup extends LdapObject
         if (!isset($this->attributes['memberuid'])) {
             $this->attributes['memberuid'] = array();
         }
-   
+
         //Convert to array if this is a string
         if (is_string($this->memberuid)) {
             $this->attributes['memberuid'] = array($this->memberuid);

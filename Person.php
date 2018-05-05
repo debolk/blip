@@ -60,7 +60,7 @@ class PersonBasicResource extends BlipResource
 {
     /**
      * @method GET
-     * @loggedIn lid
+     * @loggedIn bekend
      */
     public function index($uid)
     {

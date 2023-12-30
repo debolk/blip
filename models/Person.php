@@ -16,12 +16,13 @@ class Person implements \JSONSerializable
         'lastname',
         'email',
         'phone',
-        'mobile',
         'phone_parents',
         'address',
-        'dateofbirth',
         'gender',
-        'membership',
+        'pronouns',
+        'nickname',
+        'programme',
+        'institution',
     );
 
     /**
@@ -30,24 +31,24 @@ class Person implements \JSONSerializable
     protected $renaming = array(
         'uid' => 'uid',
         'initials' => 'initials',
-        'firstname' => 'givenname',
+        'firstname' => 'givenName',
         'lastname' => 'sn',
         'email' => 'mail',
-        'phone' => 'telephonenumber',
-        'mobile' => 'mobile',
-        'phone_parents' => 'homephone',
-        'address' => 'homepostaladdress',
-        'dateofbirth' => 'dateofbirth',
+        'phone' => 'homePhone',
+        'phone_parents' => 'fdParentPhone',
+        'address' => 'homePostalAddress',
+        'dateofbirth' => 'dateOfBirth',
         'gender' => 'gender',
-        'initials' => 'initials',
-    );
-
-    protected $additionalClasses = array(
-        'lid' => array('pptpServerAccount', 'gosaIntranetAccount'),
-        'oudlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
-        'geen lid' => array(),
-        'lidvanverdienste' => array(),
-        'kandidaatlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
+        'pronouns' => 'fdPronouns',
+        'membership' => 'gidNumber',
+        'nickname' => 'fdNickName',
+        'programme' => 'fdProgramme',
+        'institution' => 'fdInstitution',
+        'iva' => 'fdIVA',
+        'inauguration_date' => 'fdDateOfInauguration',
+        'resignation_letter' => 'fdDateOfResignationLetter',
+        'resignation' => 'fdDateOfResignation',
+        'dead' => 'fdDead',
     );
 
     /**
@@ -58,6 +59,7 @@ class Person implements \JSONSerializable
         'kandidaatlid' => 1084,
         'oudlid' => 1095,
         'lidvanverdienste' => 1098,
+        'donateur' => 1014,
         'geen lid' => 1097,
     );
 
@@ -114,7 +116,7 @@ class Person implements \JSONSerializable
             throw new \Exception("User ($uid) not found!");
         }
 
-        if (in_array('gosaUserTemplate', $person->objectclass)) {
+        if (in_array('gosaUserTemplate', $person->objectClass)) {
             return false;
         }
 
@@ -126,10 +128,10 @@ class Person implements \JSONSerializable
      * @param string $query     the ldap query
      * @returns array           the persons matching the query
      */
-    public static function where($query)
+    public static function where($query, $basedn = null)
     {
         $ldap = \Helper\LdapHelper::connect();
-        $search = $ldap->search('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate))(!(uid=nobody))' . $query . ')');
+        $search = $ldap->search('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate))(!(uid=nobody))' . $query . ')', null, $basedn);
 
         $results = array();
         foreach ($search as $key => $object) {
@@ -161,7 +163,7 @@ class Person implements \JSONSerializable
         if ($this->ldapPerson == null) {
             $this->attributes['uid'] = $this->findUid();
             $this->ldapPerson = LdapPerson::getDefault();
-            $setgroup = true;
+            $setdept = true;
         }
 
         $data = $this->to_array();
@@ -173,7 +175,7 @@ class Person implements \JSONSerializable
             $ldapkey = $this->renaming[$key];
             $this->ldapPerson->$ldapkey = $value;
         }
-        $this->ldapPerson->gidnumber = $this->groupIds[$data['membership']];
+
         if (isset($this->pass)) {
             $this->ldapPerson->userpassword = $this->pass;
         }
@@ -181,8 +183,8 @@ class Person implements \JSONSerializable
         $result = $this->ldapPerson->save();
 
         //Set membership after saving
-        if (isset($setgroup) && isset($this->attributes['membership'])) {
-            $this->setMembership($this->attributes['membership']);
+        if (isset($setdept) && isset($this->attributes['membership'])) {
+            $this->ldapPerson->moveDN($this->attributes['uid'], LdapDepartment::$memberDeps[$this->attributes['membership']]);
         }
 
         return $result;
@@ -268,15 +270,10 @@ class Person implements \JSONSerializable
      */
     public function membership()
     {
-        $groups = array(
-          'lid' => 'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-          'kandidaatlid' => 'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-          'oudlid' => 'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      );
 
-        foreach ($groups as $status => $dn) {
-            $group = LdapGroup::fromDn($dn);
-            if ($group->hasMember($this->uid)) {
+        foreach (LdapDepartment::$memberDeps as $status => $dn) {
+            $dept = LdapDepartment::fromDn($dn);
+            if ($dept->hasMember($this->uid)) {
                 return $status;
             }
         }
@@ -291,7 +288,7 @@ class Person implements \JSONSerializable
      */
     public function setMembership($membership)
     {
-        if (!array_key_exists($membership, LdapGroup::$memberGroups)) {
+        if (!array_key_exists($membership, LdapDepartment::$memberDeps)) {
             return;
         }
 
@@ -300,50 +297,12 @@ class Person implements \JSONSerializable
             return;
         }
 
-        //Remove from current groups
-        foreach (LdapGroup::$memberGroups as $type => $dn) {
-            $group = LdapGroup::fromDn($dn);
-            $group->removeMember($this->attributes['uid']);
-            $group->save();
-        }
-
-        //Add to new group
-        $group = LdapGroup::fromDn(LdapGroup::$memberGroups[$membership]);
-        $group->addMember($this->attributes['uid']);
-        $group->save();
-
-        $this->save();
+        $this->ldapPerson->moveDN($this->attributes['uid'], LdapDepartment::$memberDeps[$this->attributes['membership']]);
 
         if (in_array($membership, array('lid', 'kandidaatlid'))) {
             if (!isset($this->ldapPerson->userpassword)) {
                 $this->generatePassword();
             }
-        }
-
-        //Remove objectclasses from previous status
-        foreach ($this->additionalClasses[$prev] as $class) {
-            if (!in_array($class, $this->ldapPerson->objectclass)) {
-                continue;
-            }
-
-            $new = array();
-            foreach ($this->ldapPerson->objectclass as $prevclass) {
-                if ($prevclass != $class) {
-                    $new[] = $prevclass;
-                }
-            }
-
-            $this->ldapPerson->objectclass = $new;
-        }
-
-        //Add new objectclasses
-        foreach ($this->additionalClasses[$membership] as $class) {
-            if (in_array($class, $this->ldapPerson->objectclass)) {
-                continue;
-            }
-
-            $new = array_merge($this->ldapPerson->objectclass, array($class));
-            $this->ldapPerson->objectclass = $new;
         }
 
         $this->save();

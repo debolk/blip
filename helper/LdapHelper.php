@@ -188,6 +188,17 @@ class LdapHelper
     }
 
     /**
+     * Renames an object in ldap
+     * @param string $dn          DN of the entry
+     * @param string $new_dn      New DN of the entry
+     * @return bool               TRUE on success of FALSE on failure
+     */
+    public function rename($dn, $new_dn)
+    {
+        return @ldap_rename($this->ldap, $dn, $new_dn, '', true);
+    }
+
+    /**
      * Recursively strip all unneeded 'count' parameters from a LDAP-result
      * @param  array $array array to filter
      * @return array        filtered array

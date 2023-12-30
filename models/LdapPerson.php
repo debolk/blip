@@ -17,7 +17,7 @@ class LdapPerson extends LdapObject
     {
         parent::__construct($attributes);
         $this->calculations = array(
-          'givenname' => function () {
+          'givenName' => function () {
               $this->setName();
           },
 
@@ -28,16 +28,8 @@ class LdapPerson extends LdapObject
           'uid' => function () {
               $this->__set('homedirectory', '/home/' . $this->uid);
               if (!isset($this->dn)) {
-                  $this->dn = 'uid=' . $this->uid . ',ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl';
+                  $this->dn = 'uid=' . $this->uid . ',ou=people,o=nieuwedelft,dc=i,dc=personaltardis,dc=me';
               }
-          },
-
-          'uidnumber' => function () {
-              $this->__set('sambasid', 'S-1-5-21-1816619821-1419577557-1603852640-'.(1000+2*$this->uidnumber));
-          },
-
-          'gidnumber' => function () {
-              $this->__set('sambaprimarygroupsid', 'S-1-5-21-1816619821-1419577557-1603852640-'.(1001+2*$this->gidnumber));
           },
       );
     }
@@ -55,7 +47,7 @@ class LdapPerson extends LdapObject
 
         // Slap array until it's formatted
         $numbers = array_map(function ($e) {
-            return (int)$e['uidnumber'][0];
+            return (int)$e['uidNumber'][0];
         }, $search);
 
         $max = 1000;
@@ -76,7 +68,7 @@ class LdapPerson extends LdapObject
     {
         $parts = array();
 
-        if (isset($this->attributes['givenname'])) {
+        if (isset($this->attributes['givenName'])) {
             $parts[] = $this->givenname;
         }
         if (isset($this->attributes['sn'])) {
@@ -131,11 +123,9 @@ class LdapPerson extends LdapObject
             'gosaAccount',
             'posixAccount',
             'shadowAccount',
-            'sambaSamAccount',
-            'sambaIdmapEntry',
-#        'pptpServerAccount',
+            'fdBolkData',
+            'fdBolkDataAVG',
             'gosaMailAccount',
-#        'gosaIntranetAccount',
         ),
           'gosamaildeliverymode' => '[L]',
           'gosamailserver' => 'mail',
@@ -143,14 +133,18 @@ class LdapPerson extends LdapObject
           'gosaspamsortlevel' => '0',
           'gotolastsystemlogin' => '01.01.1970 00:00:00',
           'loginshell' => '/bin/bash',
-          'sambaacctflags' => '[U           ]',
-          'sambadomainname' => 'nieuwedelft',
-          'sambahomedrive' => 'Z:',
-          'sambahomepath' => '\\\samba\commissies',
-          'sambalogofftime' => '2147483647',
-          'sambalogontime' => '0',
-          'sambapwdlastset' => '0',
-          'sambamungeddial' => 'IAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAUAAQABoACAABAEMAdAB4AEMAZgBnAFAAcgBlAHMAZQBuAHQANTUxZTBiYjAYAAgAAQBDAHQAeABDAGYAZwBGAGwAYQBnAHMAMQAwMDAwMDEwMBYAAAABAEMAdAB4AEMAYQBsAGwAYgBhAGMAawASAAgAAQBDAHQAeABTAGgAYQBkAG8AdwAwMTAwMDAwMCIAAAABAEMAdAB4AEsAZQB5AGIAbwBhAHIAZABMAGEAeQBvAHUAdAAqAAIAAQBDAHQAeABNAGkAbgBFAG4AYwByAHkAcAB0AGkAbwBuAEwAZQB2AGUAbAAwMCAAAgABAEMAdAB4AFcAbwByAGsARABpAHIAZQBjAHQAbwByAHkAMDAgAAIAAQBDAHQAeABOAFcATABvAGcAbwBuAFMAZQByAHYAZQByADAwGAACAAEAQwB0AHgAVwBGAEgAbwBtAGUARABpAHIAMDAiAAIAAQBDAHQAeABXAEYASABvAG0AZQBEAGkAcgBEAHIAaQB2AGUAMDAgAAIAAQBDAHQAeABXAEYAUAByAG8AZgBpAGwAZQBQAGEAdABoADAwIgACAAEAQwB0AHgASQBuAGkAdABpAGEAbABQAHIAbwBnAHIAYQBtADAwIgACAAEAQwB0AHgAQwBhAGwAbABiAGEAYwBrAE4AdQBtAGIAZQByADAwKAAIAAEAQwB0AHgATQBhAHgAQwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDAwLgAIAAEAQwB0AHgATQBhAHgARABpAHMAYwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDAwHAAIAAEAQwB0AHgATQBhAHgASQBkAGwAZQBUAGkAbQBlADAwMDAwMDAw',
+          'fdAVGAccept' => 'TRUE',
+          'fdAddressShare' => 'TRUE',
+          'fdDoBShare' => 'TRUE',
+          'fdGenderShare' => 'TRUE',
+          'fdInstitutionShare' => 'TRUE',
+          'fdProgrammeShare' => 'TRUE',
+          'fdMailShare' => 'TRUE',
+          'fdParentPhoneShare' => 'FALSE',
+          'fdPhoneShare' => 'TRUE',
+          'fdPronounsShare' => 'TRUE',
+          'fdDead' => 'FALSE',
+          'fdPhotoVisible' => 'TRUE',
       );
 
         $result = new self($default);
@@ -174,12 +168,12 @@ class LdapPerson extends LdapObject
     public function save()
     {
         if (!$this->exists) {
-            $this->__set('uidnumber', self::findUidnumber());
+            $this->__set('uidNumber', self::findUidnumber());
         }
 
         //Send mail if password changes
-        if (isset($this->dirty['userpassword'])) {
-            $mail = new \Mailer\NewPerson($this->attributes['mail'], $this->attributes['uid'], $this->attributes['cn'], $this->attributes['userpassword']);
+        if (isset($this->dirty['userPassword'])) {
+            $mail = new \Mailer\NewPerson($this->attributes['mail'], $this->attributes['uid'], $this->attributes['cn'], $this->attributes['userPassword']);
             $mail->send();
         }
 
@@ -199,5 +193,18 @@ class LdapPerson extends LdapObject
         if (array_key_exists($name, $this->calculations)) {
             $this->calculations[$name]();
         }
+    }
+
+    /**
+     * Moves the DN of the LdapPerson to a new place
+     * @param $newDN        the DN to move the LdapPerson to
+     * @return bool         TRUE on success, FALSE on failure
+     */
+    public function moveDN($uid, $newDN)
+    {
+        $ldap = \Helper\LdapHelper::connect();
+        $dn = $ldap->getDn($uid);
+
+        return $ldap->rename($dn, $newDN);
     }
 }

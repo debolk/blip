@@ -6,7 +6,7 @@ class LdapDepartment extends LdapObject
     /**
      * The mappings from membership status to the group they should belong to
      */
-    public static $memberDeps = array(
+    public static $memberDepts = array(
       'lid' => 'ou=people,ou=leden,o=nieuwedelft,dc=i,dc=personaltardis,dc=me',
       'kandidaatlid' => 'ou=people,ou=kandidaatleden,o=nieuwedelft,dc=i,dc=personaltardis,dc=me',
       'oudlid' => 'ou=people,ou=oudleden,o=nieuwedelft,dc=i,dc=personaltardis,dc=me',
@@ -30,7 +30,7 @@ class LdapDepartment extends LdapObject
      * Construct a Department-object from its DN
      * @static
      * @param  string $dn DN to load
-     * @return Person     complete Department-object
+     * @return LdapDepartment complete Department-object
      */
     public static function fromDn($dn)
     {
@@ -50,15 +50,15 @@ class LdapDepartment extends LdapObject
 
     /**
      * Returns the People in an array of departments
-     * @param array $deps  An array of DNs to look up
+     * @param array $depts  An array of DNs to look up
      * @return array         The people in the specified groups
      */
-    public static function peopleInDeps($deps)
+    public static function peopleInDepts($depts)
     {
         $results = array();
 
-        foreach ($deps as $dep) {
-            $results = array_merge($results, self::fromDn($dep)->people());
+        foreach ($depts as $dept) {
+            $results = array_merge($results, self::fromDn($dept)->people());
         }
 
         return $results;

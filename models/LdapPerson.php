@@ -200,11 +200,10 @@ class LdapPerson extends LdapObject
      * @param $newDN        the DN to move the LdapPerson to
      * @return bool         TRUE on success, FALSE on failure
      */
-    public function moveDN($uid, $newDN)
+    public function moveDN($newDN)
     {
         $ldap = \Helper\LdapHelper::connect();
-        $dn = $ldap->getDn($uid);
 
-        return $ldap->rename($dn, $newDN);
+        return $ldap->rename($this->attributes['dn'], $newDN);
     }
 }

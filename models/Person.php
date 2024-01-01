@@ -184,7 +184,7 @@ class Person implements \JSONSerializable
 
         //Set membership after saving
         if (isset($setdept) && isset($this->attributes['membership'])) {
-            $this->ldapPerson->moveDN($this->attributes['uid'], LdapDepartment::$memberDeps[$this->attributes['membership']]);
+            $this->ldapPerson->moveDN($this->attributes['uid'], LdapDepartment::$memberDepts[$this->attributes['membership']]);
         }
 
         return $result;
@@ -271,7 +271,7 @@ class Person implements \JSONSerializable
     public function membership()
     {
 
-        foreach (LdapDepartment::$memberDeps as $status => $dn) {
+        foreach (LdapDepartment::$memberDepts as $status => $dn) {
             $dept = LdapDepartment::fromDn($dn);
             if ($dept->hasMember($this->uid)) {
                 return $status;
@@ -288,7 +288,7 @@ class Person implements \JSONSerializable
      */
     public function setMembership($membership)
     {
-        if (!array_key_exists($membership, LdapDepartment::$memberDeps)) {
+        if (!array_key_exists($membership, LdapDepartment::$memberDepts)) {
             return;
         }
 
@@ -297,7 +297,7 @@ class Person implements \JSONSerializable
             return;
         }
 
-        $this->ldapPerson->moveDN($this->attributes['uid'], LdapDepartment::$memberDeps[$this->attributes['membership']]);
+        $this->ldapPerson->moveDN($this->attributes['uid'], LdapDepartment::$memberDepts[$this->attributes['membership']]);
 
         if (in_array($membership, array('lid', 'kandidaatlid'))) {
             if (!isset($this->ldapPerson->userpassword)) {
@@ -327,6 +327,7 @@ class Person implements \JSONSerializable
         if (isset($this->attributes[$name])) {
             return $this->attributes[$name];
         }
+        return false;
     }
 
     /**

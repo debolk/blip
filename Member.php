@@ -38,7 +38,7 @@ class MemberCollection extends BlipResource
                 'ou=people,ou=kandidaatleden,o=nieuwedelft,dc=i,dc=personaltardis,dc=me',
             );
 
-            $people = Models\LdapDepartment::peopleInDeps($groups);
+            $people = Models\LdapDepartment::peopleInDepts($groups);
 
             // Filter to the desired attributes
             $people = array_map(function ($person) {
@@ -64,7 +64,7 @@ class MemberCollection extends BlipResource
                 'ou=people,ou=exleden,o=nieuwedelft,dc=i,dc=personaltardis,dc=me',
             );
 
-            $people = Models\LdapDepartment::peopleInDeps($groups);
+            $people = Models\LdapDepartment::peopleInDepts($groups);
             return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
         });
     }
@@ -77,7 +77,7 @@ class MemberCollection extends BlipResource
                 'ou=people,ou=kandidaatleden,o=nieuwedelft,dc=i,dc=personaltardis,dc=me',
             );
 
-            $people = Models\LdapDepartment::peopleInDeps($groups);
+            $people = Models\LdapDepartment::peopleInDepts($groups);
             return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
         });
     }
@@ -89,7 +89,7 @@ class MemberCollection extends BlipResource
                 'ou=people,ou=kandidaatleden,o=nieuwedelft,dc=i,dc=personaltardis,dc=me',
             );
 
-            $people = Models\LdapDepartment::peopleInDeps($groups);
+            $people = Models\LdapDepartment::peopleInDepts($groups);
             return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
         });
     }
@@ -102,7 +102,7 @@ class MemberCollection extends BlipResource
                 'ou=people,ou=exleden,o=nieuwedelft,dc=i,dc=personaltardis,dc=me',
             );
 
-            $people = Models\LdapDepartment::peopleInDeps($groups);
+            $people = Models\LdapDepartment::peopleInDepts($groups);
             return new Tonic\Response(200, json_encode($people, JSON_UNESCAPED_SLASHES));
         });
     }

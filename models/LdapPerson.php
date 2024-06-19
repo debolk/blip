@@ -26,18 +26,9 @@ class LdapPerson extends LdapObject
           },
 
           'uid' => function () {
-              $this->__set('homedirectory', '/home/' . $this->uid);
               if (!isset($this->dn)) {
-                  $this->dn = 'uid=' . $this->uid . ',ou=people,o=nieuwedelft,dc=bolkhuis,dc=nl';
+                  $this->dn = 'uid=' . $this->uid . ',ou=people,o=nieuwedelft,dc=i,dc=bolkhuis,dc=nl'; /** NOTE: THIS IS MEANT TO BE A PLACEHOLDER GROUP */
               }
-          },
-
-          'uidnumber' => function () {
-              $this->__set('sambasid', 'S-1-5-21-1816619821-1419577557-1603852640-'.(1000+2*$this->uidnumber));
-          },
-
-          'gidnumber' => function () {
-              $this->__set('sambaprimarygroupsid', 'S-1-5-21-1816619821-1419577557-1603852640-'.(1001+2*$this->gidnumber));
           },
       );
     }
@@ -131,26 +122,13 @@ class LdapPerson extends LdapObject
             'gosaAccount',
             'posixAccount',
             'shadowAccount',
-            'sambaSamAccount',
-            'sambaIdmapEntry',
-#        'pptpServerAccount',
             'gosaMailAccount',
-#        'gosaIntranetAccount',
+            'fdBolkData',
         ),
           'gosamaildeliverymode' => '[L]',
           'gosamailserver' => 'mail',
           'gosaspammailbox' => 'INBOX',
           'gosaspamsortlevel' => '0',
-          'gotolastsystemlogin' => '01.01.1970 00:00:00',
-          'loginshell' => '/bin/bash',
-          'sambaacctflags' => '[U           ]',
-          'sambadomainname' => 'nieuwedelft',
-          'sambahomedrive' => 'Z:',
-          'sambahomepath' => '\\\samba\commissies',
-          'sambalogofftime' => '2147483647',
-          'sambalogontime' => '0',
-          'sambapwdlastset' => '0',
-          'sambamungeddial' => 'IAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAUAAQABoACAABAEMAdAB4AEMAZgBnAFAAcgBlAHMAZQBuAHQANTUxZTBiYjAYAAgAAQBDAHQAeABDAGYAZwBGAGwAYQBnAHMAMQAwMDAwMDEwMBYAAAABAEMAdAB4AEMAYQBsAGwAYgBhAGMAawASAAgAAQBDAHQAeABTAGgAYQBkAG8AdwAwMTAwMDAwMCIAAAABAEMAdAB4AEsAZQB5AGIAbwBhAHIAZABMAGEAeQBvAHUAdAAqAAIAAQBDAHQAeABNAGkAbgBFAG4AYwByAHkAcAB0AGkAbwBuAEwAZQB2AGUAbAAwMCAAAgABAEMAdAB4AFcAbwByAGsARABpAHIAZQBjAHQAbwByAHkAMDAgAAIAAQBDAHQAeABOAFcATABvAGcAbwBuAFMAZQByAHYAZQByADAwGAACAAEAQwB0AHgAVwBGAEgAbwBtAGUARABpAHIAMDAiAAIAAQBDAHQAeABXAEYASABvAG0AZQBEAGkAcgBEAHIAaQB2AGUAMDAgAAIAAQBDAHQAeABXAEYAUAByAG8AZgBpAGwAZQBQAGEAdABoADAwIgACAAEAQwB0AHgASQBuAGkAdABpAGEAbABQAHIAbwBnAHIAYQBtADAwIgACAAEAQwB0AHgAQwBhAGwAbABiAGEAYwBrAE4AdQBtAGIAZQByADAwKAAIAAEAQwB0AHgATQBhAHgAQwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDAwLgAIAAEAQwB0AHgATQBhAHgARABpAHMAYwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDAwHAAIAAEAQwB0AHgATQBhAHgASQBkAGwAZQBUAGkAbQBlADAwMDAwMDAw',
       );
 
         $result = new self($default);

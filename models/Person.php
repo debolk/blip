@@ -20,8 +20,7 @@ class Person implements \JSONSerializable
         'phone_parents',
         'address',
         'dateofbirth',
-        'gender',
-        'membership',
+        'pronouns'
     );
 
     /**
@@ -38,7 +37,7 @@ class Person implements \JSONSerializable
         'phone_parents' => 'homephone',
         'address' => 'homepostaladdress',
         'dateofbirth' => 'dateofbirth',
-        'gender' => 'gender',
+        'pronouns' => 'pronouns',
         'initials' => 'initials',
     );
 
@@ -52,14 +51,17 @@ class Person implements \JSONSerializable
 
     /**
      * The mapping from membership status to guidnumber
+     *
+     * DEPRECATED?
+     *
      */
-    protected $groupIds = array(
+    /** protected $groupIds = array(
         'lid' => 1025,
         'kandidaatlid' => 1084,
         'oudlid' => 1095,
         'lidvanverdienste' => 1098,
         'geen lid' => 1097,
-    );
+    ); */
 
     protected $dirty = array();
     protected $pass;
@@ -98,7 +100,7 @@ class Person implements \JSONSerializable
      */
     public function generatePassword()
     {
-        $this->pass = bin2hex(openssl_random_pseudo_bytes(5));
+        $this->pass = bin2hex(openssl_random_pseudo_bytes(8));
     }
 
     /**
@@ -266,15 +268,9 @@ class Person implements \JSONSerializable
      * The membership status of this person
      * @return string
      */
-    public function membership()
-    {
-        $groups = array(
-          'lid' => 'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-          'kandidaatlid' => 'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-          'oudlid' => 'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      );
+    public function membership() {
 
-        foreach ($groups as $status => $dn) {
+        foreach (LdapGroup::$memberGroups as $status => $dn) {
             $group = LdapGroup::fromDn($dn);
             if ($group->hasMember($this->uid)) {
                 return $status;

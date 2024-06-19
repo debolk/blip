@@ -7,12 +7,12 @@ class LdapGroup extends LdapObject
      * The mappings from membership status to the group they should belong to
      */
     public static $memberGroups = array(
-      'lid' => 'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      'kandidaatlid' => 'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      'oudlid' => 'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      'lidvanverdienste' => 'cn=ledenvanverdienste,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-      'geen lid' => 'cn=exleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
-  );
+      'lid' => 'ou=people,ou=leden,o=nieuwedelft,dc=i,dc=bolkhuis,dc=nl',
+      'kandidaatlid' => 'ou=people,ou=kandidaatleden,o=nieuwedelft,dc=i,dc=bolkhuis,dc=nl',
+      'oudlid' => 'ou=people,ou=oud-leden,o=nieuwedelft,dc=i,dc=bolkhuis,dc=nl',
+      'lidvanverdienste' => 'ou=people,ou=ledenvanverdienste,o=nieuwedelft,dc=i,dc=bolkhuis,dc=nl',
+      'geen lid' => 'ou=people,ou=exleden,o=nieuwedelft,dc=i,dc=bolkhuis,dc=nl',
+    );
 
     protected static $cache = array();
 

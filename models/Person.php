@@ -16,7 +16,6 @@ class Person implements \JSONSerializable
         'lastname',
         'email',
         'phone',
-        'mobile',
         'phone_parents',
         'address',
         'dateofbirth',
@@ -32,13 +31,11 @@ class Person implements \JSONSerializable
         'firstname' => 'givenname',
         'lastname' => 'sn',
         'email' => 'mail',
-        'phone' => 'telephonenumber',
-        'mobile' => 'mobile',
-        'phone_parents' => 'homephone',
+        'phone' => 'homePhone',
+        'phone_parents' => 'fdParentPhone',
         'address' => 'homepostaladdress',
         'dateofbirth' => 'dateofbirth',
-        'pronouns' => 'pronouns',
-        'initials' => 'initials',
+        'pronouns' => 'fdPronouns',
     );
 
     protected $additionalClasses = array(

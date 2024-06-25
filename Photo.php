@@ -43,12 +43,12 @@ class Photo extends BlipResource
             }
         }
 
-        // Retrieve an image from placekitten.com
+        // Retrieve an image from lunoct.nl
         if (!$photo) {
             // Random per-user seed to generate different kittens
             $seed = ((int)substr(base_convert(md5($uid), 16, 10), -6)) % 500;
 
-            $request = curl_init('http://placekitten.com/g/' . (1024 + $seed) . '/' . (1024 + $seed));
+            $request = curl_init('https://api.lunoct.nl/avatar/' . $seed . '?background=ffffff');
             curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
             $photo = curl_exec($request);
         }

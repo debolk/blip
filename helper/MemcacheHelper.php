@@ -5,11 +5,11 @@ namespace Helper;
 /**
  * Simple helper class atop of Memcache
  */
-class Memcache
+class MemcacheHelper
 {
     /**
      * Connect to the memcache server
-     * @return Memcache the Memcache class
+     * @return \Memcache the Memcache class
      */
     private static function connect()
     {

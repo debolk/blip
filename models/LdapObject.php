@@ -2,21 +2,23 @@
 
 namespace Models;
 
+use Helper\LdapHelper;
+
 /**
  * Handles creation ldap objects
  */
 class LdapObject
 {
-    protected $exists = false;
-    protected $attributes = array();
+    protected bool $exists = false;
+    protected array $attributes = array();
     protected $dirty = array();
-    public $dn = null;
+    public ?string $dn = null;
 
     /**
      * Creates a new LdapObject
      * @param array $attributes  The attributes to set
      */
-    public function __construct($attributes = array())
+    public function __construct(array $attributes = array())
     {
         $this->attributes = $attributes;
     }
@@ -24,11 +26,11 @@ class LdapObject
     /**
      * Creates an LdapObject from a dn
      * @param  string $dn   the DN to look up
-     * @return LdapEntry    the specified entry under the dn
+     * @return LdapObject   the specified entry under the dn
      */
-    public static function fromDn($dn)
+    public static function fromDn(string $dn) : LdapObject
     {
-        $ldap = \Helper\LdapHelper::connect();
+        $ldap = LdapHelper::Connect();
 
         $attributes = $ldap->get($dn);
         #$attributes = $ldap->flatten($attributes);
@@ -44,10 +46,10 @@ class LdapObject
      * @param  string $name the property to read
      * @return mixed        the value of the property
      */
-    public function __get($name)
+    public function __get(string $name) : mixed
     {
         if (!isset($this->attributes[$name])) {
-            return;
+            return null;
         }
 
         if (!is_array($this->attributes[$name])) {
@@ -76,7 +78,7 @@ class LdapObject
      * @param string $name  the property to look up
      * @return bool         wether the property exists
      */
-    public function __isset($name)
+    public function __isset(string $name) : bool
     {
         return isset($this->attributes[$name]);
     }
@@ -86,7 +88,7 @@ class LdapObject
      * @param string $name  the property to set
      * @param mixed $value  the value to set
      */
-    public function __set($name, $value)
+    public function __set(string $name, mixed $value)
     {
         if (!isset($this->attributes[$name]) || $this->attributes[$name] != $value) {
             $this->dirty[$name] = true;
@@ -102,7 +104,7 @@ class LdapObject
     /**
      * Saves the LdapObject to Ldap
      */
-    public function save()
+    public function save() : bool
     {
         if (count($this->dirty) == 0) {
             return true;

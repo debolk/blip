@@ -2,6 +2,8 @@
 
 namespace Models;
 
+use Helper\LdapHelper;
+
 /**
  * Handles creation of new users in Ldap
  */
@@ -13,7 +15,7 @@ class LdapPerson extends LdapObject
      * Creates a new LdapEntry
      * @param array $attributes  The attributes to set
      */
-    public function __construct($attributes = array())
+    public function __construct(array $attributes = array())
     {
         parent::__construct($attributes);
         $this->calculations = array(
@@ -27,7 +29,7 @@ class LdapPerson extends LdapObject
 
           'uid' => function () {
               if (!isset($this->dn)) {
-                  $this->dn = 'uid=' . $this->uid . ',ou=people,o=nieuwedelft,dc=i,dc=bolkhuis,dc=nl'; /** NOTE: THIS IS MEANT TO BE A PLACEHOLDER GROUP */
+                  $this->dn = 'uid=' . $this->uid . ',ou=people,o=nieuwedelft,' . LdapHelper::Connect()->basedn; /** NOTE: THIS IS MEANT TO BE A PLACEHOLDER GROUP */
               }
           },
       );
@@ -37,7 +39,7 @@ class LdapPerson extends LdapObject
      * Finds an unused uidnumber in ldap
      * @returns int         an unused uidnumber
      */
-    protected static function findUidnumber()
+    protected static function findUidnumber() : int
     {
         $ldap = \Helper\LdapHelper::connect();
 
@@ -63,11 +65,11 @@ class LdapPerson extends LdapObject
      * Calculates the name of this person using first and last name
      * @return string     the name of the person
      */
-    protected function setName()
+    protected function setName() : string
     {
         $parts = array();
 
-        if (isset($this->attributes['givenname'])) {
+        if (isset($this->attributes['givenName'])) {
             $parts[] = $this->givenname;
         }
         if (isset($this->attributes['sn'])) {
@@ -81,16 +83,17 @@ class LdapPerson extends LdapObject
 
         $this->__set('gecos', $gecos);
         $this->__set('cn', $gecos);
+        return $gecos;
     }
 
     /**
      * Creates an LdapPerson from an uid
-     * @param  string $uid  the uid to look up
-     * @return LdapPerson   the specified entry under the dn
+     * @param string $uid the uid to look up
+     * @return LdapPerson|bool the specified entry under the dn, false id the dn is invalid
      */
-    public static function fromUid($uid)
+    public static function fromUid(string $uid) : LdapPerson|bool
     {
-        $ldap = \Helper\LdapHelper::connect();
+        $ldap = LdapHelper::Connect();
 
         $dn = $ldap->getDn($uid);
         if (!$dn) {
@@ -111,7 +114,7 @@ class LdapPerson extends LdapObject
      * Returns a default user (template)
      * @returns LdapPerson        a default LdapPerson
      */
-    public static function getDefault()
+    public static function getDefault() : LdapPerson
     {
         $default = array(
           'objectclass' => array(
@@ -124,6 +127,7 @@ class LdapPerson extends LdapObject
             'shadowAccount',
             'gosaMailAccount',
             'fdBolkData',
+            'fdBolkDataAVG'
         ),
           'gosamaildeliverymode' => '[L]',
           'gosamailserver' => 'mail',
@@ -140,7 +144,7 @@ class LdapPerson extends LdapObject
      * @param  string $name the property to read
      * @return mixed        the value of the property
      */
-    public function __get($name)
+    public function __get(string $name) : mixed
     {
         return parent::__get($name);
     }
@@ -149,7 +153,7 @@ class LdapPerson extends LdapObject
      * Saves the current LdapPerson to ldap, creates a new entry if needed
      * This notifies the user if their password is reset
      */
-    public function save()
+    public function save() : bool
     {
         if (!$this->exists) {
             $this->__set('uidnumber', self::findUidnumber());
@@ -169,7 +173,7 @@ class LdapPerson extends LdapObject
      * @param string $name  the property to set
      * @param mixed $value  the value to set
      */
-    public function __set($name, $value)
+    public function __set(string $name, mixed $value)
     {
         parent::__set($name, $value);
 

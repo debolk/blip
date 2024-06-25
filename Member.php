@@ -32,7 +32,7 @@ class MemberCollection extends BlipResource
      */
     private function limitedList()
     {
-        return Helper\Memcache::cache('members_list', function () {
+        return Helper\MemcacheHelper::cache('members_list', function () {
             $groups = array(
                 'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
                 'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
@@ -54,7 +54,7 @@ class MemberCollection extends BlipResource
 
     private function all()
     {
-        return Helper\Memcache::cache('members_all', function () {
+        return Helper\MemcacheHelper::cache('members_all', function () {
             $groups = array(
                 'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
                 'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
@@ -69,7 +69,7 @@ class MemberCollection extends BlipResource
 
     private function current()
     {
-        return Helper\Memcache::cache('members_current', function () {
+        return Helper\MemcacheHelper::cache('members_current', function () {
             $groups = array(
                 'cn=leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
                 'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
@@ -82,7 +82,7 @@ class MemberCollection extends BlipResource
 
     private function candidate()
     {
-        return Helper\Memcache::cache('members_candidate', function () {
+        return Helper\MemcacheHelper::cache('members_candidate', function () {
             $groups = array(
                 'cn=kandidaatleden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
             );
@@ -94,7 +94,7 @@ class MemberCollection extends BlipResource
 
     private function past()
     {
-        return Helper\Memcache::cache('members_past', function () {
+        return Helper\MemcacheHelper::cache('members_past', function () {
             $groups = array(
                 'cn=oud-leden,ou=groups,o=nieuwedelft,dc=bolkhuis,dc=nl',
             );

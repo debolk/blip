@@ -1,18 +1,20 @@
 <?php
 namespace Helper;
 
+use LDAP\Connection;
+
 class LdapHelper
 {
     /**
      * Stores the singleton instance of this class
-     * @var LdapHelper
+     * @var LdapHelper|null
      */
-    private static $instance = null;
+    private static LdapHelper|null $instance = null;
 
     /**
      * Return a singleton connection to the LDAP-server
      */
-    public static function Connect()
+    public static function Connect() : LdapHelper
     {
         if (self::$instance == null) {
             self::$instance = new LdapHelper;
@@ -23,9 +25,9 @@ class LdapHelper
 
     /**
      * Connection to the LDAP-server
-     * @var resource
+     * @var Connection
      */
-    protected $ldap;
+    protected Connection $ldap;
 
     /**
      * Base DN of all LDAP-entries
@@ -48,7 +50,7 @@ class LdapHelper
      * @param  string $argument argument to escape
      * @return string           escaped string
      */
-    public function escapeArgument($argument)
+    public function escapeArgument(string $argument) : string
     {
         $sanitized=array('\\' => '\5c',
             '*' => '\2a',
@@ -62,7 +64,7 @@ class LdapHelper
      * Returns the last thrown error
      * @return string						the last error returned from ldap
      */
-    public function lastError()
+    public function lastError() : string
     {
         return ldap_error($this->ldap);
     }
@@ -72,7 +74,7 @@ class LdapHelper
      * @param  string $uid the UID to find
      * @return string      full DN
      */
-    public function getDn($uid)
+    public function getDn(string $uid) : string
     {
         $uid = $this->escapeArgument($uid);
         $users = ldap_search($this->ldap, $this->basedn, '(uid=' . $uid . ')', array('dn'));
@@ -92,7 +94,7 @@ class LdapHelper
      * @param  string $pass password
      * @return boolean      whether the bind succeeded
      */
-    public function bind($dn, $pass)
+    public function bind(string $dn, string $pass) : bool
     {
         if (!$dn || empty($pass)) {
             return false;
@@ -102,12 +104,12 @@ class LdapHelper
 
     /**
      * Searches an LDAP-entry
-     * @param  string $filter     the filter to use
-     * @param  array $attributes  attributes to include in the result set
-     * @param  string $basedn     the DN to search
+     * @param string $filter the filter to use
+     * @param array|null $attributes attributes to include in the result set
+     * @param string|null $basedn the DN to search
      * @return array              a filtered array of results (without counts)
      */
-    public function search($filter, $attributes = null, $basedn = null)
+    public function search(string $filter, array $attributes = null, string $basedn = null) : array
     {
         if ($basedn == null) {
             $basedn = $this->basedn;
@@ -129,12 +131,12 @@ class LdapHelper
 
     /**
      * Gets an entry from LDAP
-     * @param  string $dn          DN of the entry
-     * @param  string $objectClass optional objectClass filter, default *
-     * @param  array $attributes   array of attributes to return
-     * @return array               filtered array of desired attributes, or false if the entry was not found
+     * @param string $dn DN of the entry
+     * @param string|null $objectClass optional objectClass filter, default *
+     * @param array|null $attributes array of attributes to return
+     * @return array|bool filtered array of desired attributes, or false if the entry was not found
      */
-    public function get($dn, $objectClass = null, $attributes = null)
+    public function get(string $dn, string $objectClass = null, array $attributes = null) : array|bool
     {
         $objectClass = $this->escapeArgument($objectClass);
         if ($objectClass == null) {
@@ -164,7 +166,7 @@ class LdapHelper
      * @param array  $data        the data the object should contain
      * @return bool               TRUE on success or FALSE on failure
      */
-    public function add($dn, $data)
+    public function add(string $dn, array $data) : bool
     {
         // Remove unset parameters
         foreach ($data as $key => $value) {
@@ -182,7 +184,7 @@ class LdapHelper
      * @param array  $data        the changed data the object should contain
      * @return bool               TRUE on success or FALSE on failure
      */
-    public function modify($dn, $data)
+    public function modify(string $dn, array $data) : bool
     {
         return @ldap_modify($this->ldap, $dn, $data);
     }
@@ -192,13 +194,12 @@ class LdapHelper
      * @param  array $array array to filter
      * @return array        filtered array
      */
-    protected function stripCounts($array)
+    protected function stripCounts(array $array) : array
     {
-        return $array;
         $result = array();
         foreach ($array as $key => $value) {
-            if (is_array($array[$key])) {
-                $result[$key] = $this->stripCounts($array[$key]);
+            if (is_array($value)) {
+                $result[$key] = $this->stripCounts($value);
             } elseif ($key !== 'count') {
                 $result[$key] = $value;
             }
@@ -212,7 +213,7 @@ class LdapHelper
      * @param  object $ldap_object object to flatten
      * @return object              flattened object
      */
-    public function flatten($ldap_object)
+    public function flatten(object $ldap_object) : object
     {
         $result = array();
         foreach ($ldap_object as $key => $value) {

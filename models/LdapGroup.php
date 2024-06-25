@@ -1,18 +1,34 @@
 <?php
 namespace Models;
 
+use Helper\LdapHelper;
+
 class LdapGroup extends LdapObject
 {
     /**
      * The mappings from membership status to the group they should belong to
      */
-    public static $memberGroups = array(
-      'lid' => 'ou=people,ou=leden,o=nieuwedelft,dc=i,dc=bolkhuis,dc=nl',
-      'kandidaatlid' => 'ou=people,ou=kandidaatleden,o=nieuwedelft,dc=i,dc=bolkhuis,dc=nl',
-      'oudlid' => 'ou=people,ou=oud-leden,o=nieuwedelft,dc=i,dc=bolkhuis,dc=nl',
-      'lidvanverdienste' => 'ou=people,ou=ledenvanverdienste,o=nieuwedelft,dc=i,dc=bolkhuis,dc=nl',
-      'geen lid' => 'ou=people,ou=exleden,o=nieuwedelft,dc=i,dc=bolkhuis,dc=nl',
+    private static array $memberGroups = array(
+      'lid' => "ou=people,ou=leden,o=nieuwedelft",
+      'kandidaatlid' => 'ou=people,ou=kandidaatleden,o=nieuwedelft',
+      'oudlid' => 'ou=people,ou=oudleden,o=nieuwedelft',
+      'lidvanverdienste' => 'ou=people,ou=ledenvanverdienste,o=nieuwedelft',
+      'donateur' => 'ou=people,ou=donateurs,o=nieuwedelft',
+      'geen lid' => 'ou=people,ou=exleden,o=nieuwedelft',
     );
+
+    /**
+     * Returns the defined member groups after adding the BASE_DN
+     *
+     * @return array the member groups
+     */
+    public static function getMemberGroups() {
+        $groups = array();
+        foreach (LdapGroup::$memberGroups as $k => $v) {
+            $groups[$k] = $v . LdapHelper::Connect()->basedn;
+        }
+        return $groups;
+    }
 
     protected static $cache = array();
 
@@ -26,12 +42,12 @@ class LdapGroup extends LdapObject
     }
 
     /**
-     * Construct a Person-object from its DN
+     * Construct a Group-object from its DN
      * @static
      * @param  string $dn DN to load
-     * @return Person     complete Person-object
+     * @return LdapGroup     complete Group-object
      */
-    public static function fromDn($dn)
+    public static function fromDn(string $dn) : LdapGroup
     {
         if (isset(self::$cache[$dn])) {
             return self::$cache[$dn];
@@ -54,7 +70,7 @@ class LdapGroup extends LdapObject
      * @param array $groups  An array of DNs to look up
      * @return array         The people in the specified groups
      */
-    public static function peopleInGroups($groups)
+    public static function peopleInGroups(array $groups) : array
     {
         $results = array();
 
@@ -67,9 +83,9 @@ class LdapGroup extends LdapObject
 
     /**
      * Returns the array of people that belong to this group
-     * @return array   The array of People in this group
+     * @return array   The array of People in this group as PersonModel
      */
-    public function people()
+    public function people() : array
     {
         $result = array();
         if (!isset($this->attributes['memberuid'])) {
@@ -87,14 +103,14 @@ class LdapGroup extends LdapObject
         }
         $query .= ')';
 
-        return Person::where($query);
+        return PersonModel::where($query);
     }
 
     /**
      * @param string $uid the uid to look up
      * @return bool       wether the uid belongs to this group
      */
-    public function hasMember($uid)
+    public function hasMember(string $uid) : bool
     {
         if (!isset($this->attributes['memberuid'])) {
             return false;
@@ -107,7 +123,12 @@ class LdapGroup extends LdapObject
         return in_array($uid, $this->memberuid);
     }
 
-    public function addMember($uid)
+    /**
+     * Adds a member to the group
+     * @param string $uid The new member's uid
+     * @return void
+     */
+    public function addMember(string $uid): void
     {
         if (!isset($this->attributes['memberuid'])) {
             $this->attributes['memberuid'] = array();
@@ -121,7 +142,12 @@ class LdapGroup extends LdapObject
         $this->__set('memberuid', array_merge($this->attributes['memberuid'], array($uid)));
     }
 
-    public function removeMember($uid)
+    /**
+     * Removes a member from the group
+     * @param string $uid The member's uid
+     * @return void
+     */
+    public function removeMember(string $uid) : void
     {
         if (!isset($this->attributes['memberuid'])) {
             return;

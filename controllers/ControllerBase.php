@@ -1,28 +1,30 @@
 <?php
 
-require_once('OAuth2Helper.php');
+use Helper\OAuth2Helper;
+use Slim\Psr7\Response;
+use Slim\Psr7\Request;
 
-class BlipResource extends Tonic\Resource
-{
+class ControllerBase {
     /**
      * The LDAP-abstraction class we use to connect to LDAP
      */
     protected $ldap;
+    protected \Slim\App $application;
 
     /**
      * Construct a new connection to LDAP-server
      */
-    public function __construct(Tonic\Application $application, Tonic\Request $request)
+    public function __construct(Slim\App $application)
     {
-        parent::__construct($application, $request);
+        $this->application = $application;
     }
 
     /**
      * Formats error messages in a human-readable format
-     * @param  array  the set of error messages
+     * @param  array $array the set of error messages
      * @return string
      */
-    protected function format_errors($array)
+    protected function format_errors(array $array) : string
     {
         $output = array();
         foreach ($array as $value) {
@@ -37,7 +39,7 @@ class BlipResource extends Tonic\Resource
      * @param  boolean            $required whether to require the presence of specific attributes
      * @return Valitron\Validator           the validator with the extra rules
      */
-    protected function validation_rules($v, $required = true)
+    protected function validation_rules(\Valitron\Validator $v, bool $required = true): \Valitron\Validator
     {
         $v->rule('email', 'email');
         $v->rule('alpha', ['initials']);
@@ -53,12 +55,23 @@ class BlipResource extends Tonic\Resource
 
     /**
      * Check if the user can access an access level resource
-     * @param  Tonic\Resource $resource can be any valid access level resource
+     * @param  string $resource can be any valid access level resource
      *                                  bekend (default), bestuur, ictcom, lid or mp3control
-     * @return boolean
+     * @return boolean|Response true if logged in, Response if otherwise
      */
-    public function loggedIn($resource = 'bekend')
+    public function loggedIn(Response $response, string $resource = 'bekend') : bool|Response
     {
-        return OAuth2Helper::isAuthorisedFor($resource);
+        return OAuth2Helper::isAuthorisedFor($resource, $response);
+    }
+
+    /**
+     * Mostly a placeholder function
+     *
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function processRequest(Request $request, Response $response, array $args) {
+        return $response;
     }
 }

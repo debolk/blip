@@ -1,9 +1,20 @@
 {
   "require": {
-    "peej/tonic": "~3.3.0",
-    "vlucas/valitron": "1.1.0"
+    "vlucas/valitron": "1.1.0",
+    "slim/slim-skeleton": "^4.5",
+    "slim/psr7": "^1.7",
+    "ext-ldap": "*",
+    "ext-memcache": "*",
+    "ext-imagick": "*",
+    "ext-iconv": "*",
+    "ext-curl": "*"
   },
   "require-dev": {
     "phpunit/phpunit": "~3.7.0"
+  },
+  "config": {
+    "platform": {
+      "php": "8.3.8"
+    }
   }
 }

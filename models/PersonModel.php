@@ -2,43 +2,71 @@
 
 namespace Models;
 
-class Person implements \JSONSerializable
+use Helper\ResponseHelper;
+use Slim\Psr7\Response;
+
+class PersonModel implements \JSONSerializable
 {
-    private $attributes = array();
-    private $ldapPerson = null;
+    private array $attributes = array();
+    private LdapPerson|null $ldapPerson = null;
 
     /**
      * The list of properties that can be set by the user
      */
-    public $allowed = array(
+    public array $allowed = array(
         'initials',
         'firstname',
-        'lastname',
+        'surname',
+        'nickname',
+        'dateofbirth',
+        'pronouns',
         'email',
         'phone',
         'phone_parents',
         'address',
-        'dateofbirth',
-        'pronouns'
+        'inauguration_date',
+        'resignation_letter_date',
+        'resignation_date',
+        'programme',
+        'institution',
+        'dead',
     );
 
     /**
      * The mapping from local properties to properties in LdapPerson
      */
-    protected $renaming = array(
+    protected array $renaming = array(
         'uid' => 'uid',
         'initials' => 'initials',
-        'firstname' => 'givenname',
-        'lastname' => 'sn',
+        'firstname' => 'givenName',
+        'surname' => 'sn',
+        'nickname' => 'fdNickName',
+        'dateofbirth' => 'dateOfBirth',
+        'pronouns' => 'fdPronouns',
         'email' => 'mail',
         'phone' => 'homePhone',
-        'phone_parents' => 'fdParentPhone',
-        'address' => 'homepostaladdress',
-        'dateofbirth' => 'dateofbirth',
-        'pronouns' => 'fdPronouns',
+        'phone_parent' => 'fdParentPhone',
+        'address' => 'homePostalAddress',
+        'inauguration_date' => 'fdDateOfInauguration',
+        'resignation_letter_date' => 'fdDateOfResignationLetter',
+        'resignation_date' => 'fdDateOfResignation',
+        'programme' => 'fdProgramme', //might be array
+        'institution' => 'fdInstitution', //might be array
+        'photo_visible' => 'fdPhotoVisible',
+        'iva' => 'fdIVA',
+        'dead' => 'fdDead',
+        'avg' => 'fdAVGAccept',
+        'avg_address' => 'fdAddressShare',
+        'avg_dob' => 'fdDoBShare',
+        'avg_institution' => 'fdInstitutionShare',
+        'avg_programme' => 'fdProgrammeShare',
+        'avg_email' => 'fdMailShare',
+        'avg_phone_parent' => 'fdParentPhoneShare',
+        'avg_phone' => 'fdPhoneShare',
+        'avg_pronouns' => 'fdPronounsShare',
     );
 
-    protected $additionalClasses = array(
+    protected array $additionalClasses = array(
         'lid' => array('pptpServerAccount', 'gosaIntranetAccount'),
         'oudlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
         'geen lid' => array(),
@@ -46,28 +74,13 @@ class Person implements \JSONSerializable
         'kandidaatlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
     );
 
-    /**
-     * The mapping from membership status to guidnumber
-     *
-     * DEPRECATED?
-     *
-     */
-    /** protected $groupIds = array(
-        'lid' => 1025,
-        'kandidaatlid' => 1084,
-        'oudlid' => 1095,
-        'lidvanverdienste' => 1098,
-        'geen lid' => 1097,
-    ); */
-
-    protected $dirty = array();
-    protected $pass;
+    protected string $pass;
 
     /**
      * Constructs a new Person
      * @param array $attributes
      */
-    public function __construct($attributes = array())
+    public function __construct(array $attributes = array())
     {
         $this->attributes = $attributes;
     }
@@ -75,9 +88,9 @@ class Person implements \JSONSerializable
     /**
      * Creates a new Person from an LdapPerson
      * @param LdapPerson $person    the LdapPerson to create a Person from
-     * @returns Person              the resulting Person
+     * @returns PersonModel              the resulting Person
      */
-    public static function fromLdapPerson($person)
+    public static function fromLdapPerson(LdapPerson $person) : PersonModel
     {
         $result = new self();
         foreach ($result->renaming as $local => $ldap) {
@@ -104,9 +117,9 @@ class Person implements \JSONSerializable
      * Constructs a new Person based off its UID
      * @static
      * @param  string $uid UID of the Person to find
-     * @return Person      complete Person-object
+     * @return PersonModel|null      complete Person-object
      */
-    public static function fromUid($uid)
+    public static function fromUid(string $uid) : ?PersonModel
     {
         $person = LdapPerson::fromUid($uid);
         if (!$person) {
@@ -114,7 +127,7 @@ class Person implements \JSONSerializable
         }
 
         if (in_array('gosaUserTemplate', $person->objectclass)) {
-            return false;
+            return null;
         }
 
         return self::fromLdapPerson($person);
@@ -125,7 +138,7 @@ class Person implements \JSONSerializable
      * @param string $query     the ldap query
      * @returns array           the persons matching the query
      */
-    public static function where($query)
+    public static function where(string $query) : array
     {
         $ldap = \Helper\LdapHelper::connect();
         $search = $ldap->search('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate))(!(uid=nobody))' . $query . ')');
@@ -136,7 +149,7 @@ class Person implements \JSONSerializable
                 continue;
             }
             $person = new LdapPerson($object);
-            $results[] = Person::fromLdapPerson($person);
+            $results[] = PersonModel::fromLdapPerson($person);
         }
 
         return $results;
@@ -145,9 +158,9 @@ class Person implements \JSONSerializable
     /**
      * Returns all users from LDAP
      * @static
-     * @return array[Person] all persons
+     * @return array[PersonModel] all persons
      */
-    public static function all()
+    public static function all() : array
     {
         return self::where("");
     }
@@ -155,7 +168,7 @@ class Person implements \JSONSerializable
     /**
      * Saves the current person to ldap, creates a new LdapPerson if needed
      */
-    public function save()
+    public function save() : bool
     {
         if ($this->ldapPerson == null) {
             $this->attributes['uid'] = $this->findUid();
@@ -191,7 +204,7 @@ class Person implements \JSONSerializable
      * Finds an unused uid for a new user
      * @returns string          an unused uid
      */
-    protected function findUid()
+    protected function findUid() : string
     {
         $strip = function ($uid) {
             setlocale(LC_ALL, 'en_US.UTF8');
@@ -226,13 +239,56 @@ class Person implements \JSONSerializable
         }
     }
 
+    /**
+     * Returns a JSON serializable representation of this Person of only the basic data
+     * @return \stdClass
+     */
+    public function getBasic() : \stdClass {
+        $basic = new \stdClass();
+        $basic->uid=$this->__get('uid');
+        $basic->href=getenv('BASE_URL').'persons/'.$this->__get('uid');
+        $basic->name=$this->name();
+        if ($this->__get('avg_email') && $this->__get('avg')) $basic->email=$this->__get('email'); //only send mail if fdMailShare is true
+        $basic->avg_email=$this->__get('avg_email');
+        $basic->photo_visible=$this->__get('photo_visible');
+        return $basic;
+    }
+
+    /**
+     * Returns the persons information after removing all the information the user doesn't want to share.
+     * @return array sanitized array of attributes
+     */
+    public function sanitizeAvg() : array {
+        $avg = array();
+        if ( !$this->__get('avg_address') ) $avg[] = 'address';
+        if ( !$this->__get('avg_dob')) $avg[] = 'dateofbirth';
+        if ( !$this->__get('avg_institution')) $avg[] = 'institution';
+        if ( !$this->__get('avg_programme')) $avg[] = 'programme';
+        if ( !$this->__get('avg_email')) $avg[] = 'email';
+        if ( !$this->__get('avg_phone_parent')) $avg[] = 'phone_parent';
+        if ( !$this->__get('avg_phone')) $avg[] = 'phone';
+        if ( !$this->__get('avg_pronouns')) $avg[] = 'pronouns';
+
+        if ( !$this->__get('avg')) { //remove all avg attributes if the person didn't accept the privacy statement
+            $avg = ['address', 'dateofbirth', 'institution', 'programme', 'email', 'phone_parent', 'phone', 'pronouns'];
+        }
+
+        $sanitized = array_diff_key($this->attributes, array_fill_keys($avg, false));
+
+        return array_merge($sanitized, [
+            'href' => getenv('BASE_URL').'persons/'.$this->__get('uid'),
+            'name' => $this->name(),
+            'membership' => $this->membership(),
+        ]);
+    }
 
     /**
      * Returns an array-representation of this Person
      * @return array representation of this Person
      */
-    public function to_array()
+    public function to_array() : array
     {
+
         return array_merge($this->attributes, [
           'href' => getenv('BASE_URL').'persons/'.$this->__get('uid'),
           'name' => $this->name(),
@@ -244,7 +300,7 @@ class Person implements \JSONSerializable
      * The full name of this person
      * @return string
      */
-    public function name()
+    public function name() : string
     {
         if (isset($this->attributes['firstname'])) {
             if (isset($this->attributes['lastname'])) {
@@ -265,7 +321,7 @@ class Person implements \JSONSerializable
      * The membership status of this person
      * @return string
      */
-    public function membership() {
+    public function membership() : string {
 
         foreach (LdapGroup::$memberGroups as $status => $dn) {
             $group = LdapGroup::fromDn($dn);
@@ -282,7 +338,7 @@ class Person implements \JSONSerializable
      * and saves the member
      * @param string $membership      the new membership status
      */
-    public function setMembership($membership)
+    public function setMembership(string $membership)
     {
         if (!array_key_exists($membership, LdapGroup::$memberGroups)) {
             return;
@@ -346,21 +402,59 @@ class Person implements \JSONSerializable
      * Serializes this Person to JSON
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize() : array
     {
         return $this->to_array();
     }
 
     /**
+     * Returns the user profile picture, or a cat.
+     * @param $width    width of the picture
+     * @param $height   height of the picture
+     * @return Response
+     */
+    public function getPhoto(Response $response, string $width = "256", string $height = "256") : Response {
+        //cast params
+        $width = (int)$width;
+        $height = (int)$height;
+
+        //get from LDAP
+        $photo = $this->ldapPerson->__get('jpegPhoto');
+        if ( $photo == null ) { //retrieve a cat if person has no jpegPhoto
+            $seed = ((int)substr(base_convert(md5($uid), 15, 10), -6)) % 500; //per-user seed to generate different cats
+
+            $request = curl_init("https://api.lunoct.nl/avatar/$seed?background=ffffff");
+            curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
+            $photo = curl_exec($request);
+        }
+
+        //process for displaying
+        $img = new \Imagick();
+        $img->readImageBlob($photo);
+        $img->setImageInterpolateMethod(\Imagick::INTERPOLATE_BICUBIC);
+
+        //scale to best fit
+        if ( $img->getImageWidth() > $img->getImageHeight() ){
+            $img->resizeImage($width, 0, \Imagick::FILTER_CATROM, 1);
+        } else {
+            $img->resizeImage(0, $height, \Imagick::FILTER_CATROM, 1);
+        }
+        $img->setImageFormat('jpg');
+
+        return ResponseHelper::data($response, base64_encode($img), 'image/jpeg');
+    }
+
+    /**
      * Gets a property of a Person
      * @param  string $name the property to read
-     * @return mixed        the value of the property
+     * @return mixed        the value of the property or false
      */
-    public function __get($name)
+    public function __get(string $name) : mixed
     {
         if (isset($this->attributes[$name])) {
             return $this->attributes[$name];
         }
+        return false;
     }
 
     /**
@@ -368,7 +462,7 @@ class Person implements \JSONSerializable
      * @param string $name  the property to set
      * @param mixed $value  the value to set
      */
-    public function __set($name, $value)
+    public function __set(string $name, mixed $value)
     {
         if ($name == "membership") {
             $this->setMembership($value);

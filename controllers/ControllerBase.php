@@ -1,20 +1,24 @@
 <?php
 
+namespace controllers;
+
 use Helper\OAuth2Helper;
+use Slim\App;
 use Slim\Psr7\Response;
 use Slim\Psr7\Request;
+use Valitron\Validator;
 
 class ControllerBase {
     /**
      * The LDAP-abstraction class we use to connect to LDAP
      */
     protected $ldap;
-    protected \Slim\App $application;
+    protected App $application;
 
     /**
      * Construct a new connection to LDAP-server
      */
-    public function __construct(Slim\App $application)
+    public function __construct(App $application)
     {
         $this->application = $application;
     }
@@ -24,7 +28,7 @@ class ControllerBase {
      * @param  array $array the set of error messages
      * @return string
      */
-    protected function format_errors(array $array) : string
+    protected static function format_errors(array $array) : string
     {
         $output = array();
         foreach ($array as $value) {
@@ -33,21 +37,28 @@ class ControllerBase {
         return implode(', ', $output);
     }
 
+    protected static function getValidatorErrors(Validator $v){
+        return self::format_errors($v->errors());
+    }
+
     /**
      * Applies default rules to validate a person
-     * @param  Valitron\Validator $v        validator instance to use
+     * @param  Validator $v        validator instance to use
      * @param  boolean            $required whether to require the presence of specific attributes
-     * @return Valitron\Validator           the validator with the extra rules
+     * @return Validator           the validator with the extra rules
      */
-    protected function validation_rules(\Valitron\Validator $v, bool $required = true): \Valitron\Validator
+    protected static function validation_rules(Validator $v, bool $required = true): \Valitron\Validator
     {
         $v->rule('email', 'email');
         $v->rule('alpha', ['initials']);
         $v->rule('dateBefore', 'dateofbirth', date('Y-m-d'));
+        $v->rule('numeric', ['phone', 'phone_parent']);
+
+        $v->rule('optional', ['phone', 'phone_parent']);
 
         // Validate attributes exist
         if ($required) {
-            $v->rule('required', ['firstname', 'lastname', 'email', 'initials', 'pronouns']);
+            $v->rule('required', ['firstname', 'surname', 'dateofbirth', 'email', 'initials', 'pronouns', 'programme', 'institution', 'address']);
         }
 
         return $v;
@@ -73,5 +84,13 @@ class ControllerBase {
      */
     public function processRequest(Request $request, Response $response, array $args) {
         return $response;
+    }
+
+    protected static function callArray(array $arr, \MethodCallback $func) : array {
+        $result = array();
+        foreach($arr as $a) {
+            $result[] = call_user_func([$a, $func]);
+        }
+        return $result;
     }
 }

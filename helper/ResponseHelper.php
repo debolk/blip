@@ -7,11 +7,11 @@ use Slim\Psr7\Response;
 class ResponseHelper
 {
 
-    public static function create(Response $response, int $code, string $json): Response
+    public static function create(Response $response, int $code, string $message, string $contentType = "text/plain"): Response
     {
         $new_response = $response->withStatus($code);
 
-        return ResponseHelper::json($new_response, $json);
+        return ResponseHelper::data($new_response, $message, $contentType);
     }
 
     public static function data(Response $response, mixed $payload, string $type) : Response {

@@ -20,7 +20,7 @@ class OAuth2Helper
             $access_token = $_GET['access_token'];
         } else {
 
-            return ResponseHelper::create($response, 401, '{"error":"invalid_token","error_description":"No access token was provided"}');
+            return ResponseHelper::create($response, 401, '{"error":"invalid_token","error_description":"No access token was provided"}', "application/json");
         }
 
         $base = getenv('OAUTH2_RESOURCE');
@@ -38,6 +38,6 @@ class OAuth2Helper
             return true;
         }
 
-        return ResponseHelper::create($response, $code, $body);
+        return ResponseHelper::create($response, $code, $body, "application/json");
     }
 }

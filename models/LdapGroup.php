@@ -8,13 +8,15 @@ class LdapGroup extends LdapObject
     /**
      * The mappings from membership status to the group they should belong to
      */
-    private static array $memberGroups = array(
+    private static array $personGroups = array(
       'lid' => "ou=people,ou=leden,o=nieuwedelft",
       'kandidaatlid' => 'ou=people,ou=kandidaatleden,o=nieuwedelft',
-      'oudlid' => 'ou=people,ou=oudleden,o=nieuwedelft',
-      'lidvanverdienste' => 'ou=people,ou=ledenvanverdienste,o=nieuwedelft',
+      'oud lid' => 'ou=people,ou=oudleden,o=nieuwedelft',
+      'lid van verdienste' => 'ou=people,ou=ledenvanverdienste,o=nieuwedelft',
       'donateur' => 'ou=people,ou=donateurs,o=nieuwedelft',
-      'geen lid' => 'ou=people,ou=exleden,o=nieuwedelft',
+      'ex lid' => 'ou=people,ou=exleden,o=nieuwedelft',
+      'extern' => 'ou=people,ou=externen,o=nieuwedelft',
+      'erelid' => 'ou=people,ou=ereleden,o=nieuwedelft',
     );
 
     /**
@@ -22,9 +24,9 @@ class LdapGroup extends LdapObject
      *
      * @return array the member groups
      */
-    public static function getMemberGroups() {
+    public static function getPersonGroups() {
         $groups = array();
-        foreach (LdapGroup::$memberGroups as $k => $v) {
+        foreach (LdapGroup::$personGroups as $k => $v) {
             $groups[$k] = $v . LdapHelper::Connect()->basedn;
         }
         return $groups;
@@ -75,7 +77,7 @@ class LdapGroup extends LdapObject
         $results = array();
 
         foreach ($groups as $group) {
-            $results = array_merge($results, self::fromDn($group)->people());
+            $results = array_unique(array_merge($results, self::fromDn($group)->people()), SORT_REGULAR);
         }
 
         return $results;

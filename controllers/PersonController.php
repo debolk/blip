@@ -23,6 +23,7 @@ class PersonController extends ControllerBase
         '/person/uid' => 'bekend',
         '/person/uid/all' => 'lid',
         '/person/uid/photo' => 'bekend',
+        '/person/uid/update' => 'bestuur',
     );
 
     public static function route(Request $request, Response $response, array $args) : Response

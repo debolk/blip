@@ -10,7 +10,7 @@ $app = Slim\Factory\AppFactory::create();
 //put(url, function);
 //patch(url, function);
 
-//basic info = uid, href, name, email, avg_email, photo_visible
+//basic info = uid, href, name, email, avg_email, photo_visible, membership
 
 //auths:
 //bestuur: members of beheer or bestuur

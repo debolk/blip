@@ -22,7 +22,7 @@ class PersonModel implements \JSONSerializable
         'pronouns',
         'email',
         'phone',
-        'phone_parents',
+        'phone_emergency',
         'address',
         'inauguration_date',
         'resignation_letter_date',
@@ -45,7 +45,7 @@ class PersonModel implements \JSONSerializable
         'pronouns' => 'fdPronouns',
         'email' => 'mail',
         'phone' => 'homePhone',
-        'phone_parent' => 'fdParentPhone',
+        'phone_emergency' => 'fdEmergencyPhone',
         'address' => 'homePostalAddress',
         'inauguration_date' => 'fdDateOfInauguration',
         'resignation_letter_date' => 'fdDateOfResignationLetter',
@@ -61,7 +61,7 @@ class PersonModel implements \JSONSerializable
         'avg_institution' => 'fdInstitutionShare',
         'avg_programme' => 'fdProgrammeShare',
         'avg_email' => 'fdMailShare',
-        'avg_phone_parent' => 'fdParentPhoneShare',
+        'avg_phone_emergency' => 'fdEmergencyPhoneShare',
         'avg_phone' => 'fdPhoneShare',
         'avg_pronouns' => 'fdPronounsShare',
     );
@@ -248,6 +248,7 @@ class PersonModel implements \JSONSerializable
         $basic->uid=$this->__get('uid');
         $basic->href=getenv('BASE_URL').'persons/'.$this->__get('uid');
         $basic->name=$this->name();
+        $basic->membership=$this->membership();
         if ($this->__get('avg_email') && $this->__get('avg')) $basic->email=$this->__get('email'); //only send mail if fdMailShare is true
         $basic->avg_email=$this->__get('avg_email');
         $basic->photo_visible=$this->__get('photo_visible');
@@ -302,19 +303,13 @@ class PersonModel implements \JSONSerializable
      */
     public function name() : string
     {
-        if (isset($this->attributes['firstname'])) {
-            if (isset($this->attributes['lastname'])) {
-                return $this->attributes['firstname'].' '.$this->attributes['lastname'];
-            } else {
-                return $this->attributes['firstname'];
-            }
-        } else {
-            if (isset($this->attributes['lastname'])) {
-                return $this->attributes['lastname'];
-            } else {
-                return '';
-            }
-        }
+        $first = '';
+        $nick = '';
+        $last = '';
+        if (isset($this->attributes['firstname'])) $first = $this->attributes['firstname'];
+        if (isset($this->attributes['surname'])) $last = $this->attributes['surname'];
+        if (isset($this->attributes['nickname'])) $nick = ' "'.$this->attributes['nickname'].'"';
+        return $first.$nick.' '.$last;
     }
 
     /**

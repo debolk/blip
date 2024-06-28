@@ -9,6 +9,7 @@ class LdapGroup extends LdapObject
      * The mappings from membership status to the group they should belong to
      */
     private static array $personGroups = array(
+      'erelid' => 'ou=people,ou=ereleden,o=nieuwedelft',
       'lid' => "ou=people,ou=leden,o=nieuwedelft",
       'kandidaatlid' => 'ou=people,ou=kandidaatleden,o=nieuwedelft',
       'oud lid' => 'ou=people,ou=oudleden,o=nieuwedelft',
@@ -16,7 +17,6 @@ class LdapGroup extends LdapObject
       'donateur' => 'ou=people,ou=donateurs,o=nieuwedelft',
       'ex lid' => 'ou=people,ou=exleden,o=nieuwedelft',
       'extern' => 'ou=people,ou=externen,o=nieuwedelft',
-      'erelid' => 'ou=people,ou=ereleden,o=nieuwedelft',
     );
 
     /**

@@ -12,7 +12,7 @@ class OAuth2Helper
      * @param string $resource a valid access level resource
      * @return boolean|Response           true if access was granted, false otherwise
      */
-    public static function isAuthorisedFor($resource, $response): Response|bool
+    public static function isAuthorisedFor(string $resource, Response $response): Response|bool
     {
         if (isset($_POST['access_token'])) {
             $access_token = $_POST['access_token'];
@@ -23,8 +23,7 @@ class OAuth2Helper
             return ResponseHelper::create($response, 401, '{"error":"invalid_token","error_description":"No access token was provided"}', "application/json");
         }
 
-        $base = getenv('OAUTH2_RESOURCE');
-        $path = $base . $resource . '?access_token=' . urlencode($access_token);
+        $path = getenv('OAUTH2_RESOURCE') . $resource . '?access_token=' . urlencode($access_token);
 
         $c = curl_init($path);
         curl_setopt($c, CURLOPT_RETURNTRANSFER, true);

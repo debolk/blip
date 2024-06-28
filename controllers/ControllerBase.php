@@ -9,19 +9,21 @@ use Slim\Psr7\Request;
 use Valitron\Validator;
 
 class ControllerBase {
-    /**
-     * The LDAP-abstraction class we use to connect to LDAP
-     */
-    protected $ldap;
-    protected App $application;
 
     /**
-     * Construct a new connection to LDAP-server
+     * @var array|string[] map from path to operator level
      */
-    public function __construct(App $application)
-    {
-        $this->application = $application;
-    }
+    private static array $operatorLevels;
+
+    /**
+     * Function to route all requests to this class
+     *
+     * @param Request $request  the Request object
+     * @param Response $response the Response object
+     * @param array $args the {} arguments in the requested uri
+     * @return Response a Response object to be sent to the client
+     */
+    public static function route(Request $request, Response $response, array $args) {}
 
     /**
      * Formats error messages in a human-readable format
@@ -32,12 +34,13 @@ class ControllerBase {
     {
         $output = array();
         foreach ($array as $value) {
-            array_push($output, $value[0]);
+            $output[] = $value[0];
         }
         return implode(', ', $output);
     }
 
-    protected static function getValidatorErrors(Validator $v){
+    protected static function getValidatorErrors(Validator $v): string
+    {
         return self::format_errors($v->errors());
     }
 
@@ -70,20 +73,9 @@ class ControllerBase {
      *                                  bekend (default), bestuur, ictcom, lid or mp3control
      * @return boolean|Response true if logged in, Response if otherwise
      */
-    public function loggedIn(Response $response, string $resource = 'bekend') : bool|Response
+    public static function loggedIn(Response $response, string $resource = 'bekend') : bool|Response
     {
         return OAuth2Helper::isAuthorisedFor($resource, $response);
-    }
-
-    /**
-     * Mostly a placeholder function
-     *
-     * @param Request $request
-     * @param Response $response
-     * @return Response
-     */
-    public function processRequest(Request $request, Response $response, array $args) {
-        return $response;
     }
 
     protected static function callArray(array $arr, \MethodCallback $func) : array {

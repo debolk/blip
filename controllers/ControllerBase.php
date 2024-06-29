@@ -8,7 +8,7 @@ use Slim\Psr7\Response;
 use Slim\Psr7\Request;
 use Valitron\Validator;
 
-class ControllerBase {
+abstract class ControllerBase {
 
     /**
      * @var array|string[] map from path to operator level
@@ -23,7 +23,7 @@ class ControllerBase {
      * @param array $args the {} arguments in the requested uri
      * @return Response a Response object to be sent to the client
      */
-    public static function route(Request $request, Response $response, array $args) {}
+    public abstract static function route(Request $request, Response $response, array $args): Response;
 
     /**
      * Formats error messages in a human-readable format

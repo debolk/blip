@@ -5,10 +5,10 @@ require_once('vendor/autoload.php');
 
 $app = Slim\Factory\AppFactory::create();
 
-//get(url, function);
-//post(url, function);
-//put(url, function);
-//patch(url, function);
+//get(url, function(req, res, args));
+//post(url, function(req, res, args));
+//put(url, function(req, res, args));
+//patch(url, function(req, res, args));
 
 //basic info = uid, href, name, email, avg_email, photo_visible, membership
 

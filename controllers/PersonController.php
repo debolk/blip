@@ -28,6 +28,7 @@ class PersonController extends ControllerBase
 
     public static function route(Request $request, Response $response, array $args) : Response
     {
+		syslog(LOG_ERR, "ERR");
         $path = $request->getUri()->getPath();
 
         if ( in_array('uid', $args)) {
@@ -39,13 +40,27 @@ class PersonController extends ControllerBase
 
         if ($auth){
             switch ($path) {
-                case '/persons': return self::index($request, $response, $args);
-                case '/persons/all': return self::all($request, $response, $args);
-                case '/person': return self::post_person($request, $response, $args);
-                case '/person/uid': return self::person_uid($request, $response, $args);
-                case '/person/uid/all': return self::person_uid_all($request, $response, $args);
-                case '/person/uid/photo': return self::person_uid_photo($request, $response, $args);
-                case '/person/uid/update': return self::patch_person_uid($request, $response, $args);
+                case '/persons':
+					if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
+					return self::index($request, $response, $args);
+                case '/persons/all':
+	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
+					return self::all($request, $response, $args);
+                case '/person':
+	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'POST');
+					return self::post_person($request, $response, $args);
+                case '/person/uid':
+	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
+					return self::person_uid($request, $response, $args);
+                case '/person/uid/all':
+	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
+					return self::person_uid_all($request, $response, $args);
+                case '/person/uid/photo':
+	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
+					return self::person_uid_photo($request, $response, $args);
+                case '/person/uid/update':
+	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'PATCH');
+					return self::patch_person_uid($request, $response, $args);
             }
         } else {
             return $auth;
@@ -53,7 +68,7 @@ class PersonController extends ControllerBase
         return ResponseHelper::create($response, 404, "Path not found: $path");
     }
 
-    /**
+	/**
      * uri: /persons
      */
     private static function index(Request $request, Response $response, array $args) : Response {

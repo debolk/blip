@@ -17,6 +17,7 @@ $app = Slim\Factory\AppFactory::create();
 //ictcom: members of beheer, bestuur or ictcom
 //lid: members of the society (does not include candidate-members)
 //bekend: members and candidate-members of the society
+
 $app->get('/persons', 'controllers\PersonController::route'); //return all persons with basic info
 $app->get('/persons/all', 'controllers\PersonController::route'); //return all persons with all information, ex avg
 $app->post('/person', 'controllers\PersonController::route'); //create new person
@@ -29,5 +30,18 @@ $app->get('/members/all', 'controllers\MemberController::route'); //return all m
 $app->get('/members/current', 'controllers\MemberController::route'); //return all current members with basic info
 $app->get('/members/former', 'controllers\MemberController::route'); //return all former members with basic info
 $app->get('/members/candidate', 'controllers\MemberController::route'); //return all candidate members with basic info
+
+$app->options('/persons', 'controllers\PersonController::route');
+$app->options('/persons/all', 'controllers\PersonController::route');
+$app->options('/person', 'controllers\PersonController::route');
+$app->options('/person/{uid}', 'controllers\PersonController::route');
+$app->options('/person/{uid}/all', 'controllers\PersonController::route');
+$app->options('/person/{uid}/photo/{width}/{height}', 'controllers\PersonController::route');
+$app->options('/person/{uid}/update', 'controllers\PersonController::route');
+$app->options('/members', 'controllers\MemberController::route');
+$app->options('/members/all', 'controllers\MemberController::route');
+$app->options('/members/current', 'controllers\MemberController::route');
+$app->options('/members/former', 'controllers\MemberController::route');
+$app->options('/members/candidate', 'controllers\MemberController::route');
 
 $app->run();

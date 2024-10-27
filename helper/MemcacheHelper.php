@@ -2,24 +2,37 @@
 
 namespace Helper;
 
+use Exception;
+
 /**
  * Simple helper class atop of Memcache
  */
 class MemcacheHelper
 {
-    /**
-     * Connect to the memcache server
-     * @return \Memcache the Memcache class
-     */
-    private static function connect()
-    {
+
+	static $mem_host;
+	static $mem_port;
+	static $expiry;
+
+	/**
+	 * Connect to the memcache server
+	 * @return \Memcache|bool the Memcache class
+	 */
+    private static function connect(): bool|\Memcache {
         $memcache = new \Memcache();
-        if (! $memcache->connect(getenv('MEMCACHE_HOST'), getenv('MEMCACHE_PORT'))) {
-            throw new \Exception('Could not connect to memcache server');
+        if (! $memcache->connect(self::$mem_host, self::$mem_port)) {
+            syslog(LOG_ERR, 'Could not connect to memcache server');
+			return false;
         }
 
         return $memcache;
     }
+
+	public static function Initialise($memcache_host, $memcache_port, $memcache_expiry): void {
+		self::$mem_host = $memcache_host;
+		self::$mem_port = $memcache_port;
+		self::$expiry = $memcache_expiry;
+	}
 
     /**
      * Write-through caching
@@ -32,16 +45,17 @@ class MemcacheHelper
     {
         $memcache = self::connect();
 
-        // Return the cached entry if we can
-        if ($memcache->get($key)) {
+		if (!$memcache){
+			return call_user_func($callable, $param);
+		} else if ($memcache->get($key)) { //get the key if possible
             return $memcache->get($key);
         }
 
-        $expiry = getenv('MEMCACHE_EXPIRY');
+        $expiry = self::$expiry;
 
         // Get result, store in memcache and return
         $result = call_user_func($callable, $param);
-        $memcache->set($key, $result, null, $expiry);
+        $memcache->set($key, $result, null, self::$expiry);
         return $result;
     }
 
@@ -53,6 +67,7 @@ class MemcacheHelper
     {
         $memcache = self::connect();
 
+		if (!$memcache) return false;
         // Flush all memcache objects
         return $memcache->flush();
     }

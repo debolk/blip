@@ -9,6 +9,7 @@ class PersonModel implements \JSONSerializable
 {
     private array $attributes = array();
     private LdapPerson|null $ldapPerson = null;
+	private static $base_url;
 
     /**
      * The list of properties that can be set by the user
@@ -72,6 +73,7 @@ class PersonModel implements \JSONSerializable
         'geen lid' => array(),
         'lidvanverdienste' => array(),
         'kandidaatlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
+	    'erelid' => array()
     );
 
     protected string $pass;
@@ -84,6 +86,10 @@ class PersonModel implements \JSONSerializable
     {
         $this->attributes = $attributes;
     }
+
+	public static function Initialise($base_url){
+		self::$base_url = $base_url;
+	}
 
     /**
      * Creates a new Person from an LdapPerson
@@ -138,7 +144,7 @@ class PersonModel implements \JSONSerializable
      * @param string $query     the ldap query
      * @returns array           the persons matching the query
      */
-    public static function where(string $query) : array
+    public static function where(string $query, string $mode = 'all') : array
     {
         $ldap = \Helper\LdapHelper::connect();
         $search = $ldap->search('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate))(!(uid=nobody))' . $query . ')');
@@ -149,7 +155,12 @@ class PersonModel implements \JSONSerializable
                 continue;
             }
             $person = new LdapPerson($object);
-            $results[] = PersonModel::fromLdapPerson($person);
+
+	        $results[] = match ($mode) {
+		        'basic' => PersonModel::fromLdapPerson($person)->getBasic(),
+		        'sanitized' => PersonModel::fromLdapPerson($person)->sanitizeAvg(),
+		        default => PersonModel::fromLdapPerson($person),
+	        };
         }
 
         return $results;
@@ -160,9 +171,9 @@ class PersonModel implements \JSONSerializable
      * @static
      * @return array[PersonModel] all persons
      */
-    public static function all() : array
+    public static function all($mode = 'all') : array
     {
-        return self::where("");
+        return self::where("", $mode);
     }
 
     /**
@@ -246,7 +257,7 @@ class PersonModel implements \JSONSerializable
     public function getBasic() : \stdClass {
         $basic = new \stdClass();
         $basic->uid=$this->__get('uid');
-        $basic->href=getenv('BASE_URL').'persons/'.$this->__get('uid');
+        $basic->href=self::$base_url.'persons/'.$this->__get('uid');
         $basic->name=$this->name();
         $basic->membership=$this->membership();
         if ($this->__get('avg_email') && $this->__get('avg')) $basic->email=$this->__get('email'); //only send mail if fdMailShare is true
@@ -277,7 +288,7 @@ class PersonModel implements \JSONSerializable
         $sanitized = array_diff_key($this->attributes, array_fill_keys($avg, false));
 
         return array_merge($sanitized, [
-            'href' => getenv('BASE_URL').'persons/'.$this->__get('uid'),
+            'href' => self::$base_url.'persons/'.$this->__get('uid'),
             'name' => $this->name(),
             'membership' => $this->membership(),
         ]);
@@ -291,7 +302,7 @@ class PersonModel implements \JSONSerializable
     {
 
         return array_merge($this->attributes, [
-          'href' => getenv('BASE_URL').'persons/'.$this->__get('uid'),
+          'href' => self::$base_url.'persons/'.$this->__get('uid'),
           'name' => $this->name(),
           'membership' => $this->membership(),
       ]);

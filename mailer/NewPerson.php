@@ -9,6 +9,12 @@ class NewPerson
     private $name;
     private $password;
 
+	private static $mail_from;
+
+	public static function Initialise($mail_from) {
+		self::$mail_from = $mail_from;
+	}
+
     /**
      * Constructs a new email
      * @param string $email    valid e-mailaddress of the new user
@@ -28,8 +34,8 @@ class NewPerson
     public function send()
     {
         // Construct needed headers from configuration
-        $headers = 'From: '.getenv('MAIL_FROM') . "\r\n" .
-               'Reply-To: '.getenv('MAIL_FROM') . "\r\n" .
+        $headers = 'From: '. self::$mail_from  . "\r\n" .
+               'Reply-To: '. self::$mail_from  . "\r\n" .
                'X-Mailer: PHP/' . phpversion() . "\r\n" .
                "MIME-Version: 1.0\r\n" .
                "Content-type: text/html; charset=utf-8\r\n";
@@ -38,7 +44,7 @@ class NewPerson
         $name = $this->name;
         $password = $this->password;
         $uid = $this->uid;
-        $sec_email = getenv('MAIL_FROM');
+        $sec_email = self::$mail_from ;
 
         // Build message
         $message = <<<MAIL

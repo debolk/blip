@@ -17,11 +17,15 @@ class LdapHelper
     public static function Connect() : LdapHelper
     {
         if (self::$instance == null) {
-            self::$instance = new LdapHelper;
+            syslog(LOG_ERR, "Ldap connection not initialised");
         }
 
         return self::$instance;
     }
+
+	public static function Initialise($ldap_host, $ldap_base, $ldap_username, $ldap_password) {
+		self::$instance = new LdapHelper($ldap_host, $ldap_base, $ldap_username, $ldap_password);
+	}
 
     /**
      * Connection to the LDAP-server
@@ -38,12 +42,16 @@ class LdapHelper
     /**
      * Connect to the LDAP-server and set basic configuration
      */
-    public function __construct()
+    public function __construct($ldap_host, $ldap_base, $ldap_username, $ldap_password)
     {
-        $this->ldap = ldap_connect(getenv('LDAP_HOST'));
-        $this->bind(getenv('LDAP_USERNAME'), getenv('LDAP_PASSWORD'));
-        $this->basedn = getenv('LDAP_BASEDN');
+        $this->ldap = ldap_connect($ldap_host);
+        $this->bind($ldap_username, $ldap_password);
+        $this->basedn = $ldap_base;
     }
+
+	public function getBaseDn() {
+		return $this->basedn;
+	}
 
     /**
      * Escape arguments for safe searches in LDAP

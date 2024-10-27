@@ -72,12 +72,12 @@ class LdapGroup extends LdapObject
      * @param array $groups  An array of DNs to look up
      * @return array         The people in the specified groups
      */
-    public static function peopleInGroups(array $groups) : array
+    public static function peopleInGroups(array $groups, string $mode = 'all') : array
     {
         $results = array();
 
         foreach ($groups as $group) {
-            $results = array_unique(array_merge($results, self::fromDn($group)->people()), SORT_REGULAR);
+            $results = array_unique(array_merge($results, self::fromDn($group)->people($mode)), SORT_REGULAR);
         }
 
         return $results;
@@ -87,7 +87,7 @@ class LdapGroup extends LdapObject
      * Returns the array of people that belong to this group
      * @return array   The array of People in this group as PersonModel
      */
-    public function people() : array
+    public function people(string $mode = 'all') : array
     {
         $result = array();
         if (!isset($this->attributes['memberuid'])) {
@@ -105,7 +105,7 @@ class LdapGroup extends LdapObject
         }
         $query .= ')';
 
-        return PersonModel::where($query);
+        return PersonModel::where($query, $mode);
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace controllers;
+namespace Controllers;
 
 use Helper\MemcacheHelper;
 use Helper\ResponseHelper;
@@ -20,7 +20,7 @@ class MemberController extends ControllerBase
         '/members/all' => 'lid',
         '/members/current' => 'bekend',
         '/members/former' => 'lid',
-        '/members/candidate' => 'bekend',
+        '/members/candidate' => 'bekend'
     );
 
     public static function route(Request $request, Response $response, array $args) : Response
@@ -60,8 +60,8 @@ class MemberController extends ControllerBase
                 LdapGroup::getPersonGroups()['oud lid'],
                 LdapGroup::getPersonGroups()['lid van verdienste'],
                 LdapGroup::getPersonGroups()['erelid'],
-            ));
-            return json_encode(self::callArray($people, 'getBasic'), JSON_UNESCAPED_SLASHES);
+            ), 'basic');
+            return json_encode($people, JSON_UNESCAPED_SLASHES);
         });
         return ResponseHelper::json($response, $result);
     }
@@ -78,8 +78,8 @@ class MemberController extends ControllerBase
                     LdapGroup::getPersonGroups()['oud lid'],
                     LdapGroup::getPersonGroups()['lid van verdienste'],
                     LdapGroup::getPersonGroups()['erelid'],
-                ));
-                return json_encode(self::callArray($people, 'sanitizeAvg'), JSON_UNESCAPED_SLASHES);
+                ), 'sanitize');
+                return json_encode($people, JSON_UNESCAPED_SLASHES);
             });
         } else {
             $result = MemcacheHelper::cache('members-bestuur', function(){
@@ -106,8 +106,8 @@ class MemberController extends ControllerBase
                 LdapGroup::getPersonGroups()['kandidaatlid'],
                 LdapGroup::getPersonGroups()['lid van verdienste'],
                 LdapGroup::getPersonGroups()['erelid'],
-            ));
-            return json_encode(self::callArray($people, 'getBasic'), JSON_UNESCAPED_SLASHES);
+            ), 'basic');
+            return json_encode($people, JSON_UNESCAPED_SLASHES);
         });
         return ResponseHelper::json($response, $result);
     }
@@ -119,8 +119,8 @@ class MemberController extends ControllerBase
         $result = MemcacheHelper::cache('members', function(){
             $people = LdapGroup::peopleInGroups(array(
                 LdapGroup::getPersonGroups()['oud lid'],
-            ));
-            return json_encode(self::callArray($people, 'getBasic'), JSON_UNESCAPED_SLASHES);
+            ), 'basic');
+            return json_encode($people, JSON_UNESCAPED_SLASHES);
         });
         return ResponseHelper::json($response, $result);
     }
@@ -132,8 +132,8 @@ class MemberController extends ControllerBase
         $result = MemcacheHelper::cache('members', function(){
             $people = LdapGroup::peopleInGroups(array(
                 LdapGroup::getPersonGroups()['kandidaatlid'],
-            ));
-            return json_encode(self::callArray($people, 'getBasic'), JSON_UNESCAPED_SLASHES);
+            ), 'basic');
+            return json_encode($people, JSON_UNESCAPED_SLASHES);
         });
         return ResponseHelper::json($response, $result);
     }

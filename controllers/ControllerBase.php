@@ -1,6 +1,6 @@
 <?php
 
-namespace controllers;
+namespace Controllers;
 
 use Helper\OAuth2Helper;
 use Slim\App;
@@ -76,13 +76,5 @@ abstract class ControllerBase {
     public static function loggedIn(Response $response, string $resource = 'bekend') : bool|Response
     {
         return OAuth2Helper::isAuthorisedFor($resource, $response);
-    }
-
-    protected static function callArray(array $arr, \MethodCallback $func) : array {
-        $result = array();
-        foreach($arr as $a) {
-            $result[] = call_user_func([$a, $func]);
-        }
-        return $result;
     }
 }

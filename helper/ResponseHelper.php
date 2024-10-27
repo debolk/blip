@@ -18,7 +18,7 @@ class ResponseHelper
 	}
 
 	public static function option(Response $response, string $method): Response {
-		return $response->withStatus(204)->withHeader('Allow', $method)->withHeader('Access-Control-Allow-Methods', $method);
+		return $response->withStatus(204)->withHeader('Allow', $method);
 	}
 
     public static function data(Response $response, mixed $payload, string $type) : Response {

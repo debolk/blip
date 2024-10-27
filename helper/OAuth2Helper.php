@@ -23,7 +23,7 @@ class OAuth2Helper
             return ResponseHelper::create($response, 401, '{"error":"invalid_token","error_description":"No access token was provided"}', "application/json");
         }
 
-        $path = getenv('OAUTH2_RESOURCE') . $resource . '?access_token=' . urlencode($access_token);
+        $path = "http://10.99.1.105:8002/" . $resource . '?access_token=' . urlencode($access_token);
 
         $c = curl_init($path);
         curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
@@ -36,7 +36,6 @@ class OAuth2Helper
         if ($code == 200) {
             return true;
         }
-
         return ResponseHelper::create($response, $code, $body, "application/json");
     }
 }

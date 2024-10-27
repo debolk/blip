@@ -16,5 +16,13 @@
     "platform": {
       "php": "8.3.8"
     }
+  },
+  "autoload": {
+    "psr-4": {
+      "Controllers\\": "controllers/",
+      "Models\\": "models/",
+      "Helper\\": "helper/",
+      "Mailer\\": "mailer/"
+    }
   }
 }

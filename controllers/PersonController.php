@@ -1,6 +1,6 @@
 <?php
 
-namespace controllers;
+namespace Controllers;
 
 use Helper\LdapHelper;
 use Helper\MemcacheHelper;
@@ -28,7 +28,6 @@ class PersonController extends ControllerBase
 
     public static function route(Request $request, Response $response, array $args) : Response
     {
-		syslog(LOG_ERR, "ERR");
         $path = $request->getUri()->getPath();
 
         if ( in_array('uid', $args)) {
@@ -73,7 +72,7 @@ class PersonController extends ControllerBase
      */
     private static function index(Request $request, Response $response, array $args) : Response {
         $result = MemcacheHelper::cache('persons', function(){
-           return json_encode(self::callArray(PersonModel::all(), 'getBasic'), JSON_UNESCAPED_SLASHES);
+           return json_encode(PersonModel::all('basic'), JSON_UNESCAPED_SLASHES);
         });
 
         return ResponseHelper::json($response, $result);
@@ -86,7 +85,7 @@ class PersonController extends ControllerBase
 
         if ( self::loggedIn(new Response(), 'bestuur') instanceof Response) {
             $result = MemcacheHelper::cache('persons', function(){
-                return json_encode(self::callArray(PersonModel::all(), 'sanitizeAvg'), JSON_UNESCAPED_SLASHES);
+                return json_encode(PersonModel::all('sanitize'), JSON_UNESCAPED_SLASHES);
             });
         }
         else {

@@ -4,7 +4,7 @@ namespace Controllers;
 
 use Helper\MemcacheHelper;
 use Helper\ResponseHelper;
-use Models\LdapGroup;
+use Models\LdapOUnit;
 use Models\PersonModel;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
@@ -54,12 +54,12 @@ class MemberController extends ControllerBase
      */
     public static function index(Request $request, Response $response, array $args) : Response {
         $result = MemcacheHelper::cache('members', function(){
-            $people = LdapGroup::peopleInGroups(array(
-                LdapGroup::getPersonGroups()['lid'],
-                LdapGroup::getPersonGroups()['kandidaatlid'],
-                LdapGroup::getPersonGroups()['oud lid'],
-                LdapGroup::getPersonGroups()['lid van verdienste'],
-                LdapGroup::getPersonGroups()['erelid'],
+            $people = LdapOUnit::peopleInUnits(array(
+                LdapOUnit::getPersonOUnits()['lid'],
+                LdapOUnit::getPersonOUnits()['kandidaatlid'],
+                LdapOUnit::getPersonOUnits()['oud lid'],
+                LdapOUnit::getPersonOUnits()['lid van verdienste'],
+                LdapOUnit::getPersonOUnits()['erelid'],
             ), 'basic');
             return json_encode($people, JSON_UNESCAPED_SLASHES);
         });
@@ -72,23 +72,23 @@ class MemberController extends ControllerBase
     public static function members_all(Request $request, Response $response, array $args) : Response {
         if ( self::loggedIn(new Response(), 'bestuur') instanceof Response ) {
             $result = MemcacheHelper::cache('members', function(){
-                $people = LdapGroup::peopleInGroups(array(
-                    LdapGroup::getPersonGroups()['lid'],
-                    LdapGroup::getPersonGroups()['kandidaatlid'],
-                    LdapGroup::getPersonGroups()['oud lid'],
-                    LdapGroup::getPersonGroups()['lid van verdienste'],
-                    LdapGroup::getPersonGroups()['erelid'],
+                $people = LdapOUnit::peopleInUnits(array(
+                    LdapOUnit::getPersonOUnits()['lid'],
+                    LdapOUnit::getPersonOUnits()['kandidaatlid'],
+                    LdapOUnit::getPersonOUnits()['oud lid'],
+                    LdapOUnit::getPersonOUnits()['lid van verdienste'],
+                    LdapOUnit::getPersonOUnits()['erelid'],
                 ), 'sanitize');
                 return json_encode($people, JSON_UNESCAPED_SLASHES);
             });
         } else {
             $result = MemcacheHelper::cache('members-bestuur', function(){
-                $people = LdapGroup::peopleInGroups(array(
-                    LdapGroup::getPersonGroups()['lid'],
-                    LdapGroup::getPersonGroups()['kandidaatlid'],
-                    LdapGroup::getPersonGroups()['oud lid'],
-                    LdapGroup::getPersonGroups()['lid van verdienste'],
-                    LdapGroup::getPersonGroups()['erelid'],
+                $people = LdapOUnit::peopleInUnits(array(
+                    LdapOUnit::getPersonOUnits()['lid'],
+                    LdapOUnit::getPersonOUnits()['kandidaatlid'],
+                    LdapOUnit::getPersonOUnits()['oud lid'],
+                    LdapOUnit::getPersonOUnits()['lid van verdienste'],
+                    LdapOUnit::getPersonOUnits()['erelid'],
                 ));
                 return json_encode($people, JSON_UNESCAPED_SLASHES);
             });
@@ -101,11 +101,11 @@ class MemberController extends ControllerBase
      */
     public static function members_current(Request $request, Response $response, array $args) : Response {
         $result = MemcacheHelper::cache('members', function(){
-            $people = LdapGroup::peopleInGroups(array(
-                LdapGroup::getPersonGroups()['lid'],
-                LdapGroup::getPersonGroups()['kandidaatlid'],
-                LdapGroup::getPersonGroups()['lid van verdienste'],
-                LdapGroup::getPersonGroups()['erelid'],
+            $people = LdapOUnit::peopleInUnits(array(
+                LdapOUnit::getPersonOUnits()['lid'],
+                LdapOUnit::getPersonOUnits()['kandidaatlid'],
+                LdapOUnit::getPersonOUnits()['lid van verdienste'],
+                LdapOUnit::getPersonOUnits()['erelid'],
             ), 'basic');
             return json_encode($people, JSON_UNESCAPED_SLASHES);
         });
@@ -117,8 +117,8 @@ class MemberController extends ControllerBase
      */
     public static function members_former(Request $request, Response $response, array $args) : Response {
         $result = MemcacheHelper::cache('members', function(){
-            $people = LdapGroup::peopleInGroups(array(
-                LdapGroup::getPersonGroups()['oud lid'],
+            $people = LdapOUnit::peopleInUnits(array(
+                LdapOUnit::getPersonOUnits()['oud lid'],
             ), 'basic');
             return json_encode($people, JSON_UNESCAPED_SLASHES);
         });
@@ -130,8 +130,8 @@ class MemberController extends ControllerBase
      */
     public static function members_candidate(Request $request, Response $response, array $args) : Response {
         $result = MemcacheHelper::cache('members', function(){
-            $people = LdapGroup::peopleInGroups(array(
-                LdapGroup::getPersonGroups()['kandidaatlid'],
+            $people = LdapOUnit::peopleInUnits(array(
+                LdapOUnit::getPersonOUnits()['kandidaatlid'],
             ), 'basic');
             return json_encode($people, JSON_UNESCAPED_SLASHES);
         });

@@ -2,6 +2,8 @@
 namespace Helper;
 
 use LDAP\Connection;
+use LDAP\Result;
+use LDAP\ResultEntry;
 
 class LdapHelper
 {

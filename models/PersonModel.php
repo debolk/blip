@@ -2,6 +2,7 @@
 
 namespace Models;
 
+use Helper\LdapHelper;
 use Helper\ResponseHelper;
 use Slim\Psr7\Response;
 
@@ -77,6 +78,7 @@ class PersonModel implements \JSONSerializable
     );
 
     protected string $pass;
+	protected LdapHelper $ldap;
 
     /**
      * Constructs a new Person
@@ -85,6 +87,7 @@ class PersonModel implements \JSONSerializable
     public function __construct(array $attributes = array())
     {
         $this->attributes = $attributes;
+		$ldap = LdapHelper::Connect();
     }
 
 	public static function Initialise($base_url){
@@ -147,14 +150,15 @@ class PersonModel implements \JSONSerializable
     public static function where(string $query, string $mode = 'all') : array
     {
         $ldap = \Helper\LdapHelper::connect();
-        $search = $ldap->search('(&(objectClass=iNetOrgPerson)(!(objectClass=gosaUserTemplate))(!(uid=nobody))' . $query . ')');
 
+	    syslog(LOG_ERR, $query);
+        $search = $ldap->search('(&(objectClass=fdBolkData)(!(uid=nobody))' . $query . ')');
+
+		syslog(LOG_ERR, sizeof($search));
         $results = array();
         foreach ($search as $key => $object) {
-            if ($key === 'count') {
-                continue;
-            }
-            $person = new LdapPerson($object);
+            syslog(LOG_ERR, $key);
+			$person = new LdapPerson($object);
 
 	        $results[] = match ($mode) {
 		        'basic' => PersonModel::fromLdapPerson($person)->getBasic(),
@@ -329,8 +333,8 @@ class PersonModel implements \JSONSerializable
      */
     public function membership() : string {
 
-        foreach (LdapGroup::$memberGroups as $status => $dn) {
-            $group = LdapGroup::fromDn($dn);
+        foreach (LdapOUnit::getPersonOUnits() as $status => $dn) {
+            $group = LdapOUnit::fromDn($dn);
             if ($group->hasMember($this->uid)) {
                 return $status;
             }
@@ -346,7 +350,7 @@ class PersonModel implements \JSONSerializable
      */
     public function setMembership(string $membership)
     {
-        if (!array_key_exists($membership, LdapGroup::$memberGroups)) {
+        if (!array_key_exists($membership, LdapOUnit::$memberGroups)) {
             return;
         }
 
@@ -356,14 +360,14 @@ class PersonModel implements \JSONSerializable
         }
 
         //Remove from current groups
-        foreach (LdapGroup::$memberGroups as $type => $dn) {
-            $group = LdapGroup::fromDn($dn);
+        foreach (LdapOUnit::$memberGroups as $type => $dn) {
+            $group = LdapOUnit::fromDn($dn);
             $group->removeMember($this->attributes['uid']);
             $group->save();
         }
 
         //Add to new group
-        $group = LdapGroup::fromDn(LdapGroup::$memberGroups[$membership]);
+        $group = LdapOUnit::fromDn(LdapOUnit::$memberGroups[$membership]);
         $group->addMember($this->attributes['uid']);
         $group->save();
 

@@ -45,7 +45,9 @@ class LdapHelper
     public function __construct($ldap_host, $ldap_base, $ldap_username, $ldap_password)
     {
         $this->ldap = ldap_connect($ldap_host);
-        $this->bind($ldap_username, $ldap_password);
+
+		ldap_set_option($this->ldap, LDAP_OPT_PROTOCOL_VERSION, 3); //sets ldap protocol to v3; server won't accept otherwise.
+		$this->bind($ldap_username, $ldap_password);
         $this->basedn = $ldap_base;
     }
 

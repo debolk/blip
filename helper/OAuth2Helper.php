@@ -7,6 +7,8 @@ use Slim\Psr7\Response;
 class OAuth2Helper
 {
 
+	private static $oauth2_resource;
+
     /**
      * Return a boolean whether the user can access a resource
      * @param string $resource a valid access level resource
@@ -23,7 +25,7 @@ class OAuth2Helper
             return ResponseHelper::create($response, 401, '{"error":"invalid_token","error_description":"No access token was provided"}', "application/json");
         }
 
-        $path = "http://10.99.1.105:8002/" . $resource . '?access_token=' . urlencode($access_token);
+        $path = self::$oauth2_resource . $resource . '?access_token=' . $access_token;
 
         $c = curl_init($path);
         curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
@@ -38,4 +40,8 @@ class OAuth2Helper
         }
         return ResponseHelper::create($response, $code, $body, "application/json");
     }
+
+	public static function Initialise(string $oauth2_resource) {
+		self::$oauth2_resource = $oauth2_resource;
+	}
 }

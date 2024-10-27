@@ -4,6 +4,7 @@
 use controllers\PersonController;
 use Helper\LdapHelper;
 use Helper\MemcacheHelper;
+use Helper\OAuth2Helper;
 use Mailer\NewPerson;
 use Models\PersonModel;
 
@@ -14,6 +15,7 @@ $app = Slim\Factory\AppFactory::create();
 
 LdapHelper::Initialise($config['LDAP_HOST'], $config['LDAP_BASEDN'], $config['LDAP_USERNAME'], $config['LDAP_PASSWORD']);
 MemcacheHelper::Initialise($config['MEMCACHE_HOST'], $config['MEMCACHE_PORT'], $config['MEMCACHE_EXPIRY']);
+OAuth2Helper::Initialise($config['OAUTH2_RESOURCE']);
 PersonModel::Initialise($config['BASE_URL']);
 NewPerson::Initialise($config['MAIL_FROM']);
 

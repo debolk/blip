@@ -162,7 +162,7 @@ class LdapHelper
             $read = ldap_read($this->ldap, $dn, '(objectClass=' . $objectClass . ')', $attributes);
         }
 
-        if (!$query || ldap_count_entries($this->ldap, $read) < 1) {
+        if ($read === false) {
             return false;
         }
 

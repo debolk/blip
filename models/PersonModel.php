@@ -335,7 +335,8 @@ class PersonModel implements \JSONSerializable
 
         foreach (LdapOUnit::getPersonOUnits() as $status => $dn) {
             $group = LdapOUnit::fromDn($dn);
-            if ($group->hasMember($this->uid)) {
+            if ($group != null &&
+	            $group->hasMember($this->uid)) {
                 return $status;
             }
         }

@@ -44,13 +44,13 @@ class LdapOUnit extends LdapObject
         parent::__construct($attributes);
     }
 
-    /**
-     * Construct a OUnit-object from its DN
-     * @static
-     * @param  string $dn DN to load
-     * @return LdapOUnit     complete OUnit-object
-     */
-    public static function fromDn(string $dn) : LdapOUnit
+	/**
+	 * Construct a OUnit-object from its DN
+	 * @static
+	 * @param string $dn DN to load
+	 * @return LdapOUnit|null complete OUnit-object or null
+	 */
+    public static function fromDn(string $dn) : LdapOUnit | null
     {
         if (isset(self::$cache[$dn])) {
             return self::$cache[$dn];
@@ -58,7 +58,11 @@ class LdapOUnit extends LdapObject
 
         $ldap = \Helper\LdapHelper::connect();
 
+		var_dump($dn);
         $attributes = $ldap->get($dn, 'organizationalUnit');
+		if (!$attributes){
+			return null;
+		}
         $result = new self($attributes);
         $result->exists = true;
         $result->dn = $dn;

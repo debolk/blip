@@ -23,12 +23,12 @@ class LdapObject
         $this->attributes = $attributes;
     }
 
-    /**
-     * Creates an LdapObject from a dn
-     * @param  string $dn   the DN to look up
-     * @return LdapObject   the specified entry under the dn
-     */
-    public static function fromDn(string $dn) : LdapObject
+	/**
+	 * Creates an LdapObject from a dn
+	 * @param string $dn the DN to look up
+	 * @return LdapObject|null the specified entry under the dn or null
+	 */
+    public static function fromDn(string $dn) : LdapObject | null
     {
         $ldap = LdapHelper::Connect();
 

@@ -137,8 +137,13 @@ class LdapHelper
             return array();
         }
 
-        $results = ldap_get_entries($this->ldap, $query);
-        return $this->stripCounts($results);
+		$results = ldap_get_entries($this->ldap, $query);
+		$results = $this->stripCounts($results);
+
+		if ($attributes != null) {
+			$results = $this->flatten_search($results, $attributes);
+		}
+		return $results;
     }
 
     /**
@@ -228,10 +233,11 @@ class LdapHelper
     public function flatten(object|array $ldap_object) : object|array
     {
         $result = array();
+
         foreach ($ldap_object as $key => $value) {
             if (!is_int($key)) {
                 if (is_array($value) && count($value) == 1) {
-                    $result[$key] = $value[0];
+					$result[$key] = $value[0];
                 } else {
                     $result[$key] = $value;
                 }
@@ -240,4 +246,34 @@ class LdapHelper
 
         return $result;
     }
+
+	public function flatten_search(object|array $results, array $attributes): array {
+		$res = array();
+		foreach ($results as $key => $value) {
+
+			if (count($attributes) > 1) {
+
+				$object = array();
+				foreach ($attributes as $akey => $attribute) {
+
+					$val = $value[$attribute];
+					if (is_array($val) && count($val) == 1) {
+						$object[$attribute] = $val[0];
+					} else {
+						$object[$attribute] = $val;
+					}
+
+				}
+				$res[$key] = $object;
+			} else {
+				$val = $value[$attributes[0]];
+				if (is_array($val) && count($val) == 1){
+					$res[$key] = $val[0];
+				} else {
+					$res[$key] = $val;
+				}
+			}
+		}
+		return $res;
+	}
 }

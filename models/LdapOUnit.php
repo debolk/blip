@@ -88,8 +88,11 @@ class LdapOUnit extends LdapObject
     }
 
 	private function getMembers() : void {
+		if ($this->hasMembers()) return;
+
 		$ldap = LdapHelper::Connect();
-		$this->memberUids = $ldap->search('(&(objectClass=fdBolkData)(!(uid=nobody)))', ['uid'], $this->dn);
+		$result = $ldap->search('(&(objectClass=fdBolkData)(!(uid=nobody)))', ['uid'], $this->dn);
+		$this->memberUids = $result;
 	}
 
 	private function hasMembers() : bool {
@@ -127,6 +130,6 @@ class LdapOUnit extends LdapObject
 		    return false;
 	    }
 
-        return in_array($uid, $this->memberUids);
+		return in_array($uid, $this->memberUids);
     }
 }

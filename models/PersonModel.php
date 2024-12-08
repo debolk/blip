@@ -101,10 +101,10 @@ class PersonModel implements \JSONSerializable
      */
     public static function fromLdapPerson(LdapPerson $person) : PersonModel
     {
-        $result = new self();
+		$result = new self();
         foreach ($result->renaming as $local => $ldap) {
             if (isset($person->$ldap)) {
-                $result->attributes[$local] = $person->$ldap;
+				$result->attributes[$local] = $person->$ldap;
             }
         }
 
@@ -151,13 +151,11 @@ class PersonModel implements \JSONSerializable
     {
         $ldap = \Helper\LdapHelper::connect();
 
-	    syslog(LOG_ERR, $query);
         $search = $ldap->search('(&(objectClass=fdBolkData)(!(uid=nobody))' . $query . ')');
 
-		syslog(LOG_ERR, sizeof($search));
         $results = array();
         foreach ($search as $key => $object) {
-            syslog(LOG_ERR, $key);
+			$object = $ldap->flatten($object);
 			$person = new LdapPerson($object);
 
 	        $results[] = match ($mode) {
@@ -261,7 +259,7 @@ class PersonModel implements \JSONSerializable
     public function getBasic() : \stdClass {
         $basic = new \stdClass();
         $basic->uid=$this->__get('uid');
-        $basic->href=self::$base_url.'persons/'.$this->__get('uid');
+        $basic->href=self::$base_url.'/persons/'.$this->__get('uid');
         $basic->name=$this->name();
         $basic->membership=$this->membership();
         if ($this->__get('avg_email') && $this->__get('avg')) $basic->email=$this->__get('email'); //only send mail if fdMailShare is true
@@ -292,7 +290,7 @@ class PersonModel implements \JSONSerializable
         $sanitized = array_diff_key($this->attributes, array_fill_keys($avg, false));
 
         return array_merge($sanitized, [
-            'href' => self::$base_url.'persons/'.$this->__get('uid'),
+            'href' => self::$base_url.'/persons/'.$this->__get('uid'),
             'name' => $this->name(),
             'membership' => $this->membership(),
         ]);
@@ -306,7 +304,7 @@ class PersonModel implements \JSONSerializable
     {
 
         return array_merge($this->attributes, [
-          'href' => self::$base_url.'persons/'.$this->__get('uid'),
+          'href' => self::$base_url.'/persons/'.$this->__get('uid'),
           'name' => $this->name(),
           'membership' => $this->membership(),
       ]);
@@ -334,9 +332,9 @@ class PersonModel implements \JSONSerializable
     public function membership() : string {
 
         foreach (LdapOUnit::getPersonOUnits() as $status => $dn) {
-            $group = LdapOUnit::fromDn($dn);
-            if ($group != null &&
-	            $group->hasMember($this->uid)) {
+			$ou_unit = LdapOUnit::fromDn($dn);
+            if ($ou_unit != null &&
+	            $ou_unit->hasMember($this->__get('uid'))) {
                 return $status;
             }
         }

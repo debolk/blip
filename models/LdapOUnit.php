@@ -9,14 +9,14 @@ class LdapOUnit extends LdapObject
      * The mappings from membership status to the unit they should belong to
      */
     private static array $personOUnits = array(
-      'erelid' => 'ou=people,ou=ereleden,o=nieuwedelft',
-      'lid' => "ou=people,ou=leden,o=nieuwedelft",
-      'kandidaatlid' => 'ou=people,ou=kandidaatleden,o=nieuwedelft',
-      'oud lid' => 'ou=people,ou=oudleden,o=nieuwedelft',
-      'lid van verdienste' => 'ou=people,ou=ledenvanverdienste,o=nieuwedelft',
-      'donateur' => 'ou=people,ou=donateurs,o=nieuwedelft',
-      'ex lid' => 'ou=people,ou=exleden,o=nieuwedelft',
-      'extern' => 'ou=people,ou=externen,o=nieuwedelft',
+      'erelid' => 'ou=people,ou=ereleden,o=nieuwedelft,',
+      'lid' => "ou=people,ou=leden,o=nieuwedelft,",
+      'kandidaatlid' => 'ou=people,ou=kandidaatleden,o=nieuwedelft,',
+      'oud lid' => 'ou=people,ou=oudleden,o=nieuwedelft,',
+      'lid van verdienste' => 'ou=people,ou=ledenvanverdienste,o=nieuwedelft,',
+      'donateur' => 'ou=people,ou=donateurs,o=nieuwedelft,',
+      'ex lid' => 'ou=people,ou=exleden,o=nieuwedelft,',
+      'extern' => 'ou=people,ou=externen,o=nieuwedelft,',
     );
 
     /**
@@ -58,7 +58,6 @@ class LdapOUnit extends LdapObject
 
         $ldap = \Helper\LdapHelper::connect();
 
-		var_dump($dn);
         $attributes = $ldap->get($dn, 'organizationalUnit');
 		if (!$attributes){
 			return null;

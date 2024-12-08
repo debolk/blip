@@ -220,12 +220,12 @@ class LdapHelper
         return $result;
     }
 
-    /**
-     * Flatten a LDAP-object
-     * @param  object $ldap_object object to flatten
-     * @return object              flattened object
-     */
-    public function flatten(object $ldap_object) : object
+	/**
+	 * Flatten a LDAP-object
+	 * @param object|array $ldap_object object to flatten
+	 * @return object|array flattened object
+	 */
+    public function flatten(object|array $ldap_object) : object|array
     {
         $result = array();
         foreach ($ldap_object as $key => $value) {

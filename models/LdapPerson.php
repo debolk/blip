@@ -24,7 +24,7 @@ class LdapPerson extends LdapObject
           },
 
           'sn' => function () {
-              $this->setName;
+              $this->setName();
           },
 
           'uid' => function () {
@@ -101,7 +101,7 @@ class LdapPerson extends LdapObject
         }
 
         $data = $ldap->get($dn, 'iNetOrgPerson');
-        #$data = $ldap->flatten($data);
+        $data = $ldap->flatten($data);
 
         $result = new self($data);
         $result->exists = true;

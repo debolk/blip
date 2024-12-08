@@ -20,7 +20,7 @@ class LdapObject
      */
     public function __construct(array $attributes = array())
     {
-        $this->attributes = $attributes;
+		$this->attributes = $attributes;
     }
 
 	/**
@@ -33,7 +33,7 @@ class LdapObject
         $ldap = LdapHelper::Connect();
 
         $attributes = $ldap->get($dn);
-        #$attributes = $ldap->flatten($attributes);
+        $attributes = $ldap->flatten($attributes);
 
         $result = new self($attributes);
         $result->exists = true;
@@ -52,7 +52,7 @@ class LdapObject
             return null;
         }
 
-        if (!is_array($this->attributes[$name])) {
+		if (!is_array($this->attributes[$name])) {
             return $this->attributes[$name];
         }
 

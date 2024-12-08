@@ -103,6 +103,7 @@ class PersonModel implements \JSONSerializable
     {
 		$result = new self();
         foreach ($result->renaming as $local => $ldap) {
+			$ldap = strtolower($ldap);
             if (isset($person->$ldap)) {
 				$result->attributes[$local] = $person->$ldap;
             }
@@ -258,9 +259,12 @@ class PersonModel implements \JSONSerializable
      */
     public function getBasic() : \stdClass {
         $basic = new \stdClass();
-        $basic->uid=$this->__get('uid');
+        $basic->uid=$this->uid;
         $basic->href=self::$base_url.'/persons/'.$this->__get('uid');
         $basic->name=$this->name();
+		$basic->firstname=$this->firstname;
+		$basic->surname=$this->surname;
+		$basic->nickname=$this->nickname;
         $basic->membership=$this->membership();
         if ($this->__get('avg_email') && $this->__get('avg')) $basic->email=$this->__get('email'); //only send mail if fdMailShare is true
         $basic->avg_email=$this->__get('avg_email');
@@ -319,9 +323,9 @@ class PersonModel implements \JSONSerializable
         $first = '';
         $nick = '';
         $last = '';
-        if (isset($this->attributes['firstname'])) $first = $this->attributes['firstname'];
-        if (isset($this->attributes['surname'])) $last = $this->attributes['surname'];
-        if (isset($this->attributes['nickname'])) $nick = ' "'.$this->attributes['nickname'].'"';
+        if (isset($this->attributes['firstname'])) $first = $this->firstname;
+        if (isset($this->attributes['surname'])) $last = $this->surname;
+        if (isset($this->attributes['nickname'])) $nick = ' "'.$this->nickname.'"';
         return $first.$nick.' '.$last;
     }
 

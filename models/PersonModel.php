@@ -162,7 +162,7 @@ class PersonModel implements \JSONSerializable
 
 	        $results[] = match ($mode) {
 		        'basic' => PersonModel::fromLdapPerson($person)->getBasic(),
-		        'sanitized' => PersonModel::fromLdapPerson($person)->sanitizeAvg(),
+		        'sanitize' => PersonModel::fromLdapPerson($person)->sanitizeAvg(),
 		        default => PersonModel::fromLdapPerson($person),
 	        };
         }
@@ -280,16 +280,17 @@ class PersonModel implements \JSONSerializable
     public function sanitizeAvg() : array {
 
 		$avg = array();
-        if ( !$this->__get('avg_address') ) $avg[] = 'address';
-        if ( !$this->__get('avg_dob')) $avg[] = 'dateofbirth';
-        if ( !$this->__get('avg_institution')) $avg[] = 'institution';
-        if ( !$this->__get('avg_programme')) $avg[] = 'programme';
-        if ( !$this->__get('avg_email')) $avg[] = 'email';
-        if ( !$this->__get('avg_phone_parent')) $avg[] = 'phone_parent';
-        if ( !$this->__get('avg_phone')) $avg[] = 'phone';
-        if ( !$this->__get('avg_pronouns')) $avg[] = 'pronouns';
+		error_log($this->avg_address);
+        if ( !$this->avg_address ) $avg[] = 'address';
+        if ( !$this->avg_dob) $avg[] = 'dateofbirth';
+        if ( !$this->avg_institution) $avg[] = 'institution';
+        if ( !$this->avg_programme) $avg[] = 'programme';
+        if ( !$this->avg_email) $avg[] = 'email';
+        if ( !$this->avg_phone_parent) $avg[] = 'phone_parent';
+        if ( !$this->avg_phone) $avg[] = 'phone';
+        if ( !$this->avg_pronouns) $avg[] = 'pronouns';
 
-        if ( !$this->__get('avg')) { //remove all avg attributes if the person didn't accept the privacy statement
+        if ( !$this->avg) { //remove all avg attributes if the person didn't accept the privacy statement
             $avg = ['address', 'dateofbirth', 'institution', 'programme', 'email', 'phone_parent', 'phone', 'pronouns'];
         }
 

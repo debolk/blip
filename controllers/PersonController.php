@@ -89,8 +89,9 @@ class PersonController extends ControllerBase
      * uri: /persons/all
      */
     private static function all(Request $request, Response $response, array $args) : Response {
+		$auth = self::loggedIn(new Response(), 'bestuur');
 
-        if ( self::loggedIn(new Response(), 'bestuur') instanceof Response) {
+        if ($auth instanceof Response) {
             $result = MemcacheHelper::cache('persons', function(){
                 return json_encode(PersonModel::all('sanitize'), JSON_UNESCAPED_SLASHES);
             });

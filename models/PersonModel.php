@@ -311,7 +311,7 @@ class PersonModel implements \JSONSerializable
 
         return array_merge($this->attributes, [
           'href' => self::$base_url.'/persons/'.$this->__get('uid'),
-          'name' => $this->name(),
+          'name' => $this->name,
           'membership' => $this->membership(),
       ]);
     }

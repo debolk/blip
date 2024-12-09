@@ -9,7 +9,7 @@ class OAuth2Helper
 
 	private static $oauth2_resource;
 	private static $debug_access_token;
-	private const ACCESS_LEVELS = [
+	public const ACCESS_LEVELS = [
 		"bestuur" => 3,
 		"ictcom" => 2,
 		"lid" => 1,
@@ -36,8 +36,9 @@ class OAuth2Helper
             "error_description":"No access token was provided"}', "application/json");
         }
 
-		if ( isset($debug_access_token)
+		if ( isset(self::$debug_access_token)
 			&& $access_token === self::$debug_access_token) {
+
 			if ( isset($_POST['access_level'])
 				&& self::ACCESS_LEVELS[$_POST['access_level']] >= self::ACCESS_LEVELS[$resource] ) {
 				return true;

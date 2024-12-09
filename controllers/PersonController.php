@@ -17,7 +17,7 @@ class PersonController extends ControllerBase
      * @var array|string[] map from path to operator level
      */
     private static array $operatorLevels = array(
-        '/persons' => 'bekend',
+        '/persons' => 'lid',
         '/persons/all' => 'lid',
         '/person' => 'bestuur',
         '/person/uid' => 'bekend',
@@ -35,7 +35,6 @@ class PersonController extends ControllerBase
         } else if (str_contains($path, 'photo')) {
             $path = '/person/uid/photo';
         }
-		error_log($path);
 
 		$auth = self::loggedIn($response, self::$operatorLevels[$path]);
 

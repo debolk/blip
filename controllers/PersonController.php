@@ -150,8 +150,8 @@ class PersonController extends ControllerBase
         $height = $args['uid'];
         $uid = $args['uid'];
         try {
-            return MemcacheHelper::cache("person-$uid-photo", function (string $uid, Response $response, int $width, int $height) {
-                return PersonModel::fromUid($uid)->getPhoto($response, $width, $height);
+            return MemcacheHelper::cache("person-$uid-photo", function ($args) {
+                return PersonModel::fromUid($args[0])->getPhoto($args[1], $args[2], $args[3]);
             }, $uid, $response, $width, $height);
         } catch (\Exception $e) {
             return ResponseHelper::create($response, 404, $e->getMessage());

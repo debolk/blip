@@ -4,6 +4,8 @@ namespace Models;
 
 use Helper\LdapHelper;
 use Helper\ResponseHelper;
+use Imagick;
+use ImagickException;
 use Slim\Psr7\Response;
 
 class PersonModel implements \JSONSerializable
@@ -15,7 +17,7 @@ class PersonModel implements \JSONSerializable
     /**
      * The list of properties that can be set by the user
      */
-    public array $allowed = array(
+    public static array $allowed = array(
         'initials',
         'firstname',
         'surname',
@@ -34,10 +36,25 @@ class PersonModel implements \JSONSerializable
         'dead',
     );
 
+	protected static array $bools = array(
+		'photo_visible',
+		'iva',
+		'dead',
+		'avg',
+		'avg_address',
+		'avg_dob',
+		'avg_institution',
+		'avg_programme',
+		'avg_email',
+		'avg_phone_emergency',
+		'avg_phone',
+		'avg_pronouns'
+	);
+
     /**
      * The mapping from local properties to properties in LdapPerson
      */
-    protected array $renaming = array(
+    protected static array $renaming = array(
         'uid' => 'uid',
         'initials' => 'initials',
         'firstname' => 'givenName',
@@ -102,10 +119,14 @@ class PersonModel implements \JSONSerializable
     public static function fromLdapPerson(LdapPerson $person) : PersonModel
     {
 		$result = new self();
-        foreach ($result->renaming as $local => $ldap) {
+        foreach (self::$renaming as $local => $ldap) {
 			$ldap = strtolower($ldap);
             if (isset($person->$ldap)) {
-				$result->attributes[$local] = $person->$ldap;
+				$value = $person->$ldap;
+				if ( in_array($local, self::$bools) ){
+					$value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+				}
+				$result->attributes[$local] = $value;
             }
         }
 
@@ -119,8 +140,7 @@ class PersonModel implements \JSONSerializable
      * Generates a password and stores it to be saved
      * After save the user will be notified by mail
      */
-    public function generatePassword()
-    {
+    public function generatePassword(): void {
         $this->pass = bin2hex(openssl_random_pseudo_bytes(8));
     }
 
@@ -261,15 +281,16 @@ class PersonModel implements \JSONSerializable
     public function getBasic() : \stdClass {
         $basic = new \stdClass();
         $basic->uid=$this->uid;
-        $basic->href=self::$base_url.'/persons/'.$this->uid;
+        $basic->href=self::$base_url.'/person/'.$this->uid;
+		$basic->initials=$this->initials;
         $basic->name=$this->name;
 		$basic->firstname=$this->firstname;
 		$basic->surname=$this->surname;
 		$basic->nickname=$this->nickname;
         $basic->membership=$this->membership();
-        if ($this->__get('avg_email') && $this->__get('avg')) $basic->email=$this->__get('email'); //only send mail if fdMailShare is true
-        $basic->avg_email=$this->__get('avg_email');
-        $basic->photo_visible=$this->__get('photo_visible');
+        if ($this->avg_email && $this->avg) $basic->email=$this->email; //only send mail if fdMailShare is true
+        $basic->avg_email=$this->avg_email;
+        $basic->photo_visible=$this->photo_visible;
         return $basic;
     }
 
@@ -280,7 +301,6 @@ class PersonModel implements \JSONSerializable
     public function sanitizeAvg() : array {
 
 		$avg = array();
-		error_log($this->avg_address);
         if ( !$this->avg_address ) $avg[] = 'address';
         if ( !$this->avg_dob) $avg[] = 'dateofbirth';
         if ( !$this->avg_institution) $avg[] = 'institution';
@@ -297,7 +317,7 @@ class PersonModel implements \JSONSerializable
         $sanitized = array_diff_key($this->attributes, array_fill_keys($avg, false));
 
         return array_merge($sanitized, [
-            'href' => self::$base_url.'/persons/'.$this->__get('uid'),
+            'href' => self::$base_url.'/persons/'.$this->uid,
             'name' => $this->name,
             'membership' => $this->membership(),
         ]);
@@ -311,7 +331,7 @@ class PersonModel implements \JSONSerializable
     {
 
         return array_merge($this->attributes, [
-          'href' => self::$base_url.'/persons/'.$this->__get('uid'),
+          'href' => self::$base_url.'/persons/'.$this->uid,
           'name' => $this->name,
           'membership' => $this->membership(),
       ]);
@@ -422,21 +442,23 @@ class PersonModel implements \JSONSerializable
         return $this->to_array();
     }
 
-    /**
-     * Returns the user profile picture, or a cat.
-     * @param $width    width of the picture
-     * @param $height   height of the picture
-     * @return Response
-     */
+	/**
+	 * Returns the user profile picture, or a cat.
+	 * @param Response $response
+	 * @param string $width width of the picture
+	 * @param string $height height of the picture
+	 * @return Response
+	 * @throws ImagickException
+	 */
     public function getPhoto(Response $response, string $width = "256", string $height = "256") : Response {
         //cast params
         $width = (int)$width;
         $height = (int)$height;
 
         //get from LDAP
-        $photo = $this->ldapPerson->__get('jpegPhoto');
+        $photo = $this->ldapPerson->jpegPhoto;
         if ( $photo == null ) { //retrieve a cat if person has no jpegPhoto
-            $seed = ((int)substr(base_convert(md5($uid), 15, 10), -6)) % 500; //per-user seed to generate different cats
+            $seed = ((int)substr(base_convert(md5($this->uid), 15, 10), -6)) % 500; //per-user seed to generate different cats
 
             $request = curl_init("https://api.lunoct.nl/avatar/$seed?background=ffffff");
             curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
@@ -444,7 +466,7 @@ class PersonModel implements \JSONSerializable
         }
 
         //process for displaying
-        $img = new \Imagick();
+        $img = new Imagick();
         $img->readImageBlob($photo);
         $img->setImageInterpolateMethod(\Imagick::INTERPOLATE_BICUBIC);
 
@@ -469,7 +491,7 @@ class PersonModel implements \JSONSerializable
         if (isset($this->attributes[$name])) {
             return $this->attributes[$name];
         }
-        return false;
+        return null;
     }
 
     /**

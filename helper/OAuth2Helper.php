@@ -9,6 +9,12 @@ class OAuth2Helper
 
 	private static $oauth2_resource;
 	private static $debug_access_token;
+	private const ACCESS_LEVELS = [
+		"bestuur" => 3,
+		"ictcom" => 2,
+		"lid" => 1,
+		"bekend" => 0,
+	];
 
 	public static function initialiseDebug(string $access_token){
 		self::$debug_access_token = $access_token;
@@ -24,12 +30,23 @@ class OAuth2Helper
         if (isset($_POST['access_token'])) {
             $access_token = $_POST['access_token'];
         } elseif (isset($_GET['access_token'])) {
-            $access_token = $_GET['access_token'];
+	        $access_token = $_GET['access_token'];
         } else {
-            return ResponseHelper::create($response, 401, '{"error":"invalid_token","error_description":"No access token was provided"}', "application/json");
+            return ResponseHelper::create($response, 401, '{"error":"invalid_token",
+            "error_description":"No access token was provided"}', "application/json");
         }
 
-		if ( isset($debug_access_token) && $access_token === self::$debug_access_token) {
+		if ( isset($debug_access_token)
+			&& $access_token === self::$debug_access_token) {
+			if ( isset($_POST['access_level'])
+				&& self::ACCESS_LEVELS[$_POST['access_level']] >= self::ACCESS_LEVELS[$resource] ) {
+				return true;
+			} elseif ( isset($_GET['access_level'])
+				&& self::ACCESS_LEVELS[$_GET['access_level']] >= self::ACCESS_LEVELS[$resource] ) {
+				return true;
+			} elseif ( isset($_GET['access_level']) || isset($_POST['access_level'])) {
+				return false;
+			}
 			return true;
 		}
 

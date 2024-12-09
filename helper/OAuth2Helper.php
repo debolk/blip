@@ -8,6 +8,11 @@ class OAuth2Helper
 {
 
 	private static $oauth2_resource;
+	private static $debug_access_token;
+
+	public static function initialiseDebug(string $access_token){
+		self::$debug_access_token = $access_token;
+	}
 
     /**
      * Return a boolean whether the user can access a resource
@@ -21,9 +26,12 @@ class OAuth2Helper
         } elseif (isset($_GET['access_token'])) {
             $access_token = $_GET['access_token'];
         } else {
-
             return ResponseHelper::create($response, 401, '{"error":"invalid_token","error_description":"No access token was provided"}', "application/json");
         }
+
+		if ( isset($debug_access_token) && $access_token === self::$debug_access_token) {
+			return true;
+		}
 
         $path = self::$oauth2_resource . $resource . '?access_token=' . $access_token;
 

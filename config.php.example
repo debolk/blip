@@ -1,13 +1,15 @@
 <?php
 return [
-	'LDAP_HOST' => "ldap://localhost",
-    'LDAP_USERNAME' => "cn=admin,dc=example,dc=com",
-    'LDAP_PASSWORD' => "ldap_password",
-    'LDAP_BASEDN' => "dc=example,dc=com",
-    'BASE_URL' => "http://localhost",
-    'MAIL_FROM' => "tardis@example.com",
-    'OAUTH2_RESOURCE' => "http://localhost",
-    'MEMCACHE_HOST' => "localhost",
-    'MEMCACHE_PORT' => "11211",
-    'MEMCACHE_EXPIRY' => "604800" # one week
+	"LDAP_HOST" => "ldap://localhost",
+    "LDAP_USERNAME" => "cn=admin,dc=example,dc=com",
+    "LDAP_PASSWORD" => "ldap_password",
+    "LDAP_BASEDN" => "dc=example,dc=com",
+    "BASE_URL" => "http://localhost",
+    "MAIL_FROM" => "tardis@example.com",
+    "OAUTH2_RESOURCE" => "http://localhost",
+    "MEMCACHE_HOST" => "localhost",
+    "MEMCACHE_PORT" => "11211",
+    "MEMCACHE_EXPIRY" => "604800", # one week
+	"DEBUG" => false,
+	"DEBUG_ACCESSTOKEN" => "debugaccess"
 ];

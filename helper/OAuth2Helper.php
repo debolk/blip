@@ -38,9 +38,6 @@ class OAuth2Helper
 
 		if ( isset(self::$debug_access_token)
 			&& $access_token === self::$debug_access_token) {
-			error_log("YO");
-			error_log($_GET['access_level']);
-			error_log($resource);
 			if ( isset($_POST['access_level'])
 				&& self::ACCESS_LEVELS[$_POST['access_level']] >= self::ACCESS_LEVELS[$resource] ) {
 				return true;

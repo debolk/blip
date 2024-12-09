@@ -19,23 +19,17 @@ OAuth2Helper::Initialise($config['OAUTH2_RESOURCE']);
 PersonModel::Initialise($config['BASE_URL']);
 NewPerson::Initialise($config['MAIL_FROM']);
 
-//get(url, function(req, res, args));
-//post(url, function(req, res, args));
-//put(url, function(req, res, args));
-//patch(url, function(req, res, args));
-
-//basic info = uid, href, name, email, avg_email, photo_visible, membership
-
 //auths:
 //bestuur: members of beheer or bestuur
 //ictcom: members of beheer, bestuur or ictcom
 //lid: members of the society (does not include candidate-members)
 //bekend: members and candidate-members of the society
+
 $app->get('/persons', 'Controllers\PersonController::route'); //return all persons with basic info
 $app->get('/persons/all', 'Controllers\PersonController::route'); //return all persons with all information, ex avg
 $app->post('/person', 'Controllers\PersonController::route'); //create new person
 $app->get('/person/{uid}', 'Controllers\PersonController::route'); //return person with basic info
-$app->get('/person/{uid}/all', 'Controllers\PersonController::route'); //return person with alll info ex avg
+$app->get('/person/{uid}/all', 'Controllers\PersonController::route'); //return person with all info ex avg
 $app->get('/person/{uid}/photo/{width}/{height}', 'Controllers\PersonController::route'); //return persons profile picture
 $app->patch('/person/{uid}/update', 'Controllers\PersonController::route'); //update person information
 $app->get('/members', 'Controllers\MemberController::route'); //return all members with basic info
@@ -56,5 +50,6 @@ $app->options('/members/all', 'Controllers\MemberController::route');
 $app->options('/members/current', 'Controllers\MemberController::route');
 $app->options('/members/former', 'Controllers\MemberController::route');
 $app->options('/members/candidate', 'Controllers\MemberController::route');
+
 
 $app->run();

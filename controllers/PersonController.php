@@ -30,33 +30,41 @@ class PersonController extends ControllerBase
     {
         $path = $request->getUri()->getPath();
 
-        if ( in_array('uid', $args)) {
+        if ( count($args) == 1 ) {
             $path = str_replace($args['uid'], 'uid', $path);
         } else if (str_contains($path, 'photo')) {
             $path = '/person/uid/photo';
         }
-        $auth = self::loggedIn($response, self::$operatorLevels[$path]);
+		error_log($path);
+
+		$auth = self::loggedIn($response, self::$operatorLevels[$path]);
 
         if ($auth){
             switch ($path) {
                 case '/persons':
 					if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
 					return self::index($request, $response, $args);
+
                 case '/persons/all':
 	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
 					return self::all($request, $response, $args);
+
                 case '/person':
 	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'POST');
 					return self::post_person($request, $response, $args);
+
                 case '/person/uid':
 	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
 					return self::person_uid($request, $response, $args);
+
                 case '/person/uid/all':
 	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
 					return self::person_uid_all($request, $response, $args);
+
                 case '/person/uid/photo':
 	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
 					return self::person_uid_photo($request, $response, $args);
+
                 case '/person/uid/update':
 	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'PATCH');
 					return self::patch_person_uid($request, $response, $args);
@@ -102,8 +110,8 @@ class PersonController extends ControllerBase
     private static function person_uid(Request $request, Response $response, array $args) : Response {
         $uid = $args['uid'];
         try {
-            $result = MemcacheHelper::cache("person-$uid", function (string $uid) {
-                return json_encode(PersonModel::fromUid($uid)->getBasic(), JSON_UNESCAPED_SLASHES);
+            $result = MemcacheHelper::cache("person-$uid", function ($uid) {
+                return json_encode(PersonModel::fromUid($uid[0])->getBasic(), JSON_UNESCAPED_SLASHES);
             }, $uid);
             return ResponseHelper::json($response, $result);
         } catch (\Exception $e) {
@@ -119,12 +127,12 @@ class PersonController extends ControllerBase
         try {
 
             if ( self::loggedIn(new Response(), 'bestuur') instanceof Response ) {
-                $result = MemcacheHelper::cache("person-$uid-all", function (string $uid) {
-                    return json_encode(PersonModel::fromUid($uid)->sanitizeAvg(), JSON_UNESCAPED_SLASHES);
+                $result = MemcacheHelper::cache("person-$uid-all", function ($uid) {
+                    return json_encode(PersonModel::fromUid($uid[0])->sanitizeAvg(), JSON_UNESCAPED_SLASHES);
                 }, $uid);
             } else {
-                $result = MemcacheHelper::cache("person-$uid-bestuur", function (string $uid) {
-                    return json_encode(PersonModel::fromUid($uid), JSON_UNESCAPED_SLASHES);
+                $result = MemcacheHelper::cache("person-$uid-bestuur", function ($uid) {
+                    return json_encode(PersonModel::fromUid($uid[0]), JSON_UNESCAPED_SLASHES);
                 }, $uid);
             }
             return ResponseHelper::json($response, $result);

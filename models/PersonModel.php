@@ -110,6 +110,7 @@ class PersonModel implements \JSONSerializable
         }
 
         $result->ldapPerson = $person;
+		$result->name();
 
         return $result;
     }
@@ -260,8 +261,8 @@ class PersonModel implements \JSONSerializable
     public function getBasic() : \stdClass {
         $basic = new \stdClass();
         $basic->uid=$this->uid;
-        $basic->href=self::$base_url.'/persons/'.$this->__get('uid');
-        $basic->name=$this->name();
+        $basic->href=self::$base_url.'/persons/'.$this->uid;
+        $basic->name=$this->name;
 		$basic->firstname=$this->firstname;
 		$basic->surname=$this->surname;
 		$basic->nickname=$this->nickname;
@@ -277,7 +278,8 @@ class PersonModel implements \JSONSerializable
      * @return array sanitized array of attributes
      */
     public function sanitizeAvg() : array {
-        $avg = array();
+
+		$avg = array();
         if ( !$this->__get('avg_address') ) $avg[] = 'address';
         if ( !$this->__get('avg_dob')) $avg[] = 'dateofbirth';
         if ( !$this->__get('avg_institution')) $avg[] = 'institution';
@@ -295,7 +297,7 @@ class PersonModel implements \JSONSerializable
 
         return array_merge($sanitized, [
             'href' => self::$base_url.'/persons/'.$this->__get('uid'),
-            'name' => $this->name(),
+            'name' => $this->name,
             'membership' => $this->membership(),
         ]);
     }
@@ -315,10 +317,9 @@ class PersonModel implements \JSONSerializable
     }
 
     /**
-     * The full name of this person
-     * @return string
+     * Sets the full name of this person
      */
-    public function name() : string
+    public function name()
     {
         $first = '';
         $nick = '';
@@ -326,7 +327,7 @@ class PersonModel implements \JSONSerializable
         if (isset($this->attributes['firstname'])) $first = $this->firstname;
         if (isset($this->attributes['surname'])) $last = $this->surname;
         if (isset($this->attributes['nickname'])) $nick = ' "'.$this->nickname.'"';
-        return $first.$nick.' '.$last;
+		$this->attributes['name'] = $first.$nick.' '.$last;
     }
 
     /**

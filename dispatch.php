@@ -31,7 +31,7 @@ $app->get('/persons/all', 'Controllers\PersonController::route'); //return all p
 $app->post('/person', 'Controllers\PersonController::route'); //create new person
 $app->get('/person/{uid}', 'Controllers\PersonController::route'); //return person with basic info
 $app->get('/person/{uid}/all', 'Controllers\PersonController::route'); //return person with all info ex avg
-$app->get('/person/{uid}/photo/{width}/{height}', 'Controllers\PersonController::route'); //return persons profile picture
+$app->get('/person/{uid}/photo', 'Controllers\PersonController::route'); //return persons profile picture
 $app->patch('/person/{uid}/update', 'Controllers\PersonController::route'); //update person information
 $app->get('/members', 'Controllers\MemberController::route'); //return all members with basic info
 $app->get('/members/all', 'Controllers\MemberController::route'); //return all members with all info ex avg
@@ -44,7 +44,7 @@ $app->options('/persons/all', 'Controllers\PersonController::route');
 $app->options('/person', 'Controllers\PersonController::route');
 $app->options('/person/{uid}', 'Controllers\PersonController::route');
 $app->options('/person/{uid}/all', 'Controllers\PersonController::route');
-$app->options('/person/{uid}/photo/{width}/{height}', 'Controllers\PersonController::route');
+$app->options('/person/{uid}/photo', 'Controllers\PersonController::route');
 $app->options('/person/{uid}/update', 'Controllers\PersonController::route');
 $app->options('/members', 'Controllers\MemberController::route');
 $app->options('/members/all', 'Controllers\MemberController::route');

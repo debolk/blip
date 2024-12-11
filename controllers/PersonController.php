@@ -32,9 +32,10 @@ class PersonController extends ControllerBase
 
         if ( count($args) == 1 ) {
             $path = str_replace($args['uid'], 'uid', $path);
-        } else if (str_contains($path, 'photo')) {
-            $path = '/person/uid/photo';
         }
+//		else if (str_contains($path, 'photo')) {
+//            $path = '/person/uid/photo';
+//        }
 
 		$auth = self::loggedIn($response, self::$operatorLevels[$path]);
 
@@ -146,12 +147,12 @@ class PersonController extends ControllerBase
      */
     private static function person_uid_photo(Request $request, Response $response, array $args) : Response
     {
-        $width = $args['uid'];
-        $height = $args['uid'];
+        $width = $args['width'];
+        $height = $args['height'];
         $uid = $args['uid'];
         try {
             return MemcacheHelper::cache("person-$uid-photo", function ($args) {
-                return PersonModel::fromUid($args[0])->getPhoto($args[1], $args[2], $args[3]);
+                return PersonModel::fromUid($args[0])->getPhoto($args[1]);
             }, $uid, $response, $width, $height);
         } catch (\Exception $e) {
             return ResponseHelper::create($response, 404, $e->getMessage());

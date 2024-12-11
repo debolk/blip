@@ -9,14 +9,14 @@ class LdapOUnit extends LdapObject
      * The mappings from membership status to the unit they should belong to
      */
     private static array $personOUnits = array(
-      'erelid' => 'ou=people,ou=ereleden,o=nieuwedelft,',
-      'lid' => "ou=people,ou=leden,o=nieuwedelft,",
-      'kandidaatlid' => 'ou=people,ou=kandidaatleden,o=nieuwedelft,',
-      'oud lid' => 'ou=people,ou=oudleden,o=nieuwedelft,',
-      'lid van verdienste' => 'ou=people,ou=ledenvanverdienste,o=nieuwedelft,',
-      'donateur' => 'ou=people,ou=donateurs,o=nieuwedelft,',
-      'ex lid' => 'ou=people,ou=exleden,o=nieuwedelft,',
-      'extern' => 'ou=people,ou=externen,o=nieuwedelft,',
+      'honorary_member' => 'ou=people,ou=ereleden,o=nieuwedelft,',
+      'member' => "ou=people,ou=leden,o=nieuwedelft,",
+      'candidate_member' => 'ou=people,ou=kandidaatleden,o=nieuwedelft,',
+      'former_member' => 'ou=people,ou=oudleden,o=nieuwedelft,',
+      'member_of_merit' => 'ou=people,ou=ledenvanverdienste,o=nieuwedelft,',
+      'donor' => 'ou=people,ou=donateurs,o=nieuwedelft,',
+      'ex_member' => 'ou=people,ou=exleden,o=nieuwedelft,',
+      'external' => 'ou=people,ou=externen,o=nieuwedelft,',
     );
 
     /**

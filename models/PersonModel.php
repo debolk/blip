@@ -86,12 +86,12 @@ class PersonModel implements \JSONSerializable
     );
 
     protected array $additionalClasses = array(
-        'lid' => array('pptpServerAccount', 'gosaIntranetAccount'),
-        'oudlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
-        'geen lid' => array(),
-        'lidvanverdienste' => array(),
-        'kandidaatlid' => array('pptpServerAccount', 'gosaIntranetAccount'),
-	    'erelid' => array()
+        'member' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
+        'former_member' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
+        'external' => array(),
+        'member_of_merit' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
+        'candidate_member' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
+	    'honorary_member' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
     );
 
     protected string $pass;
@@ -365,7 +365,7 @@ class PersonModel implements \JSONSerializable
             }
         }
 
-        return 'geen lid';
+        return 'external';
     }
 
     /**
@@ -398,7 +398,7 @@ class PersonModel implements \JSONSerializable
 
         $this->save();
 
-        if (in_array($membership, array('lid', 'kandidaatlid'))) {
+        if (in_array($membership, array('member', 'candidate_member'))) {
             if (!isset($this->ldapPerson->userpassword)) {
                 $this->generatePassword();
             }
@@ -454,9 +454,9 @@ class PersonModel implements \JSONSerializable
         //cast params
         $width = (int)$width;
         $height = (int)$height;
-
+		error_log("PHOTO");
         //get from LDAP
-        $photo = $this->ldapPerson->jpegPhoto;
+        $photo = $this->ldapPerson->jpegphoto;
         if ( $photo == null ) { //retrieve a cat if person has no jpegPhoto
             $seed = ((int)substr(base_convert(md5($this->uid), 15, 10), -6)) % 500; //per-user seed to generate different cats
 
@@ -464,21 +464,21 @@ class PersonModel implements \JSONSerializable
             curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
             $photo = curl_exec($request);
         }
+//
+//        //process for displaying
+//        $img = new Imagick();
+//        $img->readImageBlob($photo);
+//        $img->setImageInterpolateMethod(\Imagick::INTERPOLATE_BICUBIC);
+//
+//        //scale to best fit
+//        if ( $img->getImageWidth() > $img->getImageHeight() ){
+//            $img->resizeImage($width, 0, \Imagick::FILTER_CATROM, 1);
+//        } else {
+//            $img->resizeImage(0, $height, \Imagick::FILTER_CATROM, 1);
+//        }
+//        $img->setImageFormat('jpg');
 
-        //process for displaying
-        $img = new Imagick();
-        $img->readImageBlob($photo);
-        $img->setImageInterpolateMethod(\Imagick::INTERPOLATE_BICUBIC);
-
-        //scale to best fit
-        if ( $img->getImageWidth() > $img->getImageHeight() ){
-            $img->resizeImage($width, 0, \Imagick::FILTER_CATROM, 1);
-        } else {
-            $img->resizeImage(0, $height, \Imagick::FILTER_CATROM, 1);
-        }
-        $img->setImageFormat('jpg');
-
-        return ResponseHelper::data($response, base64_encode($img), 'image/jpeg');
+        return ResponseHelper::data($response, base64_encode($photo), 'image/jpeg');
     }
 
     /**

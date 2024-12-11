@@ -55,11 +55,11 @@ class MemberController extends ControllerBase
     public static function index(Request $request, Response $response, array $args) : Response {
         $result = MemcacheHelper::cache('members', function(){
             $people = LdapOUnit::peopleInUnits(array(
-                LdapOUnit::getPersonOUnits()['lid'],
-                LdapOUnit::getPersonOUnits()['kandidaatlid'],
-                LdapOUnit::getPersonOUnits()['oud lid'],
-                LdapOUnit::getPersonOUnits()['lid van verdienste'],
-                LdapOUnit::getPersonOUnits()['erelid'],
+                LdapOUnit::getPersonOUnits()['member'],
+                LdapOUnit::getPersonOUnits()['candidate_member'],
+                LdapOUnit::getPersonOUnits()['former_member'],
+                LdapOUnit::getPersonOUnits()['member_of_merit'],
+                LdapOUnit::getPersonOUnits()['honorary_member'],
             ), 'basic');
             return json_encode($people, JSON_UNESCAPED_SLASHES);
         });
@@ -73,22 +73,22 @@ class MemberController extends ControllerBase
         if ( self::loggedIn(new Response(), 'bestuur') instanceof Response ) {
             $result = MemcacheHelper::cache('members', function(){
                 $people = LdapOUnit::peopleInUnits(array(
-                    LdapOUnit::getPersonOUnits()['lid'],
-                    LdapOUnit::getPersonOUnits()['kandidaatlid'],
-                    LdapOUnit::getPersonOUnits()['oud lid'],
-                    LdapOUnit::getPersonOUnits()['lid van verdienste'],
-                    LdapOUnit::getPersonOUnits()['erelid'],
+                    LdapOUnit::getPersonOUnits()['member'],
+                    LdapOUnit::getPersonOUnits()['candidate_member'],
+                    LdapOUnit::getPersonOUnits()['former_member'],
+                    LdapOUnit::getPersonOUnits()['member_of_merit'],
+                    LdapOUnit::getPersonOUnits()['honorary_member'],
                 ), 'sanitize');
                 return json_encode($people, JSON_UNESCAPED_SLASHES);
             });
         } else {
             $result = MemcacheHelper::cache('members-bestuur', function(){
                 $people = LdapOUnit::peopleInUnits(array(
-                    LdapOUnit::getPersonOUnits()['lid'],
-                    LdapOUnit::getPersonOUnits()['kandidaatlid'],
-                    LdapOUnit::getPersonOUnits()['oud lid'],
-                    LdapOUnit::getPersonOUnits()['lid van verdienste'],
-                    LdapOUnit::getPersonOUnits()['erelid'],
+                    LdapOUnit::getPersonOUnits()['member'],
+                    LdapOUnit::getPersonOUnits()['candidate_member'],
+                    LdapOUnit::getPersonOUnits()['former_member'],
+                    LdapOUnit::getPersonOUnits()['member_of_merit'],
+                    LdapOUnit::getPersonOUnits()['honorary_member'],
                 ));
                 return json_encode($people, JSON_UNESCAPED_SLASHES);
             });
@@ -102,10 +102,10 @@ class MemberController extends ControllerBase
     public static function members_current(Request $request, Response $response, array $args) : Response {
         $result = MemcacheHelper::cache('members', function(){
             $people = LdapOUnit::peopleInUnits(array(
-                LdapOUnit::getPersonOUnits()['lid'],
-                LdapOUnit::getPersonOUnits()['kandidaatlid'],
-                LdapOUnit::getPersonOUnits()['lid van verdienste'],
-                LdapOUnit::getPersonOUnits()['erelid'],
+                LdapOUnit::getPersonOUnits()['member'],
+                LdapOUnit::getPersonOUnits()['candidate_member'],
+                LdapOUnit::getPersonOUnits()['member_of_merit'],
+                LdapOUnit::getPersonOUnits()['honorary_member'],
             ), 'basic');
             return json_encode($people, JSON_UNESCAPED_SLASHES);
         });
@@ -118,7 +118,7 @@ class MemberController extends ControllerBase
     public static function members_former(Request $request, Response $response, array $args) : Response {
         $result = MemcacheHelper::cache('members', function(){
             $people = LdapOUnit::peopleInUnits(array(
-                LdapOUnit::getPersonOUnits()['oud lid'],
+                LdapOUnit::getPersonOUnits()['former_member'],
             ), 'basic');
             return json_encode($people, JSON_UNESCAPED_SLASHES);
         });
@@ -131,7 +131,7 @@ class MemberController extends ControllerBase
     public static function members_candidate(Request $request, Response $response, array $args) : Response {
         $result = MemcacheHelper::cache('members', function(){
             $people = LdapOUnit::peopleInUnits(array(
-                LdapOUnit::getPersonOUnits()['kandidaatlid'],
+                LdapOUnit::getPersonOUnits()['candidate_member'],
             ), 'basic');
             return json_encode($people, JSON_UNESCAPED_SLASHES);
         });

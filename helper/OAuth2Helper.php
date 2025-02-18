@@ -2,13 +2,16 @@
 
 namespace Helper;
 
+use Psr\Http\Message\UriInterface;
 use Slim\Psr7\Response;
 
 class OAuth2Helper
 {
 
 	private static $oauth2_resource;
+	private static $base_url;
 	private static $debug_access_token;
+
 	public const ACCESS_LEVELS = [
 		"bestuur" => 3,
 		"ictcom" => 2,
@@ -68,7 +71,21 @@ class OAuth2Helper
         return ResponseHelper::create($response, $code, $body, "application/json");
     }
 
-	public static function Initialise(string $oauth2_resource) {
+	/**
+	 * Evaluates if the resource is being accessed internally
+	 * @param UriInterface $uri the URI from the request
+	 * @return bool whether or not the URI from the request matched the BASE_URL
+	 */
+	public static function isAccessInternal(UriInterface $uri) {
+		$path = $uri->getScheme() . '://' . $uri->getHost();
+		if ( $uri->getPort() ) {
+			$path = $path . ':' . $uri->getPort();
+		}
+		return $path === self::$base_url;
+	}
+
+	public static function Initialise(string $oauth2_resource, string $base_url) {
 		self::$oauth2_resource = $oauth2_resource;
+		self::$base_url = $base_url;
 	}
 }

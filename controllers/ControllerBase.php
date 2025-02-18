@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Helper\OAuth2Helper;
+use Psr\Http\Message\UriInterface;
 use Slim\App;
 use Slim\Psr7\Response;
 use Slim\Psr7\Request;
@@ -14,6 +15,11 @@ abstract class ControllerBase {
      * @var array|string[] map from path to operator level
      */
     private static array $operatorLevels;
+
+	/**
+	 * @var array|string[] set of methods that are allowed external access
+	 */
+	private static array $externalAllowed;
 
     /**
      * Function to route all requests to this class
@@ -77,4 +83,11 @@ abstract class ControllerBase {
     {
         return OAuth2Helper::isAuthorisedFor($resource, $response);
     }
+
+	/**
+	 * Check if the user is allowed to access the resource externally
+	 */
+	protected static function allowed_externally(string $request): bool{
+		return in_array($request, self::$externalAllowed);
+	}
 }

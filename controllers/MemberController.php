@@ -3,6 +3,7 @@
 namespace Controllers;
 
 use Helper\MemcacheHelper;
+use Helper\OAuth2Helper;
 use Helper\ResponseHelper;
 use Models\LdapOUnit;
 use Models\PersonModel;
@@ -23,6 +24,12 @@ class MemberController extends ControllerBase
         '/members/candidate' => 'bekend'
     );
 
+	private static array $externalAllowed = array(
+		'/members',
+		'/members/current',
+		'/members/candidate'
+	);
+
     public static function route(Request $request, Response $response, array $args) : Response
     {
         $path = $request->getUri()->getPath();
@@ -32,6 +39,12 @@ class MemberController extends ControllerBase
         } else if (str_contains($path, 'photo')) {
             $path = '/person/uid/photo';
         }
+
+	    //evaluate if external access is allowed.
+	    if ( !OAuth2Helper::isAccessInternal($request->getUri()) and !self::allowed_externally($path) ){
+		    return ResponseHelper::create($response, 403, "This resource is not available externally");
+	    }
+
         $auth = self::loggedIn($response, self::$operatorLevels[$path]);
 
         if ($auth){

@@ -450,11 +450,7 @@ class PersonModel implements \JSONSerializable
 	 * @return Response
 	 * @throws ImagickException
 	 */
-    public function getPhoto(Response $response, string $width = "256", string $height = "256") : Response {
-        //cast params
-        $width = (int)$width;
-        $height = (int)$height;
-		error_log("PHOTO");
+    public function getPhoto(Response $response) : Response {
         //get from LDAP
         $photo = $this->ldapPerson->jpegphoto;
         if ( $photo == null ) { //retrieve a cat if person has no jpegPhoto
@@ -464,19 +460,6 @@ class PersonModel implements \JSONSerializable
             curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
             $photo = curl_exec($request);
         }
-//
-//        //process for displaying
-//        $img = new Imagick();
-//        $img->readImageBlob($photo);
-//        $img->setImageInterpolateMethod(\Imagick::INTERPOLATE_BICUBIC);
-//
-//        //scale to best fit
-//        if ( $img->getImageWidth() > $img->getImageHeight() ){
-//            $img->resizeImage($width, 0, \Imagick::FILTER_CATROM, 1);
-//        } else {
-//            $img->resizeImage(0, $height, \Imagick::FILTER_CATROM, 1);
-//        }
-//        $img->setImageFormat('jpg');
 
         return ResponseHelper::data($response, base64_encode($photo), 'image/jpeg');
     }

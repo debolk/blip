@@ -160,17 +160,15 @@ class PersonController extends ControllerBase
     }
 
     /**
-     * uri: /person/{uid}/photo?{width}&{height}
+     * uri: /person/{uid}/photo
      */
     private static function person_uid_photo(Request $request, Response $response, array $args) : Response
     {
-        $width = $args['width'];
-        $height = $args['height'];
         $uid = $args['uid'];
         try {
             return MemcacheHelper::cache("person-$uid-photo", function ($args) {
                 return PersonModel::fromUid($args[0])->getPhoto($args[1]);
-            }, $uid, $response, $width, $height);
+            }, $uid, $response);
         } catch (\Exception $e) {
             return ResponseHelper::create($response, 404, $e->getMessage());
         }

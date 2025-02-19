@@ -56,7 +56,7 @@ class PersonController extends ControllerBase
 
 		$auth = self::loggedIn($response, self::$operatorLevels[$path]);
 
-        if ($auth){
+        if ( is_bool($auth) ){
             switch ($path) {
                 case '/persons':
 					if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');

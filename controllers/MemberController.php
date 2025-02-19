@@ -47,7 +47,7 @@ class MemberController extends ControllerBase
 
         $auth = self::loggedIn($response, self::$operatorLevels[$path]);
 
-        if ($auth){
+        if ( is_bool($auth) ){
 	        if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
             switch ($path) {
                 case '/members': return self::index($request, $response, $args);

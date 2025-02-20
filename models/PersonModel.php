@@ -10,7 +10,8 @@ use Slim\Psr7\Response;
 
 class PersonModel implements \JSONSerializable
 {
-    private array $attributes = array();
+    public array $attributes = array();
+	private array $dirty = array();
     private LdapPerson|null $ldapPerson = null;
 	private static $base_url;
 
@@ -34,6 +35,7 @@ class PersonModel implements \JSONSerializable
         'programme',
         'institution',
         'dead',
+	    'membership',
     );
 
 	protected static array $bools = array(
@@ -85,10 +87,36 @@ class PersonModel implements \JSONSerializable
         'avg_pronouns' => 'fdPronounsShare',
     );
 
+	public static array $groupIds = array(
+		'member' => 1025,
+		'former_member' => 1095,
+		'external' => 1108,
+		'member_of_merit' => 1098,
+		'candidate_member' => 1084,
+		'honorary_member' => 1109,
+		'ex_member' => 1110,
+		'donor' => 1014
+	);
+
+	/**
+	 * The mappings from membership status to the unit they should belong to
+	 */
+	private static array $personOUnits = array(
+		'honorary_member' => 'ou=people,ou=ereleden,o=nieuwedelft',
+		'member' => "ou=people,ou=leden,o=nieuwedelft",
+		'candidate_member' => 'ou=people,ou=kandidaatleden,o=nieuwedelft',
+		'former_member' => 'ou=people,ou=oudleden,o=nieuwedelft',
+		'member_of_merit' => 'ou=people,ou=ledenvanverdienste,o=nieuwedelft',
+		'donor' => 'ou=people,ou=donateurs,o=nieuwedelft',
+		'ex_member' => 'ou=people,ou=exleden,o=nieuwedelft',
+		'external' => 'ou=people,ou=externen,o=nieuwedelft',
+	);
+
     protected array $additionalClasses = array(
         'member' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
         'former_member' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
         'external' => array(),
+		'ex_member' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
         'member_of_merit' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
         'candidate_member' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
 	    'honorary_member' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
@@ -97,7 +125,7 @@ class PersonModel implements \JSONSerializable
     protected string $pass;
 	protected LdapHelper $ldap;
 
-    /**
+	/**
      * Constructs a new Person
      * @param array $attributes
      */
@@ -127,6 +155,10 @@ class PersonModel implements \JSONSerializable
 					$value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
 				}
 				$result->attributes[$local] = $value;
+            } else {
+				if ( in_array($local, self::$bools)) {
+					$result->attributes[$local] = false;
+				}
             }
         }
 
@@ -213,16 +245,16 @@ class PersonModel implements \JSONSerializable
 
         $data = $this->to_array();
         foreach ($data as $key => $value) {
-            if (!isset($this->renaming[$key])) {
+            if (!isset(self::$renaming[$key]) or !isset($this->dirty[$key])) {
                 continue;
             }
 
-            $ldapkey = $this->renaming[$key];
+            $ldapkey = self::$renaming[$key];
             $this->ldapPerson->$ldapkey = $value;
         }
-        $this->ldapPerson->gidnumber = $this->groupIds[$data['membership']];
+
         if (isset($this->pass)) {
-            $this->ldapPerson->userpassword = $this->pass;
+            $this->ldapPerson->userpassword = hash("sha256", $this->pass);
         }
 
         $result = $this->ldapPerson->save();
@@ -260,7 +292,7 @@ class PersonModel implements \JSONSerializable
 
         foreach ($options as $candidate_uid) {
             $candidate_uid = $strip($candidate_uid);
-            if (! $ldap->getDn($candidate_uid)) {
+            if (! $ldap->getUserDn($candidate_uid)) {
                 return $candidate_uid;
             }
         }
@@ -268,7 +300,7 @@ class PersonModel implements \JSONSerializable
         // Try a numbered option
         for ($i=1; true; $i++) {
             $candidate_uid = $strip(strtolower($this->attributes['firstname'].$this->attributes['lastname']).$i);
-            if (! $ldap->getDn($candidate_uid)) {
+            if (! $ldap->getUserDn($candidate_uid)) {
                 return $candidate_uid;
             }
         }
@@ -327,9 +359,7 @@ class PersonModel implements \JSONSerializable
      * Returns an array-representation of this Person
      * @return array representation of this Person
      */
-    public function to_array() : array
-    {
-
+    public function to_array() : array {
         return array_merge($this->attributes, [
           'href' => self::$base_url.'/persons/'.$this->uid,
           'name' => $this->name,
@@ -357,12 +387,14 @@ class PersonModel implements \JSONSerializable
      */
     public function membership() : string {
 
-        foreach (LdapOUnit::getPersonOUnits() as $status => $dn) {
-			$ou_unit = LdapOUnit::fromDn($dn);
-            if ($ou_unit != null &&
-	            $ou_unit->hasMember($this->uid)) {
-                return $status;
-            }
+	    if (!isset($this->ldapPerson->gidnumber)) {
+		    return "external";
+	    }
+
+        foreach (PersonModel::$groupIds as $status => $id) {
+			if ($id == $this->ldapPerson->gidnumber){
+				return $status;
+			}
         }
 
         return 'external';
@@ -375,7 +407,7 @@ class PersonModel implements \JSONSerializable
      */
     public function setMembership(string $membership)
     {
-        if (!array_key_exists($membership, LdapOUnit::$memberGroups)) {
+		if (!array_key_exists($membership, PersonModel::$groupIds)) {
             return;
         }
 
@@ -385,24 +417,22 @@ class PersonModel implements \JSONSerializable
         }
 
         //Remove from current groups
-        foreach (LdapOUnit::$memberGroups as $type => $dn) {
-            $group = LdapOUnit::fromDn($dn);
-            $group->removeMember($this->attributes['uid']);
+        foreach (PersonModel::$groupIds as $type => $id) {
+		    $group = LdapGroup::fromId($id);
+            $group->removeMember($this->uid);
             $group->save();
         }
 
         //Add to new group
-        $group = LdapOUnit::fromDn(LdapOUnit::$memberGroups[$membership]);
-        $group->addMember($this->attributes['uid']);
+        $group = LdapGroup::fromId(PersonModel::$groupIds[$membership]);
+        $group->addMember($this->uid);
         $group->save();
 
         $this->save();
 
-        if (in_array($membership, array('member', 'candidate_member'))) {
-            if (!isset($this->ldapPerson->userpassword)) {
-                $this->generatePassword();
-            }
-        }
+	    if (!isset($this->ldapPerson->userpassword)) {
+		    $this->generatePassword();
+	    }
 
         //Remove objectclasses from previous status
         foreach ($this->additionalClasses[$prev] as $class) {
@@ -430,7 +460,19 @@ class PersonModel implements \JSONSerializable
             $this->ldapPerson->objectclass = $new;
         }
 
-        $this->save();
+		$this->save();
+
+	    $this->ldapPerson->gidnumber = strval(PersonModel::$groupIds[$membership]);
+
+		$this->ldapPerson->save();
+
+		$ldap = LdapHelper::Connect(); //move user to correct OU
+
+	    if(!isset($this->attributes['dn'])) {
+			$this->attributes['dn'] = $ldap->getUserDn($this->uid);
+	    }
+
+		$ldap->move($this->dn, PersonModel::$personOUnits[$membership] . ',' . $ldap->basedn);
     }
 
     /**
@@ -450,6 +492,7 @@ class PersonModel implements \JSONSerializable
     public function getPhoto() : string {
         //get from LDAP
         $photo = $this->ldapPerson->jpegphoto;
+
         if ( $photo == null ) { //retrieve a cat if person has no jpegPhoto
             $seed = ((int)substr(base_convert(md5($this->uid), 15, 10), -6)) % 500; //per-user seed to generate different cats
 
@@ -486,6 +529,6 @@ class PersonModel implements \JSONSerializable
             return;
         }
         $this->attributes[$name] = $value;
-        $dirty[$name] = true;
+		$this->dirty[$name] = true;
     }
 }

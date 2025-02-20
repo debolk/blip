@@ -82,23 +82,33 @@ class LdapHelper
     }
 
     /**
-     * Returns the full DN for a LDAP-entry
+     * Returns the full DN for an LDAP user
      * @param  string $uid the UID to find
      * @return string      full DN
      */
-    public function getDn(string $uid) : string
+    public function getUserDn(string $uid) : string
     {
-        $uid = $this->escapeArgument($uid);
-        $users = ldap_search($this->ldap, $this->basedn, '(uid=' . $uid . ')', array('dn'));
-
-        if (!$users || ldap_count_entries($this->ldap, $users) == 0) {
-            return false;
-        }
-
-        $users = ldap_get_entries($this->ldap, $users);
-
-        return $users[0]['dn'];
+		$uid = $this->escapeArgument($uid);
+        return $this->getDn('(uid=' . $uid . ')');
     }
+
+	/**
+	 * Returns the full DN for an LDAP-entry
+	 * @param string $filter a filter yielding a unique LDAP entry
+	 * @return string   full DN or false.
+	 */
+	public function getDn(string $filter) : string {
+
+		$objects = ldap_search($this->ldap, $this->basedn, $filter, array('dn'));
+
+		if ( !$objects || ldap_count_entries($this->ldap, $objects) == 0) {
+			return false;
+		}
+
+		$objects = ldap_get_entries($this->ldap, $objects);
+
+		return $objects[0]['dn'];
+	}
 
     /**
      * Binds to the LDAP-server
@@ -205,6 +215,16 @@ class LdapHelper
     {
         return @ldap_modify($this->ldap, $dn, $data);
     }
+
+	/**
+	 * Moves an object in LDAP
+	 * @param string $old_dn        DN of the entry
+	 * @param string $new_parent_dn new PARENT DN for the entry
+	 * @return bool                 TRUE on success or FALSE on failure
+	 */
+	public function move(string $old_dn, string $new_parent_dn) : bool {
+		return @ldap_rename($this->ldap, $old_dn, explode(",", $old_dn)[0], $new_parent_dn, true);
+	}
 
     /**
      * Recursively strip all unneeded 'count' parameters from a LDAP-result

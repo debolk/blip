@@ -90,7 +90,7 @@ class LdapObject
      */
     public function __set(string $name, mixed $value)
     {
-        if (!isset($this->attributes[$name]) || $this->attributes[$name] != $value) {
+		if (!isset($this->attributes[$name]) || $this->attributes[$name] != $value) {
             $this->dirty[$name] = true;
         }
 
@@ -110,18 +110,27 @@ class LdapObject
             return true;
         }
 
-        $ldap = \Helper\LdapHelper::connect();
+	    $ldap = \Helper\LdapHelper::connect();
 
-        if (!$this->exists) {
+	    if (!$this->exists) {
             $this->exists = true;
             $result = $ldap->add($this->dn, $this->attributes);
         } else {
             $diff = array();
 
             foreach ($this->dirty as $key => $value) {
-                $diff[$key] = $this->__get($key);
-            }
+				$value = $this->$key;
 
+	            if (is_bool($value)){
+		            if ($value) {
+			            $value = "TRUE";
+		            } else {
+			            $value = "FALSE";
+		            }
+	            }
+                $diff[$key] = $value;
+
+            }
             $result = $ldap->modify($this->dn, $diff);
         }
 

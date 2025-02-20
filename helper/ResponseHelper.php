@@ -14,7 +14,7 @@ class ResponseHelper
     }
 
 	public static function json(Response $response, string $json): Response {
-		return self::data($response, $json,'application/json');
+		return self::data($response, $json,'application/json')->withStatus(200);
 	}
 
 	public static function option(Response $response, string $method): Response {

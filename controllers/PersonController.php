@@ -44,15 +44,13 @@ class PersonController extends ControllerBase
         if ( count($args) == 1 ) {
             $path = str_replace($args['uid'], 'uid', $path);
         }
-//		else if (str_contains($path, 'photo')) {
-//            $path = '/person/uid/photo';
-//        }
 
-	    //evaluate if external access is allowed.
+		//evaluate if external access is allowed.
 	    if ( !OAuth2Helper::isAccessInternal($request->getUri()) and !self::allowed_externally($path) ){
 			return ResponseHelper::create($response, 403, "This resource is not available externally");
 	    }
 
+		syslog(LOG_DEBUG, $request->getUri());
 
 		$auth = self::loggedIn($response, self::$operatorLevels[$path]);
 
@@ -182,11 +180,12 @@ class PersonController extends ControllerBase
 
         //validate input
         $v = new Validator($data);
-        $v = self::validation_rules($v, true);
+        $v = self::validation_rules($v, false);
         if (!$v->validate()){
             $errors = self::getValidatorErrors($v);
             return ResponseHelper::create($response, 400, "Data invalid: $errors");
         }
+
         return true;
     }
 
@@ -213,9 +212,10 @@ class PersonController extends ControllerBase
      */
     private static function patch_person_uid(Request $request, Response $response, array $args) : Response {
         $uid = $args['uid'];
-        $data = self::validate(json_decode($request->getBody()), $response);
+		$data = json_decode($request->getBody());
+        $valid = self::validate($data, $response);
 
-        if ($data instanceof Response) return $data;
+        if ($valid instanceof Response) return $valid;
 
         //update user
         try {
@@ -224,9 +224,11 @@ class PersonController extends ControllerBase
             return ResponseHelper::create($response, 404, $e->getMessage());
         }
 
+		$data = json_decode($data);
+
         foreach ($data as $key => $value){
-            if (in_array($key, $person->allowed)) {
-                $person->$key = $value;
+            if (in_array($key, PersonModel::$allowed)) {
+                $person->__set($key, $value);
             }
         }
 

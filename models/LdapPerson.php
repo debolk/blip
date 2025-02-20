@@ -29,10 +29,10 @@ class LdapPerson extends LdapObject
 
           'uid' => function () {
               if (!isset($this->dn)) {
-                  $this->dn = 'uid=' . $this->uid . ',ou=people,o=nieuwedelft,' . LdapHelper::Connect()->basedn; /** NOTE: THIS IS MEANT TO BE A PLACEHOLDER GROUP */
+                  $this->dn = 'uid=' . $this->uid . ',ou=people,ou=kandidaatleden,o=nieuwedelft,dc=i,dc=bolkhuis,dc=nl'; /** NOTE: THIS IS MEANT TO BE A PLACEHOLDER GROUP */
               }
           },
-      );
+        );
     }
 
     /**
@@ -95,7 +95,7 @@ class LdapPerson extends LdapObject
     {
         $ldap = LdapHelper::Connect();
 
-        $dn = $ldap->getDn($uid);
+        $dn = $ldap->getUserDn($uid);
         if (!$dn) {
             return false;
         }
@@ -141,16 +141,6 @@ class LdapPerson extends LdapObject
     }
 
     /**
-     * Gets a property of a LdapPerson
-     * @param  string $name the property to read
-     * @return mixed        the value of the property
-     */
-    public function __get(string $name) : mixed
-    {
-        return parent::__get($name);
-    }
-
-    /**
      * Saves the current LdapPerson to ldap, creates a new entry if needed
      * This notifies the user if their password is reset
      */
@@ -183,4 +173,6 @@ class LdapPerson extends LdapObject
             $this->calculations[$name]();
         }
     }
+
+
 }

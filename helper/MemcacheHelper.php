@@ -48,10 +48,8 @@ class MemcacheHelper
 		if (!$memcache){
 			return call_user_func($callable, $param);
 		} else if ($memcache->get($key)) { //get the key if possible
-            return $memcache->get($key);
+			return $memcache->get($key);
         }
-
-        $expiry = self::$expiry;
 
         // Get result, store in memcache and return
         $result = call_user_func($callable, $param);

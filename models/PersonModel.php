@@ -445,12 +445,9 @@ class PersonModel implements \JSONSerializable
 	/**
 	 * Returns the user profile picture, or a cat.
 	 * @param Response $response
-	 * @param string $width width of the picture
-	 * @param string $height height of the picture
-	 * @return Response
-	 * @throws ImagickException
+	 * @return string
 	 */
-    public function getPhoto(Response $response) : Response {
+    public function getPhoto() : string {
         //get from LDAP
         $photo = $this->ldapPerson->jpegphoto;
         if ( $photo == null ) { //retrieve a cat if person has no jpegPhoto
@@ -461,7 +458,7 @@ class PersonModel implements \JSONSerializable
             $photo = curl_exec($request);
         }
 
-        return ResponseHelper::data($response, base64_encode($photo), 'image/jpeg');
+        return base64_encode($photo);
     }
 
     /**

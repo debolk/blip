@@ -60,8 +60,20 @@ abstract class ControllerBase {
     {
         $v->rule('email', 'email');
         $v->rule('alpha', ['initials']);
-        $v->rule('dateBefore', 'dateofbirth', date('Y-m-d'));
-        $v->rule('numeric', ['phone', 'phone_parent']);
+        $v->rule('dateBefore', ['dateofbirth', 'inauguration_date'], date('Y-m-d'));
+        $v->rule(function($field, $value, $params, $fields){
+			if (!is_string($value) and !is_numeric($value)) {
+				return false;
+			}
+
+			//remove all occurences of +, -, (, ) and spaces
+			$value = str_replace("+", "", (string)$value);
+			$value = str_replace(" ", "", $value);
+			$value = str_replace("-", "", $value);
+			$value = str_replace("(", "", $value);
+			$value = str_replace(")", "", $value);
+			return is_numeric($value);
+        }, ['phone', 'phone_parent'])->message("{field} is not a valid phone number.");
 
         $v->rule('optional', ['phone', 'phone_parent']);
 

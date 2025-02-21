@@ -193,12 +193,13 @@ class PersonController extends ControllerBase
      * uri: POST/person
      */
     private static function post_person(Request $request, Response $response, array $args) : Response {
-        $data = self::validate(json_decode($request->getBody()), $response);
+        $data = self::transform_incoming_data($request->getBody());
+		$valid = self::validate($data, $response);
 
-        if ($data instanceof Response) return $data;
+        if ($valid instanceof Response) return $valid;
 
         //create user
-        $person = new PersonModel((array)$data);
+        $person = new PersonModel($data);
         $person->save();
 
         //clear cache
@@ -212,7 +213,7 @@ class PersonController extends ControllerBase
      */
     private static function patch_person_uid(Request $request, Response $response, array $args) : Response {
         $uid = $args['uid'];
-		$data = json_decode($request->getBody());
+		$data = self::transform_incoming_data($request->getBody());
         $valid = self::validate($data, $response);
 
         if ($valid instanceof Response) return $valid;
@@ -223,8 +224,6 @@ class PersonController extends ControllerBase
         } catch (\Exception $e) {
             return ResponseHelper::create($response, 404, $e->getMessage());
         }
-
-		$data = json_decode($data);
 
         foreach ($data as $key => $value){
             if (in_array($key, PersonModel::$allowed)) {
@@ -243,4 +242,26 @@ class PersonController extends ControllerBase
         return ResponseHelper::json($response, json_encode($person->to_array(), JSON_UNESCAPED_SLASHES));
     }
 
+	/**
+	 * Treat incoming data so it's uniform.
+	 * @param string $incoming
+	 * @return array
+	 */
+	private static function transform_incoming_data(string $incoming) : array {
+		$data = json_decode($incoming);
+
+		while (gettype($data) !== "array") {
+			if (gettype($data) === "string") {
+				$data = json_decode($data);
+				syslog(LOG_DEBUG, $incoming . ' json_decoded to a string first.');
+				continue;
+			}
+			$new_data = array();
+			foreach($data as $key => $value){
+				$new_data[$key] = $value;
+			}
+			$data = $new_data;
+		}
+		return $data;
+	}
 }

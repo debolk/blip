@@ -73,9 +73,9 @@ abstract class ControllerBase {
 			$value = str_replace("(", "", $value);
 			$value = str_replace(")", "", $value);
 			return is_numeric($value);
-        }, ['phone', 'phone_parent'])->message("{field} is not a valid phone number.");
+        }, ['phone', 'phone_emergency'])->message("{field} is not a valid phone number.");
 
-        $v->rule('optional', ['phone', 'phone_parent']);
+        $v->rule('optional', ['phone', 'phone_emergency']);
 
         // Validate attributes exist
         if ($required) {

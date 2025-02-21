@@ -338,12 +338,12 @@ class PersonModel implements \JSONSerializable
         if ( !$this->avg_institution) $avg[] = 'institution';
         if ( !$this->avg_programme) $avg[] = 'programme';
         if ( !$this->avg_email) $avg[] = 'email';
-        if ( !$this->avg_phone_parent) $avg[] = 'phone_parent';
+        if ( !$this->avg_phone_emergency) $avg[] = 'phone_emergency';
         if ( !$this->avg_phone) $avg[] = 'phone';
         if ( !$this->avg_pronouns) $avg[] = 'pronouns';
 
         if ( !$this->avg) { //remove all avg attributes if the person didn't accept the privacy statement
-            $avg = ['address', 'dateofbirth', 'institution', 'programme', 'email', 'phone_parent', 'phone', 'pronouns'];
+            $avg = ['address', 'dateofbirth', 'institution', 'programme', 'email', 'phone_emergency', 'phone', 'pronouns'];
         }
 
         $sanitized = array_diff_key($this->attributes, array_fill_keys($avg, false));

@@ -183,6 +183,7 @@ class PersonController extends ControllerBase
         $v = self::validation_rules($v, false);
         if (!$v->validate()){
             $errors = self::getValidatorErrors($v);
+			syslog(LOG_ERR, $errors);;
             return ResponseHelper::create($response, 400, "Data invalid: $errors");
         }
 

@@ -36,6 +36,7 @@ class Photo extends BlipResource
             $url = "http://www.gravatar.com/avatar/$hash?s=$width&rating=g&d=404";
             $request = curl_init($url);
             curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($request, CURLOPT_TIMEOUT, 5);
             $result = curl_exec($request);
 
             if (curl_getinfo($request, CURLINFO_HTTP_CODE) == '200') {
@@ -46,10 +47,11 @@ class Photo extends BlipResource
         // Retrieve an image from placekitten.com
         if (!$photo) {
             // Random per-user seed to generate different kittens
-            $seed = ((int)substr(base_convert(md5($uid), 16, 10), -6)) % 500;
+            $seed = ((int)substr(base_convert(md5($uid), 16, 10), -6));
 
-            $request = curl_init('http://placekitten.com/g/' . (1024 + $seed) . '/' . (1024 + $seed));
+            $request = curl_init('https://api.lunoct.nl/avatar/' .$seed . '?background=ffffff');
             curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($request, CURLOPT_TIMEOUT, 5);
             $photo = curl_exec($request);
         }
 

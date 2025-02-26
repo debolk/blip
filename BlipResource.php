@@ -41,7 +41,7 @@ class BlipResource extends Tonic\Resource
     {
         $v->rule('email', 'email');
         $v->rule('alpha', ['initials']);
-        $v->rule('regex', 'gender', '/^[FM]$/')->message('{field} must be F or M');
+        $v->rule('regex', 'gender', '/^[FMU]$/')->message('{field} must be F or M or U');
         $v->rule('dateBefore', 'dateofbirth', date('Y-m-d'));
 
         // Validate attributes exist

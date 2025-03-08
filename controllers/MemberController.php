@@ -18,11 +18,11 @@ class MemberController extends ControllerBase
      * @var array|string[] map from path to operator level
      */
     private static array $operatorLevels = array(
-        '/members' => 'bekend',
-        '/members/all' => 'lid',
-        '/members/current' => 'bekend',
-        '/members/former' => 'lid',
-        '/members/candidate' => 'bekend'
+        'GET/members' => 'bekend',
+        'GET/members/all' => 'lid',
+        'GET/members/current' => 'bekend',
+        'GET/members/former' => 'lid',
+        'GET/members/candidate' => 'bekend'
     );
 
 	private static array $externalAllowed = array(
@@ -46,7 +46,8 @@ class MemberController extends ControllerBase
 		    return ResponseHelper::create($response, 403, "This resource is not available externally");
 	    }
 
-        $auth = self::loggedIn($response, self::$operatorLevels[$path]);
+	    if ($request->getMethod() !== "OPTIONS") $auth = self::loggedIn($response, self::$operatorLevels[$request->getMethod() . $path]);
+		else $auth = true;
 
         if ( is_bool($auth) ){
 	        if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');

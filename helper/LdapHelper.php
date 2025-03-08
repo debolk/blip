@@ -295,4 +295,8 @@ class LdapHelper
 		}
 		return $res;
 	}
+
+	public function delete(string $dn): bool{
+		return @ldap_delete($this->ldap, $dn);
+	}
 }

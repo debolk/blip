@@ -182,5 +182,14 @@ class LdapPerson extends LdapObject
         }
     }
 
+	/**
+	 * Remove the LdapPerson from the directory
+	 * @return bool TRUE on success, FALSE if otherwise
+	 */
+	public function delete(): bool {
+		$ldap = LdapHelper::Connect();
+		if (isset($this->attributes['dn'])) return $ldap->delete($this->dn);
+		return false;
+	}
 
 }

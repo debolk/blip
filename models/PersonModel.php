@@ -186,7 +186,7 @@ class PersonModel implements \JSONSerializable
     {
         $person = LdapPerson::fromUid($uid);
         if (!$person) {
-            throw new \Exception("User ($uid) not found!");
+            return null;
         }
 
         if (in_array('gosaUserTemplate', $person->objectclass)) {
@@ -270,6 +270,15 @@ class PersonModel implements \JSONSerializable
 
         return true;
     }
+
+	/**
+	 * Deleted this person from the directory
+	 * @return bool TRUE on success, FALSE if otherwise
+	 */
+	public function delete() : bool {
+		if (isset($this->ldapPerson)) return $this->ldapPerson->delete();
+		return false;
+	}
 
     /**
      * Finds an unused uid for a new user

@@ -18,13 +18,14 @@ class PersonController extends ControllerBase
      * @var array|string[] map from path to operator level
      */
     private static array $operatorLevels = array(
-        '/persons' => 'lid',
-        '/persons/all' => 'lid',
-        '/person' => 'bestuur',
-        '/person/uid' => 'bekend',
-        '/person/uid/all' => 'lid',
-        '/person/uid/photo' => 'bekend',
-        '/person/uid/update' => 'bestuur',
+        'GET/persons' => 'lid',
+        'GET/persons/all' => 'lid',
+        'POST/person' => 'bestuur',
+        'GET/person/uid' => 'bekend',
+        'GET/person/uid/all' => 'lid',
+        'GET/person/uid/photo' => 'bekend',
+        'PATCH/person/uid/update' => 'bestuur',
+	    'DELETE/person/uid' => 'bestuur',
     );
 
 	/**
@@ -50,7 +51,8 @@ class PersonController extends ControllerBase
 			return ResponseHelper::create($response, 403, "This resource is not available externally");
 	    }
 
-		$auth = self::loggedIn($response, self::$operatorLevels[$path]);
+		if ($request->getMethod() !== "OPTIONS") $auth = self::loggedIn($response, self::$operatorLevels[$request->getMethod() . $path]);
+		else $auth = true;
 
         if ( is_bool($auth) ){
             switch ($path) {
@@ -67,8 +69,9 @@ class PersonController extends ControllerBase
 					return self::post_person($request, $response, $args);
 
                 case '/person/uid':
-	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
-					return self::person_uid($request, $response, $args);
+	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET,DELETE');
+					else if ($request->getMethod() == "DELETE") return self::delete_person_uid($request, $response, $args);
+					return self::get_person_uid($request, $response, $args);
 
                 case '/person/uid/all':
 	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
@@ -118,10 +121,24 @@ class PersonController extends ControllerBase
         return ResponseHelper::json($response, $result);
     }
 
+	/**
+	 * uri: /person/{uid}
+	 */
+	private static function delete_person_uid(Request $request, Response $response, array $args): Response {
+		$uid = $args['uid'];
+		$person = PersonModel::fromUid($uid);
+
+		if ($person !== null && $person->delete()) {
+			MemcacheHelper::flush();
+			return ResponseHelper::create($response, 200, $uid . ' deleted from LDAP successfully');
+		}
+		return ResponseHelper::create($response, 500, "Could not delete " . $uid . " from LDAP");
+	}
+
     /**
      * uri: /person/{uid}
      */
-    private static function person_uid(Request $request, Response $response, array $args) : Response {
+    private static function get_person_uid(Request $request, Response $response, array $args) : Response {
         $uid = $args['uid'];
         try {
             $result = MemcacheHelper::cache("person-$uid", function ($uid) {

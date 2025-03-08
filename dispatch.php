@@ -31,6 +31,7 @@ $app->get('/persons', 'Controllers\PersonController::route'); //return all perso
 $app->get('/persons/all', 'Controllers\PersonController::route'); //return all persons with all information, ex avg
 $app->post('/person', 'Controllers\PersonController::route'); //create new person
 $app->get('/person/{uid}', 'Controllers\PersonController::route'); //return person with basic info
+$app->delete('/person/{uid}', 'Controllers\PersonController::route'); //delete person
 $app->get('/person/{uid}/all', 'Controllers\PersonController::route'); //return person with all info ex avg
 $app->get('/person/{uid}/photo', 'Controllers\PersonController::route'); //return persons profile picture
 $app->patch('/person/{uid}/update', 'Controllers\PersonController::route'); //update person information

@@ -49,7 +49,7 @@ class LdapGroup extends LdapObject
 	public static function fromId(string $id) : LdapGroup | null {
 		$ldap = LdapHelper::Connect();
 
-		$result = $ldap->getDn('(&(gidNumber=' . $id . ')(objectClass=posixGroup))');
+		$result = $ldap->getDn('(&(gidnumber=' . $id . ')(objectClass=posixGroup))');
 		if (!$result) {
 			return null;
 		}

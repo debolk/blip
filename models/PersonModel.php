@@ -199,12 +199,12 @@ class PersonModel implements \JSONSerializable
     {
         $ldap = \Helper\LdapHelper::connect();
 
-        $search = $ldap->search('(&(objectClass=fdBolkData)(!(uid=nobody))' . $query . ')');
+        $search = $ldap->search('(&(objectClass=fdBolkData)(!(uid=nobody))' . $query . ')', ["dn"]);
 
         $results = array();
-        foreach ($search as $key => $object) {
-			$object = $ldap->flatten($object);
-			$person = new LdapPerson($object);
+        foreach ($search as $key => $dn) {
+
+			$person = LdapPerson::fromDn($dn);
 
 	        $results[] = match ($mode) {
 		        'basic' => PersonModel::fromLdapPerson($person)->getBasic(),
@@ -247,6 +247,7 @@ class PersonModel implements \JSONSerializable
 
 			$ldapkey = self::$renaming[$key];
             $this->ldapPerson->$ldapkey = $value;
+			syslog(LOG_DEBUG, "Set " . $ldapkey . " to " . $value);
         }
 
         $result = $this->ldapPerson->save();
@@ -411,8 +412,14 @@ class PersonModel implements \JSONSerializable
 		    foreach (PersonModel::$groupIds as $status => $id) {
 			    $group = LdapGroup::fromId($id);
 			    if ($group->hasMember($this->uid)){
+					if (!isset($this->ldapPerson->dn)) {
+						$this->ldapPerson->dn = 'uid=' . $this->uid . ',' . PersonModel::$personOUnits[$status] . ',' . LdapHelper::Connect()->getBaseDn();
+					}
+					syslog(LOG_WARNING, "gid for " . $this->uid . " was not set correctly, setting to ". $id . ". It was: " . $this->ldapPerson->gidnumber);
 				    $this->ldapPerson->gidnumber = $id;
-				    $this->ldapPerson->save();
+				    if (!$this->ldapPerson->save()) {
+						syslog(LOG_ERR, LdapHelper::Connect()->lastError());
+				    }
 				    return $status;
 			    }
 		    }
@@ -445,7 +452,10 @@ class PersonModel implements \JSONSerializable
 
         //Remove from current groups
         foreach (PersonModel::$groupIds as $type => $id) {
-		    $group = LdapGroup::fromId($id);
+		    if ($type === 'donor' or $membership === $type or $membership == "donor" and $type === 'former_member') {
+				continue;
+		    }
+			$group = LdapGroup::fromId($id);
             $group->removeMember($this->uid);
             $group->save();
         }

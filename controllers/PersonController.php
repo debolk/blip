@@ -242,6 +242,9 @@ class PersonController extends ControllerBase
 		$data = self::transform_incoming_data($request->getBody());
         $valid = self::validate($data, $response);
 
+		syslog(LOG_DEBUG, "Incoming patch request for: " . $uid);
+		syslog(LOG_DEBUG, var_export($data, true));
+
         if ($valid instanceof Response) return $valid;
 
         //update user

@@ -112,12 +112,17 @@ class LdapObject
 
 	    $ldap = \Helper\LdapHelper::connect();
 
+
+
 	    if (!$this->exists) {
+		    syslog(LOG_DEBUG, var_export());
             $result = $ldap->add($this->dn, $this->attributes);
 			$this->exists = $result;
         } else {
-            $diff = array();
 
+		    $diff = array();
+
+			syslog(LOG_DEBUG, "New values for: " . $this->dn);
             foreach ($this->dirty as $key => $value) {
 				$value = $this->$key;
 
@@ -129,6 +134,7 @@ class LdapObject
 		            }
 	            }
                 $diff[$key] = $value;
+				syslog(LOG_DEBUG, $key . " - " . var_export($value, true));
 
             }
             $result = $ldap->modify($this->dn, $diff);

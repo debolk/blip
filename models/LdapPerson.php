@@ -109,18 +109,23 @@ class LdapPerson extends LdapObject
             return false;
         }
 
-        $data = $ldap->get($dn, 'iNetOrgPerson');
+        return self::fromDn($dn);
+    }
+
+	public static function fromDn(string $dn): LdapPerson|null {
+		$ldap = LdapHelper::Connect();
+		$data = $ldap->get($dn, 'iNetOrgPerson');
 
 		$data = $ldap->flatten($data);
 
-        $result = new self($data);
-        $result->exists = true;
-        $result->dn = $dn;
+		$result = new self($data);
+		$result->exists = true;
+		$result->dn = $dn;
 
-        return $result;
-    }
+		return $result;
+	}
 
-    /**
+	/**
      * Returns a default user (template)
      * @returns LdapPerson        a default LdapPerson
      */
@@ -179,7 +184,6 @@ class LdapPerson extends LdapObject
     public function __set(string $name, mixed $value)
     {
         parent::__set($name, $value);
-
         // Perform calculations if neccesary
         if (array_key_exists($name, $this->calculations)) {
             $this->calculations[$name]();

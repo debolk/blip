@@ -69,7 +69,6 @@ class OAuth2Helper
 		if ($code == 200) {
 			$body = json_decode($body, true);
 			if ($user_id !== "") {
-				syslog(LOG_DEBUG, $user_id);
 				return $body['access_token'] === $access_token && $body["user_id"] === $user_id;
 			}
             return true;

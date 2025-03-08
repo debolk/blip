@@ -47,8 +47,6 @@ class PersonController extends ControllerBase
             $path = str_replace($args['uid'], 'uid', $path);
         }
 
-		syslog(LOG_DEBUG, $path);
-
 		//evaluate if external access is allowed.
 	    if ( !OAuth2Helper::isAccessInternal($request->getUri()) and !self::allowed_externally($path) ){
 			return ResponseHelper::create($response, 403, "This resource is not available externally");
@@ -56,8 +54,6 @@ class PersonController extends ControllerBase
 
 		if ($request->getMethod() !== "OPTIONS") $auth = self::loggedIn($response, self::$operatorLevels[$request->getMethod() . $path]);
 		else $auth = true;
-
-		syslog(LOG_DEBUG, var_export($auth, true));
 
         if ( is_bool($auth) ){
             switch ($path) {

@@ -77,7 +77,7 @@ class NewPerson
     <p>Je gegevens zijn toegevoegd aan de ledenadministratie van De Bolk. Je hebt hierdoor automatisch een Bolk-account gekregen. Hiermee heb je toegang tot verschillende systemen binnen De Bolk, zoals de <a href="http://wiki.debolk.nl">wiki</a>, je eigen <a href="http://webmail.bolkhuis.nl">e-mailaccount</a> en <a href="http://noms.debolk.nl">bolknoms</a>. Je account heeft nog wel een tijdelijk wachtwoord. Je moet dit wachtwoord veranderen om toegang te krijgen.</p>
     <ol>
       <li>Maak een VPN-verbinding met De Bolk. Instructies kun je vinden op <a href="http://wiki.debolk.nl/index.php/VPN">de wiki</a>. Je gebruikersnaam is <b>{$uid}</b> en je tijdelijke wachtwoord is <b>{$password}</b>.</li>
-      <li><a href="http://fusion.i.bolkhuis.nl/password.php?uid={$uid}&directory=BOLKHUIS">Stel je wachtwoord opnieuw in</a>.
+      <li><a href="https://idris.i.bolkhuis.nl/password">Stel je wachtwoord opnieuw in</a>.
     </ol>
     <p>Hierdoor word je wachtwoord gereset en krijg je met één account toegang tot alle systemen. De volgende keer dat je verbinding maakt met de VPN, moet je wel je nieuwe wachtwoord invoeren, niet de tijdelijke.</p>
     <p>Als je nog vragen hebt, kun je contact opnemen met de secretaris via <a href="mailto:secretaris@nieuwedelft.nl">secretaris@nieuwedelft.nl</a> of in de sociëteit.</p>
@@ -88,7 +88,7 @@ class NewPerson
 	<p>Your data has been added to the member administration of de Bolk. This means you've automatically received a Bolk-account. With this you have access to various systems within de Bolk, like the <a href="http://wiki.debolk.nl">wiki</a>, your own <a href="http://webmail.bolkhuis.nl">e-mailaccount</a> and <a href="http://noms.debolk.nl">bolknoms</a>. Your account does have a temporary password, you need to change it to gain access.</p>
     <ol>
       <li>Connect with de Bolk VPN. You can find instructions on <a href="http://wiki.debolk.nl/index.php/VPN">the wiki</a>. Your username <b>{$uid}</b> and your temporary password is <b>{$password}</b>.</li>
-      <li><a href="http://fusion.i.bolkhuis.nl/password.php?uid={$uid}&directory=BOLKHUIS">Reset your password</a>.
+      <li><a href="https://idris.i.bolkhuis.nl/password">Reset your password</a>.
     </ol>
     <p>This reset your password and gets you access to all our systems with a single account. You do need to use your new password the next time you connect with the VPN, not the temporary one.</p>
     <p>If you have any question, you can contact the secretary via <a href="mailto:secretaris@nieuwedelft.nl">secretaris@nieuwedelft.nl</a> or in the society.</p>

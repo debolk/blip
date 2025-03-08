@@ -411,6 +411,9 @@ class PersonModel implements \JSONSerializable
 		    foreach (PersonModel::$groupIds as $status => $id) {
 			    $group = LdapGroup::fromId($id);
 			    if ($group->hasMember($this->uid)){
+					if (!isset($this->ldapPerson->dn)) {
+						$this->ldapPerson->dn = 'uid=' . $this->uid . ',' . PersonModel::$personOUnits[$status] . ',' . LdapHelper::Connect()->getBaseDn();
+					}
 				    $this->ldapPerson->gidnumber = $id;
 				    $this->ldapPerson->save();
 				    return $status;
@@ -445,7 +448,10 @@ class PersonModel implements \JSONSerializable
 
         //Remove from current groups
         foreach (PersonModel::$groupIds as $type => $id) {
-		    $group = LdapGroup::fromId($id);
+		    if ($type === 'donor' or $membership === $type or $membership == "donor" and $type === 'former_member') {
+				continue;
+		    }
+			$group = LdapGroup::fromId($id);
             $group->removeMember($this->uid);
             $group->save();
         }

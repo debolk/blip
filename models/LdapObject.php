@@ -113,8 +113,8 @@ class LdapObject
 	    $ldap = \Helper\LdapHelper::connect();
 
 	    if (!$this->exists) {
-            $this->exists = true;
             $result = $ldap->add($this->dn, $this->attributes);
+			$this->exists = $result;
         } else {
             $diff = array();
 

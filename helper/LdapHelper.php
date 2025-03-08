@@ -201,7 +201,6 @@ class LdapHelper
                 unset($data[$key]);
             }
         }
-
         return @ldap_add($this->ldap, $dn, $data);
     }
 

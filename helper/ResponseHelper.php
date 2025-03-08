@@ -15,11 +15,8 @@ class ResponseHelper
 			$new_response = $response->withStatus($code);
 		}
 
-		if ($code != 200){
-			$new_response = $new_response->withHeader("Access-Control-Allow-Origin", '*');
-		}
-
-        return ResponseHelper::data($new_response, $message, $contentType);
+		$ret = ResponseHelper::data($new_response, $message, $contentType);
+        return $ret;
     }
 
 	public static function json(Response $response, string $json): Response {

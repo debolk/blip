@@ -50,8 +50,6 @@ class PersonController extends ControllerBase
 			return ResponseHelper::create($response, 403, "This resource is not available externally");
 	    }
 
-		syslog(LOG_DEBUG, $request->getUri());
-
 		$auth = self::loggedIn($response, self::$operatorLevels[$path]);
 
         if ( is_bool($auth) ){
@@ -201,7 +199,11 @@ class PersonController extends ControllerBase
 
         //create user
         $person = new PersonModel($data);
-        $person->save();
+
+		if (!$person->save(true)) {
+			$ldap = LdapHelper::Connect();
+			return ResponseHelper::create($response, 500, $ldap->lastError());
+		}
 
         //clear cache
         MemcacheHelper::flush();

@@ -28,9 +28,16 @@ class LdapPerson extends LdapObject
           },
 
           'uid' => function () {
+	          $group = $attributes['membership'] ?? 'external';
+
               if (!isset($this->dn)) {
-                  $this->dn = 'uid=' . $this->uid . ',ou=people,ou=kandidaatleden,o=nieuwedelft,dc=i,dc=bolkhuis,dc=nl'; /** NOTE: THIS IS MEANT TO BE A PLACEHOLDER GROUP */
+				  $ldap = LdapHelper::Connect();
+                  $this->dn = 'uid=' . $this->uid . ',' . PersonModel::$personOUnits[$group] . ',' . $ldap->getBaseDn();
               }
+			  if (!isset($this->gidnumber)) {
+				  $this->gidnumber = PersonModel::$groupIds[$group];
+			  }
+			  $this->homedirectory = "/home/" . $this->uid;
           },
         );
     }
@@ -44,11 +51,12 @@ class LdapPerson extends LdapObject
         $ldap = \Helper\LdapHelper::connect();
 
         // Find all existing entries with a uidNumber
-        $search = $ldap->search('(objectClass=posixAccount)', array('uidNumber'));
+        $search = $ldap->search('(objectClass=posixAccount)', array('uidnumber'));
 
         // Slap array until it's formatted
         $numbers = array_map(function ($e) {
-            return (int)$e['uidnumber'][0];
+			if (!isset($e)) return null;
+            return (int)$e;
         }, $search);
 
         $max = 1000;
@@ -70,7 +78,7 @@ class LdapPerson extends LdapObject
         $parts = array();
 
         if (isset($this->attributes['givenName'])) {
-            $parts[] = $this->givenname;
+            $parts[] = $this->givenName;
         }
         if (isset($this->attributes['sn'])) {
             $parts[] = $this->sn;
@@ -123,17 +131,13 @@ class LdapPerson extends LdapObject
             'person',
             'organizationalPerson',
             'iNetOrgPerson',
-            'gosaAccount',
             'posixAccount',
             'shadowAccount',
             'gosaMailAccount',
             'fdBolkData',
             'fdBolkDataAVG'
         ),
-          'gosamaildeliverymode' => '[L]',
           'gosamailserver' => 'mail',
-          'gosaspammailbox' => 'INBOX',
-          'gosaspamsortlevel' => '0',
       );
 
         $result = new self($default);
@@ -149,6 +153,10 @@ class LdapPerson extends LdapObject
         if (!$this->exists) {
             $this->__set('uidnumber', self::findUidnumber());
         }
+
+		if (!isset($this->mail)) {
+			$this->mail = 'invalid@example.org';
+		}
 
         //Send mail if password changes
         if (isset($this->dirty['userpassword'])) {

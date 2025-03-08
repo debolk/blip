@@ -101,7 +101,7 @@ class PersonModel implements \JSONSerializable
 	/**
 	 * The mappings from membership status to the unit they should belong to
 	 */
-	private static array $personOUnits = array(
+	public static array $personOUnits = array(
 		'honorary_member' => 'ou=people,ou=ereleden,o=nieuwedelft',
 		'member' => "ou=people,ou=leden,o=nieuwedelft",
 		'candidate_member' => 'ou=people,ou=kandidaatleden,o=nieuwedelft',
@@ -235,21 +235,23 @@ class PersonModel implements \JSONSerializable
     /**
      * Saves the current person to ldap, creates a new LdapPerson if needed
      */
-    public function save() : bool
+    public function save($force_save = false) : bool
     {
         if ($this->ldapPerson == null) {
             $this->attributes['uid'] = $this->findUid();
             $this->ldapPerson = LdapPerson::getDefault();
-            $setgroup = true;
         }
 
         $data = $this->to_array();
-        foreach ($data as $key => $value) {
-            if (!isset(self::$renaming[$key]) or !isset($this->dirty[$key])) {
+
+	    foreach ($data as $key => $value) {
+            if (!isset(self::$renaming[$key]) or
+	            (!$force_save && !isset($this->dirty[$key])) or
+	            ($value === null)) {
                 continue;
             }
 
-            $ldapkey = self::$renaming[$key];
+			$ldapkey = self::$renaming[$key];
             $this->ldapPerson->$ldapkey = $value;
         }
 
@@ -258,13 +260,15 @@ class PersonModel implements \JSONSerializable
         }
 
         $result = $this->ldapPerson->save();
+		if (!$result) return false;
 
         //Set membership after saving
-        if (isset($setgroup) && isset($this->attributes['membership'])) {
+        if (isset($this->attributes['membership']) &&
+	        ($force_save || isset($this->dirty['membership']))) {
             $this->setMembership($this->attributes['membership']);
         }
 
-        return $result;
+        return true;
     }
 
     /**
@@ -284,11 +288,11 @@ class PersonModel implements \JSONSerializable
         // Try sensible options first
         $options = [];
 
-        if (! empty($this->attributes['initials'])) {
-            $options[] = strtolower($this->attributes['initials'][0].$this->attributes['lastname']);
-            $options[] = strtolower($this->attributes['initials'].$this->attributes['lastname']);
+        if (! empty($this->attributes['initials']) ) {
+            $options[] = strtolower($this->attributes['initials'][0].$this->attributes['surname']);
+            $options[] = strtolower($this->attributes['initials'].$this->attributes['surname']);
         }
-        $options[] = strtolower($this->attributes['firstname'].$this->attributes['lastname']);
+        $options[] = strtolower($this->attributes['firstname'].$this->attributes['surname']);
 
         foreach ($options as $candidate_uid) {
             $candidate_uid = $strip($candidate_uid);
@@ -299,7 +303,7 @@ class PersonModel implements \JSONSerializable
 
         // Try a numbered option
         for ($i=1; true; $i++) {
-            $candidate_uid = $strip(strtolower($this->attributes['firstname'].$this->attributes['lastname']).$i);
+            $candidate_uid = $strip(strtolower($this->attributes['firstname'].$this->attributes['surname']).$i);
             if (! $ldap->getUserDn($candidate_uid)) {
                 return $candidate_uid;
             }

@@ -79,13 +79,13 @@ class LdapGroup extends LdapObject
 		$ldap = LdapHelper::Connect();
 		$result = $ldap->get($this->dn, 'posixGroup', array('memberuid'));
 
-		if ($result) {
-			$this->memberuids = $result['memberuid'];
+		if ($result and isset($result['memberuid'])) {
+			$this->memberuid = $result['memberuid'];
 		}
 	}
 
 	private function hasMembers() : bool {
-		return (isset($this->memberuids) && $this->memberuids != null);
+		return (isset($this->memberuid) && $this->memberuid != null);
 	}
 
     /**
@@ -119,7 +119,7 @@ class LdapGroup extends LdapObject
 		    return false;
 	    }
 
-		return in_array($uid, $this->memberuids);
+		return in_array($uid, $this->memberuid);
     }
 
 	/**

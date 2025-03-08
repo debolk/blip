@@ -36,10 +36,12 @@ class PersonModel implements \JSONSerializable
         'institution',
         'dead',
 	    'membership',
+	    'no_obligations',
     );
 
 	protected static array $bools = array(
 		'photo_visible',
+		'no_obligations',
 		'iva',
 		'dead',
 		'avg',
@@ -76,6 +78,7 @@ class PersonModel implements \JSONSerializable
         'photo_visible' => 'fdPhotoVisible',
         'iva' => 'fdIVA',
         'dead' => 'fdDead',
+		'no_obligations' => 'fdNoObligations',
         'avg' => 'fdAVGAccept',
         'avg_address' => 'fdAddressShare',
         'avg_dob' => 'fdDoBShare',
@@ -338,6 +341,7 @@ class PersonModel implements \JSONSerializable
         if ($this->avg_email && $this->avg) $basic->email=$this->email; //only send mail if fdMailShare is true
         $basic->avg_email=$this->avg_email;
         $basic->photo_visible=$this->photo_visible;
+		$basic->no_obligations=$this->no_obligations;
         return $basic;
     }
 
@@ -347,7 +351,7 @@ class PersonModel implements \JSONSerializable
      */
     public function sanitizeAvg() : array {
 
-		$avg = array();
+		$avg = array('no_obligations'); //also always filter out no_obligations
         if ( !$this->avg_address ) $avg[] = 'address';
         if ( !$this->avg_dob) $avg[] = 'dateofbirth';
         if ( !$this->avg_institution) $avg[] = 'institution';
@@ -394,6 +398,7 @@ class PersonModel implements \JSONSerializable
         if (isset($this->attributes['surname'])) $last = $this->surname;
         if (isset($this->attributes['nickname'])) $nick = ' "'.$this->nickname.'"';
 		$this->attributes['name'] = $first.$nick.' '.$last;
+
     }
 
     /**
@@ -402,15 +407,22 @@ class PersonModel implements \JSONSerializable
      */
     public function membership() : string {
 
-	    if (!isset($this->ldapPerson->gidnumber)) {
-		    return "external";
+	    if (!isset($this->ldapPerson->gidnumber) or !in_array($this->ldapPerson->gidnumber, PersonModel::$groupIds)) {
+		    foreach (PersonModel::$groupIds as $status => $id) {
+			    $group = LdapGroup::fromId($id);
+			    if ($group->hasMember($this->uid)){
+				    $this->ldapPerson->gidnumber = $id;
+				    $this->ldapPerson->save();
+				    return $status;
+			    }
+		    }
+	    } else {
+		    foreach (PersonModel::$groupIds as $status => $id) {
+			    if ($id == $this->ldapPerson->gidnumber) {
+				    return $status;
+			    }
+		    }
 	    }
-
-        foreach (PersonModel::$groupIds as $status => $id) {
-			if ($id == $this->ldapPerson->gidnumber){
-				return $status;
-			}
-        }
 
         return 'external';
     }

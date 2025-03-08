@@ -169,14 +169,6 @@ class PersonModel implements \JSONSerializable
     }
 
     /**
-     * Generates a password and stores it to be saved
-     * After save the user will be notified by mail
-     */
-    public function generatePassword(): void {
-        $this->pass = bin2hex(openssl_random_pseudo_bytes(8));
-    }
-
-    /**
      * Constructs a new Person based off its UID
      * @static
      * @param  string $uid UID of the Person to find
@@ -235,7 +227,7 @@ class PersonModel implements \JSONSerializable
     /**
      * Saves the current person to ldap, creates a new LdapPerson if needed
      */
-    public function save($force_save = false) : bool
+    public function save($new_user = false) : bool
     {
         if ($this->ldapPerson == null) {
             $this->attributes['uid'] = $this->findUid();
@@ -246,7 +238,7 @@ class PersonModel implements \JSONSerializable
 
 	    foreach ($data as $key => $value) {
             if (!isset(self::$renaming[$key]) or
-	            (!$force_save && !isset($this->dirty[$key])) or
+	            (!$new_user && !isset($this->dirty[$key])) or
 	            ($value === null)) {
                 continue;
             }
@@ -255,18 +247,24 @@ class PersonModel implements \JSONSerializable
             $this->ldapPerson->$ldapkey = $value;
         }
 
-        if (isset($this->pass)) {
-            $this->ldapPerson->userpassword = hash("sha256", $this->pass);
-        }
-
         $result = $this->ldapPerson->save();
 		if (!$result) return false;
 
         //Set membership after saving
         if (isset($this->attributes['membership']) &&
-	        ($force_save || isset($this->dirty['membership']))) {
+	        ($new_user || isset($this->dirty['membership']))) {
             $this->setMembership($this->attributes['membership']);
         }
+
+		if ($new_user) {
+			$ldap = LdapHelper::Connect();
+			$pass = $ldap->set_password($this->ldapPerson->dn);
+			if (!$pass) {
+				syslog(LOG_ERR, "Unable to generate password for user " . $this->uid);
+			} else {
+				$this->ldapPerson->send_login($pass);
+			}
+		}
 
         return true;
     }

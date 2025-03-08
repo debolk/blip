@@ -299,4 +299,8 @@ class LdapHelper
 	public function delete(string $dn): bool{
 		return @ldap_delete($this->ldap, $dn);
 	}
+
+	public function set_password(string $dn, #[\SensitiveParameter] string $old_password = "", #[\SensitiveParameter] string $new_password = "") : string|bool {
+		return @ldap_exop_passwd($this->ldap, $dn, $old_password, $new_password);
+	}
 }

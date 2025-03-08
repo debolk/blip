@@ -18,7 +18,7 @@ MemcacheHelper::Initialise($config['MEMCACHE_HOST'], $config['MEMCACHE_PORT'], $
 OAuth2Helper::Initialise($config['OAUTH2_RESOURCE'], $config['BASE_URL']);
 if ($config['DEBUG']) OAuth2Helper::initialiseDebug($config['DEBUG_ACCESSTOKEN']);
 PersonModel::Initialise($config['BASE_URL']);
-NewPerson::Initialise($config['MAIL_FROM']);
+NewPerson::Initialise($config['MAIL_FROM'], $config["IMAP_USER"], $config["IMAP_PASSWORD"], $config["IMAP_HOST"], $config["IMAP_PORT"], $config["IMAP_SECURITY"]);
 
 
 //auths:

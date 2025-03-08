@@ -3,6 +3,7 @@
 namespace Models;
 
 use Helper\LdapHelper;
+use Mailer\NewPerson;
 
 /**
  * Handles creation of new users in Ldap
@@ -158,14 +159,17 @@ class LdapPerson extends LdapObject
 			$this->mail = 'invalid@example.org';
 		}
 
-        //Send mail if password changes
-        if (isset($this->dirty['userpassword'])) {
-            $mail = new \Mailer\NewPerson($this->attributes['mail'], $this->attributes['uid'], $this->attributes['cn'], $this->attributes['userpassword']);
-            $mail->send();
-        }
-
         return parent::save();
     }
+
+	public function send_login($pass) {
+		$mail = new NewPerson($this->mail, $this->uid, $this->cn, $pass);
+		if (!$mail->send()){
+			syslog(LOG_ERR, "Unable to send login mail: " . $mail->getError());
+		} else{
+			syslog(LOG_DEBUG, "Successfully sent login.");
+		}
+	}
 
     /**
      * Sets a property of a LdapPerson

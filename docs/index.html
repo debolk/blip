@@ -245,6 +245,23 @@
         </div>
     </div>
 
+    <div class="spec delete">
+        <div class="header">
+            <span class="method">DELETE</span>
+            <span class="url">/person/{uid}</span>
+            <span class="short">Delete a Person</span>
+        </div>
+        <div class="description">
+            <p>
+                Deletes the specified person from the LDAP.
+            </p>
+            <h4>OAuth access level</h4>
+            <p>Only the board & the IT team</p>
+            <h4>Parameters</h4>
+            <p>user id</p>
+        </div>
+    </div>
+
     <div class="spec get">
         <div class="header">
             <span class="method">GET</span>
@@ -313,7 +330,7 @@
         </div>
     </div>
 
-    <div class="spec put">
+    <div class="spec patch">
         <div class="header">
             <span class="method">PATCH</span>
             <span class="url">/person/{uid}/update</span>
@@ -361,6 +378,27 @@
                 "avg_phone_emergency": "true",
                 "avg_pronouns": "true"
                 }
+            </code>
+        </div>
+    </div>
+
+    <div class="spec patch">
+        <div class="header">
+            <span class="method">PATCH</span>
+            <span class="url">/person/{uid}/password</span>
+            <span class="short">Update a Person's password</span>
+        </div>
+        <div class="description">
+            <p>
+                Accepts a JSON that describes the user's new password.
+            </p>
+            <h4>OAuth access level</h4>
+            <p>Every user, but only their own password.</p>
+            <h4>Parameters</h4>
+            <p>user id, old_password & new_password</p>
+            <h4>Example result</h4>
+            <code>
+                200 - Successfully changed mssmit password.
             </code>
         </div>
     </div>

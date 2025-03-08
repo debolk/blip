@@ -77,7 +77,10 @@ footer {
 .spec.post {
   background-color: #e7f6eb;
 }
-.spec.put {
+.spec.patch {
+  background-color: #ffefdf;
+}
+.spec.delete {
   background-color: #f5e8e8;
 }
 .spec.get .method {
@@ -86,7 +89,10 @@ footer {
 .spec.post .method {
   background-color: #14a639;
 }
-.spec.put .method {
+.spec.patch .method {
+  background-color: #FF8C00;
+}
+.spec.delete .method {
   background-color: #a3201c;
 }
 .spec.get .short {
@@ -95,7 +101,10 @@ footer {
 .spec.post .short {
   color: #3cb277;
 }
-.spec.put .short {
+.spec.patch .short {
+  color: #FFA852;
+}
+.spec.delete .short {
   color: #b7503b;
 }
 

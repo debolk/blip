@@ -122,7 +122,6 @@ class PersonModel implements \JSONSerializable
 	    'honorary_member' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
     );
 
-    protected string $pass;
 	protected LdapHelper $ldap;
 
 	/**
@@ -268,6 +267,11 @@ class PersonModel implements \JSONSerializable
 
         return true;
     }
+
+	public function set_password(#[\SensitiveParameter] $old_password, #[\SensitiveParameter] $new_password): bool|string {
+		$ldap = LdapHelper::Connect();
+		return $ldap->set_password($this->ldapPerson->dn, $old_password, $new_password);
+	}
 
 	/**
 	 * Deleted this person from the directory
@@ -440,10 +444,6 @@ class PersonModel implements \JSONSerializable
         $group->save();
 
         $this->save();
-
-	    if (!isset($this->ldapPerson->userpassword)) {
-		    $this->generatePassword();
-	    }
 
         //Remove objectclasses from previous status
         foreach ($this->additionalClasses[$prev] as $class) {

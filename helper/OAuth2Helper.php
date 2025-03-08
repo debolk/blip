@@ -28,7 +28,7 @@ class OAuth2Helper
      * @param string $resource a valid access level resource
      * @return boolean|Response           true if access was granted, false otherwise
      */
-    public static function isAuthorisedFor(string $resource, Response $response): Response|bool
+    public static function isAuthorisedFor(string $resource, Response $response, string $user_id = ""): Response|bool
     {
         if (isset($_POST['access_token'])) {
             $access_token = $_POST['access_token'];
@@ -63,9 +63,15 @@ class OAuth2Helper
         $body = curl_exec($c);
 
         $code = curl_getinfo($c, CURLINFO_HTTP_CODE);
-        curl_close($c);
+		curl_close($c);
 
-        if ($code == 200) {
+
+		if ($code == 200) {
+			$body = json_decode($body, true);
+			if ($user_id !== "") {
+				syslog(LOG_DEBUG, $user_id);
+				return $body['access_token'] === $access_token && $body["user_id"] === $user_id;
+			}
             return true;
         }
         return ResponseHelper::create($response, $code, $body, "application/json");

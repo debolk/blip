@@ -22,10 +22,11 @@ class PersonController extends ControllerBase
         'GET/persons/all' => 'lid',
         'POST/person' => 'bestuur',
         'GET/person/uid' => 'bekend',
+	    'DELETE/person/uid' => 'bestuur',
         'GET/person/uid/all' => 'lid',
         'GET/person/uid/photo' => 'bekend',
         'PATCH/person/uid/update' => 'bestuur',
-	    'DELETE/person/uid' => 'bestuur',
+	    'PATCH/person/uid/password' => 'bekend',
     );
 
 	/**
@@ -46,6 +47,8 @@ class PersonController extends ControllerBase
             $path = str_replace($args['uid'], 'uid', $path);
         }
 
+		syslog(LOG_DEBUG, $path);
+
 		//evaluate if external access is allowed.
 	    if ( !OAuth2Helper::isAccessInternal($request->getUri()) and !self::allowed_externally($path) ){
 			return ResponseHelper::create($response, 403, "This resource is not available externally");
@@ -53,6 +56,8 @@ class PersonController extends ControllerBase
 
 		if ($request->getMethod() !== "OPTIONS") $auth = self::loggedIn($response, self::$operatorLevels[$request->getMethod() . $path]);
 		else $auth = true;
+
+		syslog(LOG_DEBUG, var_export($auth, true));
 
         if ( is_bool($auth) ){
             switch ($path) {
@@ -84,6 +89,11 @@ class PersonController extends ControllerBase
                 case '/person/uid/update':
 	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'PATCH');
 					return self::patch_person_uid($request, $response, $args);
+
+				case '/person/uid/password':
+	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'PATCH');
+					return self::person_password($request, $response, $args);
+
             }
         } else {
             return $auth;
@@ -262,20 +272,55 @@ class PersonController extends ControllerBase
         return ResponseHelper::json($response, json_encode($person->to_array(), JSON_UNESCAPED_SLASHES));
     }
 
+	private static function person_password(Request $request, Response $response, array $args) : Response {
+		$uid = $args['uid'];
+		$data = self::transform_incoming_data($request->getBody(), false);
+
+		if (!self::loggedIn($response, 'bekend', $uid)){
+			return ResponseHelper::create($response, 401, "Logged in user is not " . $uid);
+		}
+
+		if ($data === null or !isset ($data['old_password']) or !isset($data['new_password'])) {
+			return ResponseHelper::create($response, 400, "Missing parameters.");
+		}
+
+		$old_pass = $data['old_password'];
+		$new_pass = $data['new_password'];
+
+		if (strlen($new_pass) < 12) {
+			return ResponseHelper::create($response, 400, "New password should be at least 12 characters long.");
+		}
+
+		try {
+			$person = PersonModel::fromUid($uid);
+			if ($person->set_password($old_pass, $new_pass)) {
+				return ResponseHelper::create($response, 200, "Successfully changed {$uid} password.");
+			}
+			return ResponseHelper::create($response, 500, LdapHelper::Connect()->lastError());
+		} catch (\Exception $e) {
+			return ResponseHelper::create($response, 404, $e->getMessage());
+		}
+	}
+
 	/**
 	 * Treat incoming data so it's uniform.
 	 * @param string $incoming
-	 * @return array
+	 * @return array|null
 	 */
-	private static function transform_incoming_data(string $incoming) : array {
+	private static function transform_incoming_data(string $incoming, bool $debug_double = true): ?array {
 		$data = json_decode($incoming);
 
 		while (gettype($data) !== "array") {
 			if (gettype($data) === "string") {
 				$data = json_decode($data);
-				syslog(LOG_DEBUG, $incoming . ' json_decoded to a string first.');
+				if ($debug_double) syslog(LOG_DEBUG, $incoming . ' json_decoded to a string first.');
 				continue;
 			}
+
+			if ($data === null) {
+				return null;
+			}
+
 			$new_data = array();
 			foreach($data as $key => $value){
 				$new_data[$key] = $value;

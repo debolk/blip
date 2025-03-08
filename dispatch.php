@@ -35,6 +35,7 @@ $app->delete('/person/{uid}', 'Controllers\PersonController::route'); //delete p
 $app->get('/person/{uid}/all', 'Controllers\PersonController::route'); //return person with all info ex avg
 $app->get('/person/{uid}/photo', 'Controllers\PersonController::route'); //return persons profile picture
 $app->patch('/person/{uid}/update', 'Controllers\PersonController::route'); //update person information
+$app->patch('/person/{uid}/password', 'Controllers\PersonController::route'); // update person password
 $app->get('/members', 'Controllers\MemberController::route'); //return all members with basic info
 $app->get('/members/all', 'Controllers\MemberController::route'); //return all members with all info ex avg
 $app->get('/members/current', 'Controllers\MemberController::route'); //return all current members with basic info
@@ -48,6 +49,7 @@ $app->options('/person/{uid}', 'Controllers\PersonController::route');
 $app->options('/person/{uid}/all', 'Controllers\PersonController::route');
 $app->options('/person/{uid}/photo', 'Controllers\PersonController::route');
 $app->options('/person/{uid}/update', 'Controllers\PersonController::route');
+$app->options('/person/{uid}/password', 'Controllers\PersonController::route');
 $app->options('/members', 'Controllers\MemberController::route');
 $app->options('/members/all', 'Controllers\MemberController::route');
 $app->options('/members/current', 'Controllers\MemberController::route');

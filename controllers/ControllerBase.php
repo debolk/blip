@@ -91,9 +91,9 @@ abstract class ControllerBase {
      *                                  bekend (default), bestuur, ictcom, lid or mp3control
      * @return boolean|Response true if logged in, Response if otherwise
      */
-    public static function loggedIn(Response $response, string $resource = 'bekend') : bool|Response
+    public static function loggedIn(Response $response, string $resource = 'bekend', string $user_id = "") : bool|Response
     {
-        return OAuth2Helper::isAuthorisedFor($resource, $response);
+        return OAuth2Helper::isAuthorisedFor($resource, $response, $user_id);
     }
 
 	/**

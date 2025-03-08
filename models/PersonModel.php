@@ -496,13 +496,18 @@ class PersonModel implements \JSONSerializable
     public function getPhoto() : string {
         //get from LDAP
         $photo = $this->ldapPerson->jpegphoto;
+		if (preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $photo)) $photo = null; //check if the photo returned is a base64 encoded string
 
-        if ( $photo == null ) { //retrieve a cat if person has no jpegPhoto
+        if ( $photo == null or !$this->photo_visible ) { //retrieve a cat if person has no jpegPhoto
             $seed = ((int)substr(base_convert(md5($this->uid), 15, 10), -6)) % 500; //per-user seed to generate different cats
 
             $request = curl_init("https://api.lunoct.nl/avatar/$seed?background=ffffff");
             curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
             $photo = curl_exec($request);
+			if ( $this->photo_visible ) {
+				$this->ldapPerson->jpegphoto = $photo;
+				$this->ldapPerson->save();
+			}
         }
 
         return base64_encode($photo);

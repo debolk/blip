@@ -152,7 +152,6 @@ class LdapPerson extends LdapObject
 
     /**
      * Saves the current LdapPerson to ldap, creates a new entry if needed
-     * This notifies the user if their password is reset
      */
     public function save() : bool
     {

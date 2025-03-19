@@ -134,7 +134,7 @@ class PersonModel implements \JSONSerializable
     public function __construct(array $attributes = array())
     {
         $this->attributes = $attributes;
-		$ldap = LdapHelper::Connect();
+		$this->ldap = LdapHelper::Connect();
     }
 
 	public static function Initialise($base_url){
@@ -236,7 +236,13 @@ class PersonModel implements \JSONSerializable
             $this->ldapPerson = LdapPerson::getDefault();
         }
 
-        $data = $this->to_array();
+        if (!$new_user) {
+			$data = $this->to_array();
+        } else {
+	        $data = $this->attributes;
+        }
+
+		syslog(LOG_DEBUG, var_export($data, true));
 
 	    foreach ($data as $key => $value) {
             if (!isset(self::$renaming[$key]) or
@@ -247,21 +253,18 @@ class PersonModel implements \JSONSerializable
 
 			$ldapkey = self::$renaming[$key];
             $this->ldapPerson->$ldapkey = $value;
-			syslog(LOG_DEBUG, "Set " . $ldapkey . " to " . $value);
         }
 
-        $result = $this->ldapPerson->save();
-		if (!$result) return false;
+		if (!$this->ldapPerson->save()) return false;
 
         //Set membership after saving
         if (isset($this->attributes['membership']) &&
 	        ($new_user || isset($this->dirty['membership']))) {
-            $this->setMembership($this->attributes['membership']);
+            $this->setMembership($this->attributes['membership'], $new_user);
         }
 
 		if ($new_user) {
-			$ldap = LdapHelper::Connect();
-			$pass = $ldap->set_password($this->ldapPerson->dn);
+			$pass = $this->set_password();
 			if (!$pass) {
 				syslog(LOG_ERR, "Unable to generate password for user " . $this->uid);
 			} else {
@@ -272,9 +275,17 @@ class PersonModel implements \JSONSerializable
         return true;
     }
 
-	public function set_password(#[\SensitiveParameter] $old_password, #[\SensitiveParameter] $new_password): bool|string {
-		$ldap = LdapHelper::Connect();
-		return $ldap->set_password($this->ldapPerson->dn, $old_password, $new_password);
+	public function set_password(#[\SensitiveParameter] $old_password = "", #[\SensitiveParameter] $new_password = ""): bool|string {
+		$result = $this->ldap->set_password($this->ldapPerson->dn, $old_password, $new_password);
+		if (!$result) {
+			return false;
+		} else if ($new_password === "") {
+			$this->ldapPerson->pwdReset = true;
+			if (!$this->ldapPerson->save()) {
+				return false;
+			}
+		}
+		return $result;
 	}
 
 	/**
@@ -439,14 +450,13 @@ class PersonModel implements \JSONSerializable
      * and saves the member
      * @param string $membership      the new membership status
      */
-    public function setMembership(string $membership)
-    {
+    public function setMembership(string $membership, bool $new_user = false): void {
 		if (!array_key_exists($membership, PersonModel::$groupIds)) {
             return;
         }
 
         $prev = $this->membership();
-        if ($membership == $prev) {
+        if ($membership == $prev && !$new_user) {
             return;
         }
 
@@ -463,7 +473,10 @@ class PersonModel implements \JSONSerializable
         //Add to new group
         $group = LdapGroup::fromId(PersonModel::$groupIds[$membership]);
         $group->addMember($this->uid);
-        $group->save();
+        if (!$group->save()) {
+			syslog(LOG_ERR, "Could not add " . $this->uid . " to " . $group->dn);
+			syslog(LOG_ERR, LdapHelper::Connect()->lastError());
+        };
 
         $this->save();
 

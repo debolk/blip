@@ -48,8 +48,9 @@ class LdapObject
      */
     public function __get(string $name) : mixed
     {
+
         if (!isset($this->attributes[$name])) {
-            return null;
+			return null;
         }
 
 		if (!is_array($this->attributes[$name])) {
@@ -115,7 +116,6 @@ class LdapObject
 
 
 	    if (!$this->exists) {
-		    syslog(LOG_DEBUG, var_export());
             $result = $ldap->add($this->dn, $this->attributes);
 			$this->exists = $result;
         } else {

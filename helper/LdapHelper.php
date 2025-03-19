@@ -12,6 +12,9 @@ class LdapHelper
      * @var LdapHelper|null
      */
     private static LdapHelper|null $instance = null;
+	private string $ldap_host;
+	private string $ldap_username;
+	private string $ldap_password;
 
     /**
      * Return a singleton connection to the LDAP-server
@@ -44,14 +47,31 @@ class LdapHelper
     /**
      * Connect to the LDAP-server and set basic configuration
      */
-    public function __construct($ldap_host, $ldap_base, $ldap_username, $ldap_password)
-    {
-        $this->ldap = ldap_connect($ldap_host);
+    public function __construct($ldap_host, $ldap_base, $ldap_username, $ldap_password) {
+		$this->ldap_host = $ldap_host;
+	    $this->ldap_username = $ldap_username;
+	    $this->ldap_password = $ldap_password;
+
+	    $this->basedn = $ldap_base;
+
+		$this->bind();
+    }
+
+	public function bind(string $ldap_username = null, string $ldap_password = null): bool{
+		if (!isset($ldap_password) || !isset($ldap_username)) {
+			$ldap_username = $this->ldap_username;
+			$ldap_password = $this->ldap_password;
+		}
+
+		if (empty($ldap_username) || empty($ldap_password)) {
+			return false;
+		}
+
+		$this->ldap = ldap_connect($this->ldap_host);
 
 		ldap_set_option($this->ldap, LDAP_OPT_PROTOCOL_VERSION, 3); //sets ldap protocol to v3; server won't accept otherwise.
-		$this->bind($ldap_username, $ldap_password);
-        $this->basedn = $ldap_base;
-    }
+		return ldap_bind($this->ldap, $ldap_username, $ldap_password);
+	}
 
 	public function getBaseDn() {
 		return $this->basedn;
@@ -109,20 +129,6 @@ class LdapHelper
 
 		return $objects[0]['dn'];
 	}
-
-    /**
-     * Binds to the LDAP-server
-     * @param  string $dn   the full DN of the user to bind to
-     * @param  string $pass password
-     * @return boolean      whether the bind succeeded
-     */
-    public function bind(string $dn, string $pass) : bool
-    {
-        if (!$dn || empty($pass)) {
-            return false;
-        }
-        return ldap_bind($this->ldap, $dn, $pass);
-    }
 
     /**
      * Searches an LDAP-entry
@@ -301,6 +307,18 @@ class LdapHelper
 	}
 
 	public function set_password(string $dn, #[\SensitiveParameter] string $old_password = "", #[\SensitiveParameter] string $new_password = "") : string|bool {
+		if ($old_password !== "") {
+			ldap_unbind($this->ldap);
+			$this->bind($dn, $old_password);
+			$result = ldap_exop_passwd($this->ldap, $dn, $old_password, $new_password);
+			ldap_unbind($this->ldap);
+			$this->bind();
+			return $result;
+		}
 		return @ldap_exop_passwd($this->ldap, $dn, $old_password, $new_password);
+	}
+
+	public function del_attribute(string $dn, array $attributes) : bool {
+		return @ldap_mod_del($this->ldap, $dn, $attributes);
 	}
 }

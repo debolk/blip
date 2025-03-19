@@ -11,6 +11,8 @@ use Models\PersonModel;
 require_once('vendor/autoload.php');
 $config = require_once('config.php');
 
+openlog("blip", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+
 $app = Slim\Factory\AppFactory::create();
 
 LdapHelper::Initialise($config['LDAP_HOST'], $config['LDAP_BASEDN'], $config['LDAP_USERNAME'], $config['LDAP_PASSWORD']);

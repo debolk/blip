@@ -95,11 +95,4 @@ abstract class ControllerBase {
     {
         return OAuth2Helper::isAuthorisedFor($resource, $response, $user_id);
     }
-
-	/**
-	 * Check if the user is allowed to access the resource externally
-	 */
-	protected static function allowed_externally(string $request): bool{
-		return in_array($request, self::$externalAllowed);
-	}
 }

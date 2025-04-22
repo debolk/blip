@@ -81,11 +81,14 @@ class OAuth2Helper
 	 * @param UriInterface $uri the URI from the request
 	 * @return bool whether or not the URI from the request matched the BASE_URL
 	 */
-	public static function isAccessInternal(UriInterface $uri) {
+	public static function isAccessInternal(UriInterface $uri): bool {
 		$path = $uri->getScheme() . '://' . $uri->getHost();
 		if ( $uri->getPort() ) {
 			$path = $path . ':' . $uri->getPort();
 		}
+		syslog(LOG_DEBUG, $path);
+		syslog(LOG_DEBUG, self::$base_url);
+		syslog(LOG_DEBUG, $path === self::$base_url);
 		return $path === self::$base_url;
 	}
 

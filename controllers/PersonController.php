@@ -34,21 +34,20 @@ class PersonController extends ControllerBase
 	 */
 	private static array $externalAllowed = array(
 		'/persons',
-		'/person/{uid}',
-		'/person/{uid}/photo'
+		'/person/uid',
+		'/person/uid/photo'
 	);
 
     public static function route(Request $request, Response $response, array $args) : Response
     {
         $path = $request->getUri()->getPath();
 
-
         if ( count($args) == 1 ) {
             $path = str_replace($args['uid'], 'uid', $path);
         }
 
 		//evaluate if external access is allowed.
-	    if ( !OAuth2Helper::isAccessInternal($request->getUri()) and !self::allowed_externally($path) ){
+	    if ( !OAuth2Helper::isAccessInternal($request->getUri()) and !in_array($path, self::$externalAllowed)){
 			return ResponseHelper::create($response, 403, "This resource is not available externally");
 	    }
 

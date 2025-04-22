@@ -537,7 +537,6 @@ class PersonModel implements \JSONSerializable
 	 */
     public function getPhoto() : string {
         //get from LDAP
-	    syslog(LOG_DEBUG, "PHOTO");
         $photo = $this->ldapPerson->jpegphoto;
 		if (preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $photo)) $photo = null; //check if the photo returned is a base64 encoded string
 

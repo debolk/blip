@@ -537,6 +537,7 @@ class PersonModel implements \JSONSerializable
 	 */
     public function getPhoto() : string {
         //get from LDAP
+	    syslog(LOG_DEBUG, "PHOTO");
         $photo = $this->ldapPerson->jpegphoto;
 		if (preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $photo)) $photo = null; //check if the photo returned is a base64 encoded string
 
@@ -546,13 +547,14 @@ class PersonModel implements \JSONSerializable
             $request = curl_init("https://api.lunoct.nl/avatar/$seed?background=ffffff");
             curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
             $photo = curl_exec($request);
+
 			if ( $this->photo_visible ) {
 				$this->ldapPerson->jpegphoto = $photo;
 				$this->ldapPerson->save();
 			}
         }
 
-        return base64_encode($photo);
+        return $photo;
     }
 
     /**

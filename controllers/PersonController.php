@@ -185,9 +185,7 @@ class PersonController extends ControllerBase
     {
         $uid = $args['uid'];
         try {
-	        return ResponseHelper::data($response, MemcacheHelper::cache("person-$uid-photo", function ($args) {
-		        return PersonModel::fromUid($args[0])->getPhoto();
-	        }, $uid, $response), 'image/jpeg');
+	        return ResponseHelper::data($response, PersonModel::fromUid($uid)->getPhoto(), 'image/jpeg');
         } catch (\Exception $e) {
             return ResponseHelper::create($response, 404, $e->getMessage());
         }

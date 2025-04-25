@@ -14,6 +14,7 @@ class PersonModel implements \JSONSerializable
 	private array $dirty = array();
     private LdapPerson|null $ldapPerson = null;
 	private static $base_url;
+	private static $avg_matters;
 
     /**
      * The list of properties that can be set by the user
@@ -137,8 +138,9 @@ class PersonModel implements \JSONSerializable
 		$this->ldap = LdapHelper::Connect();
     }
 
-	public static function Initialise($base_url){
+	public static function Initialise($base_url, $avg_matters){
 		self::$base_url = $base_url;
+		self::$avg_matters = $avg_matters;
 	}
 
     /**
@@ -350,7 +352,8 @@ class PersonModel implements \JSONSerializable
 		$basic->surname=$this->surname;
 		$basic->nickname=$this->nickname;
         $basic->membership=$this->membership();
-        if ($this->avg_email && $this->avg) $basic->email=$this->email; //only send mail if fdMailShare is true
+        if (!self::$avg_matters //if avg hasn't been enable yet, always add
+	        || ($this->avg_email && $this->avg)) $basic->email=$this->email; //only send mail if fdMailShare is true
         $basic->avg_email=$this->avg_email;
         $basic->photo_visible=$this->photo_visible;
 		$basic->no_obligations=$this->no_obligations;
@@ -364,18 +367,21 @@ class PersonModel implements \JSONSerializable
     public function sanitizeAvg() : array {
 
 		$avg = array('no_obligations'); //also always filter out no_obligations
-        if ( !$this->avg_address ) $avg[] = 'address';
-        if ( !$this->avg_dob) $avg[] = 'dateofbirth';
-        if ( !$this->avg_institution) $avg[] = 'institution';
-        if ( !$this->avg_programme) $avg[] = 'programme';
-        if ( !$this->avg_email) $avg[] = 'email';
-        if ( !$this->avg_phone_emergency) $avg[] = 'phone_emergency';
-        if ( !$this->avg_phone) $avg[] = 'phone';
-        if ( !$this->avg_pronouns) $avg[] = 'pronouns';
+	    if ( self::$avg_matters ) { //if avg hasn't been enabled yet, skip sanitization
 
-        if ( !$this->avg) { //remove all avg attributes if the person didn't accept the privacy statement
-            $avg = ['address', 'dateofbirth', 'institution', 'programme', 'email', 'phone_emergency', 'phone', 'pronouns'];
-        }
+		    if (!$this->avg_address) $avg[] = 'address';
+		    if (!$this->avg_dob) $avg[] = 'dateofbirth';
+		    if (!$this->avg_institution) $avg[] = 'institution';
+		    if (!$this->avg_programme) $avg[] = 'programme';
+		    if (!$this->avg_email) $avg[] = 'email';
+		    if (!$this->avg_phone_emergency) $avg[] = 'phone_emergency';
+		    if (!$this->avg_phone) $avg[] = 'phone';
+		    if (!$this->avg_pronouns) $avg[] = 'pronouns';
+
+		    if (!$this->avg) { //remove all avg attributes if the person didn't accept the privacy statement
+			    $avg = ['address', 'dateofbirth', 'institution', 'programme', 'email', 'phone_emergency', 'phone', 'pronouns'];
+		    }
+	    }
 
         $sanitized = array_diff_key($this->attributes, array_fill_keys($avg, false));
 

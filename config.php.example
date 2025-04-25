@@ -14,7 +14,8 @@ return [
     "OAUTH2_RESOURCE" => "http://localhost",
     "MEMCACHE_HOST" => "localhost",
     "MEMCACHE_PORT" => "11211",
-    "MEMCACHE_EXPIRY" => "604800", # one week
+    "MEMCACHE_EXPIRY" => "604800", # one week,
+    "AVG" => false,
 	"DEBUG" => false,
 	"DEBUG_ACCESSTOKEN" => "debugaccess"
 ];

@@ -19,7 +19,7 @@ LdapHelper::Initialise($config['LDAP_HOST'], $config['LDAP_BASEDN'], $config['LD
 MemcacheHelper::Initialise($config['MEMCACHE_HOST'], $config['MEMCACHE_PORT'], $config['MEMCACHE_EXPIRY']);
 OAuth2Helper::Initialise($config['OAUTH2_RESOURCE'], $config['BASE_URL']);
 if ($config['DEBUG']) OAuth2Helper::initialiseDebug($config['DEBUG_ACCESSTOKEN']);
-PersonModel::Initialise($config['BASE_URL'], $CONFIG['AVG']);
+PersonModel::Initialise($config['BASE_URL'], $config['AVG']);
 NewPerson::Initialise($config['MAIL_FROM'], $config["IMAP_USER"], $config["IMAP_PASSWORD"], $config["IMAP_HOST"], $config["IMAP_PORT"], $config["IMAP_SECURITY"]);
 
 

@@ -549,7 +549,7 @@ class PersonModel implements \JSONSerializable
         if ( $photo == null or !$this->photo_visible ) { //retrieve a cat if person has no jpegPhoto
             $seed = ((int)substr(base_convert(md5($this->uid), 15, 10), -6)) % 500; //per-user seed to generate different cats
 
-            $request = curl_init("https://api.lunoct.nl/avatar/$seed?background=ffffff");
+            $request = curl_init("https://cataas.com/cat?filter=mono&width=500&height=500");
             curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
             $photo = curl_exec($request);
 

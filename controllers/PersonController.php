@@ -48,6 +48,7 @@ class PersonController extends ControllerBase
 
 		//evaluate if external access is allowed.
 	    if ( !OAuth2Helper::isAccessInternal($request->getUri()) and !in_array($path, self::$externalAllowed)){
+	    	if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
 			return ResponseHelper::create($response, 403, "This resource is not available externally");
 	    }
 

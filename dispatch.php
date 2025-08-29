@@ -31,6 +31,7 @@ NewPerson::Initialise($config['MAIL_FROM'], $config["IMAP_USER"], $config["IMAP_
 
 $app->get('/persons', 'Controllers\PersonController::route'); //return all persons with basic info
 $app->get('/persons/all', 'Controllers\PersonController::route'); //return all persons with all information, ex avg
+$app->get('/persons/photo', 'Controllers\PersonController::route'); //return photo's for person as given in the json
 $app->post('/person', 'Controllers\PersonController::route'); //create new person
 $app->get('/person/{uid}', 'Controllers\PersonController::route'); //return person with basic info
 $app->delete('/person/{uid}', 'Controllers\PersonController::route'); //delete person
@@ -38,6 +39,7 @@ $app->get('/person/{uid}/all', 'Controllers\PersonController::route'); //return 
 $app->get('/person/{uid}/photo', 'Controllers\PersonController::route'); //return persons profile picture
 $app->patch('/person/{uid}/update', 'Controllers\PersonController::route'); //update person information
 $app->patch('/person/{uid}/password', 'Controllers\PersonController::route'); // update person password
+$app->patch('/person/{uid}/resetpassword', 'Controllers\PersonController::route'); // reset a persons password completely and re-send enrollment email
 $app->get('/members', 'Controllers\MemberController::route'); //return all members with basic info
 $app->get('/members/all', 'Controllers\MemberController::route'); //return all members with all info ex avg
 $app->get('/members/current', 'Controllers\MemberController::route'); //return all current members with basic info

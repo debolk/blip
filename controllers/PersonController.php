@@ -20,6 +20,7 @@ class PersonController extends ControllerBase
     private static array $operatorLevels = array(
         'GET/persons' => 'lid',
         'GET/persons/all' => 'lid',
+        'GET/persons/photo' => 'bekend',
         'POST/person' => 'bestuur',
         'GET/person/uid' => 'bekend',
 	    'DELETE/person/uid' => 'bestuur',
@@ -27,6 +28,7 @@ class PersonController extends ControllerBase
         'GET/person/uid/photo' => 'bekend',
         'PATCH/person/uid/update' => 'bestuur',
 	    'PATCH/person/uid/password' => 'bekend',
+        'PATCH/person/uid/resetpassword' => 'bestuur',
     );
 
 	/**
@@ -67,6 +69,10 @@ class PersonController extends ControllerBase
 	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
 					return self::all($request, $response, $args);
 
+                case '/persons/photo':
+	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
+					return self::persons_photo($request, $response, $args);
+
                 case '/person':
 	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'POST');
 					return self::post_person($request, $response, $args);
@@ -91,6 +97,10 @@ class PersonController extends ControllerBase
 				case '/person/uid/password':
 	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'PATCH');
 					return self::person_password($request, $response, $args);
+
+                case '/person/uid/resetpassword':
+	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'PATCH');
+					return self::person_reset_password($request, $response, $args);
 
             }
         } else {
@@ -127,6 +137,28 @@ class PersonController extends ControllerBase
             });
         }
         return ResponseHelper::json($response, $result);
+    }
+
+    /**
+     * uri: /persons/photo
+     */
+    private static function persons_photo(Request $request, Response $response, array $args) : Response {
+		$data = self::transform_incoming_data($request->getBody());
+		syslog(LOG_DEBUG, "Accessing photo's for " . var_export($data, true));
+        
+        // $auth = self::loggedIn(new Response(), 'bestuur');
+
+        // if ($auth instanceof Response) {
+        //     $result = MemcacheHelper::cache('persons', function(){
+        //         return json_encode(PersonModel::all('sanitize'), JSON_UNESCAPED_SLASHES);
+        //     });
+        // }
+        // else {
+        //     $result = MemcacheHelper::cache('persons-bestuur', function(){
+        //         return json_encode(PersonModel::all(), JSON_UNESCAPED_SLASHES);
+        //     });
+        // }
+        return ResponseHelper::json($response, false);
     }
 
 	/**
@@ -301,6 +333,23 @@ class PersonController extends ControllerBase
 		}
 	}
 
+    private static function person_reset_password(Request $request, Response $response, array $args) : Response {
+		$uid = $args['uid'];
+		$data = self::transform_incoming_data($request->getBody(), false);
+
+		try {
+			$person = PersonModel::fromUid($uid);
+            $pass = $person->set_password();
+			if ($pass) {
+                $person->ldapPerson->send_login($pass);
+				return ResponseHelper::create($response, 200, "Successfully changed {$uid} password.");
+			}
+			return ResponseHelper::create($response, 500, LdapHelper::Connect()->lastError());
+		} catch (\Exception $e) {
+			return ResponseHelper::create($response, 404, $e->getMessage());
+		}
+	}
+
 	/**
 	 * Treat incoming data so it's uniform.
 	 * @param string $incoming
@@ -312,7 +361,7 @@ class PersonController extends ControllerBase
 		while (gettype($data) !== "array") {
 			if (gettype($data) === "string") {
 				$data = json_decode($data);
-				if ($debug_double) syslog(LOG_DEBUG, $incoming . ' json_decoded to a string first.');
+				if ($debug_double) s(LOG_DEBUG, $incoming . ' json_decoded to a string first.');
 				continue;
 			}
 

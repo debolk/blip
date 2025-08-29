@@ -91,7 +91,7 @@ class LdapObject
      */
     public function __set(string $name, mixed $value)
     {
-		if (!isset($this->attributes[$name]) || $this->attributes[$name] != $value) {
+		if ((!isset($this->attributes[$name]) || $this->attributes[$name] != $value) && $name != "dn") {
             $this->dirty[$name] = true;
         }
 

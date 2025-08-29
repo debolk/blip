@@ -269,7 +269,8 @@ class PersonModel implements \JSONSerializable
 			$pass = $this->set_password();
             if (!$pass) {
 				syslog(LOG_ERR, "Unable to generate password for user " . $this->uid);
-                syslog(LOG_ERR, "Return from set_password() was " . $pass);
+                syslog(LOG_ERR, "Return from set_password() was '" . $pass . "'");
+                syslog(LOG_ERR, "Last LDAP error: " . $this->ldap->lastError());
 			} else {
 				$this->ldapPerson->send_login($pass);
 			}
@@ -321,6 +322,8 @@ class PersonModel implements \JSONSerializable
             $options[] = strtolower($this->attributes['initials'][0].$this->attributes['surname']);
             $options[] = strtolower($this->attributes['initials'].$this->attributes['surname']);
         }
+        $options[] = strtolower($this->attributes['firstname'][0].$this->attributes['surname']);
+        $options[] = strtolower($this->attributes['firstname'][1].$this->attributes['surname']);
         $options[] = strtolower($this->attributes['firstname'].$this->attributes['surname']);
 
         foreach ($options as $candidate_uid) {
@@ -524,8 +527,11 @@ class PersonModel implements \JSONSerializable
 	    if(!isset($this->attributes['dn'])) {
 			$this->attributes['dn'] = $ldap->getUserDn($this->uid);
 	    }
-
-		$ldap->move($this->dn, PersonModel::$personOUnits[$membership] . ',' . $ldap->basedn);
+        $new_parent_dn = PersonModel::$personOUnits[$membership] . ',' . $ldap->basedn;
+		$ldap->move($this->dn, $new_parent_dn);
+        $new_dn = explode(",", $this->dn)[0] . ',' . $new_parent_dn;
+        $this->ldapPerson->dn = $new_dn;
+        $this->dn = $new_dn;        
     }
 
     /**
@@ -585,6 +591,9 @@ class PersonModel implements \JSONSerializable
     {
         if ($name == "membership") {
             $this->setMembership($value);
+            return;
+        } else if ($name == "dn") {
+            $this->attributes[$name] = $value;
             return;
         }
         $this->attributes[$name] = $value;

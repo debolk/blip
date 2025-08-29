@@ -31,7 +31,7 @@ NewPerson::Initialise($config['MAIL_FROM'], $config["IMAP_USER"], $config["IMAP_
 
 $app->get('/persons', 'Controllers\PersonController::route'); //return all persons with basic info
 $app->get('/persons/all', 'Controllers\PersonController::route'); //return all persons with all information, ex avg
-$app->get('/persons/photo', 'Controllers\PersonController::route'); //return photo's for person as given in the json
+$app->get('/persons/photo/{uid}', 'Controllers\PersonController::route'); //return photo's for person as given in the json
 $app->post('/person', 'Controllers\PersonController::route'); //create new person
 $app->get('/person/{uid}', 'Controllers\PersonController::route'); //return person with basic info
 $app->delete('/person/{uid}', 'Controllers\PersonController::route'); //delete person

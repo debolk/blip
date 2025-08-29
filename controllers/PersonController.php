@@ -143,22 +143,30 @@ class PersonController extends ControllerBase
      * uri: /persons/photo
      */
     private static function persons_photo(Request $request, Response $response, array $args) : Response {
-		$data = self::transform_incoming_data($request->getBody());
-		syslog(LOG_DEBUG, "Accessing photo's for " . var_export($data, true));
+		if (isset($_GET['users'])) {
+            $uids = explode(',', $_GET['users']);
+        } else {
+            return ResponseHelper::create($response, 401, '{"error":"no_users_provided",
+            "error_description":"No users where provided."}', "application/json");
+        }
+               
+        syslog(LOG_DEBUG, "Accessing photo's for " . var_export($uids, true));
         
-        // $auth = self::loggedIn(new Response(), 'bestuur');
+        $filter = '(|';
+        foreach ($uids as $uid) {
+            $filter = $filter . '(uid=' . $uid . ')';
+        }
+        $filter = $filter . ')';
+        syslog(LOG_DEBUG, "(PersonsController->persons_photo) " . $filter);
+        
+        $persons = PersonModel::where($filter, 'model');
+        
+        $result = array();
+        foreach ($persons as $person){
+            $result[$person->uid] = base64_encode($person->getPhoto());
+        }
 
-        // if ($auth instanceof Response) {
-        //     $result = MemcacheHelper::cache('persons', function(){
-        //         return json_encode(PersonModel::all('sanitize'), JSON_UNESCAPED_SLASHES);
-        //     });
-        // }
-        // else {
-        //     $result = MemcacheHelper::cache('persons-bestuur', function(){
-        //         return json_encode(PersonModel::all(), JSON_UNESCAPED_SLASHES);
-        //     });
-        // }
-        return ResponseHelper::json($response, false);
+        return ResponseHelper::json($response, json_encode($result));
     }
 
 	/**

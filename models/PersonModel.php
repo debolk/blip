@@ -211,6 +211,7 @@ class PersonModel implements \JSONSerializable
 	        $results[] = match ($mode) {
 		        'basic' => PersonModel::fromLdapPerson($person)->getBasic(),
 		        'sanitize' => PersonModel::fromLdapPerson($person)->sanitizeAvg(),
+                'model' => PersonModel::fromLdapPerson($person),
 		        default => PersonModel::fromLdapPerson($person),
 	        };
         }

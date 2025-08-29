@@ -160,7 +160,7 @@ class LdapPerson extends LdapObject
         }
 
 		if (!isset($this->mail)) {
-			$this->mail = 'unknown@nieuwedelft.nl';
+			$this->mail = 'invalid@nieuwedelft.nl.';
 		}
 
         return parent::save();

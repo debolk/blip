@@ -46,6 +46,8 @@ class PersonController extends ControllerBase
             $path = str_replace($args['uid'], 'uid', $path);
         }
 
+        syslog(LOG_DEBUG, "(PersonController->route) " . $request->getUri());
+
 		//evaluate if external access is allowed.
 	    if ( !OAuth2Helper::isAccessInternal($request->getUri()) and !in_array($path, self::$externalAllowed)){
 	    	if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');

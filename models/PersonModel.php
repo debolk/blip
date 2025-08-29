@@ -244,7 +244,7 @@ class PersonModel implements \JSONSerializable
 	        $data = $this->attributes;
         }
 
-		syslog(LOG_DEBUG, var_export($data, true));
+		syslog(LOG_DEBUG, "(PersonModel->save) " . var_export($data, true));
 
 	    foreach ($data as $key => $value) {
             if (!isset(self::$renaming[$key]) or
@@ -267,8 +267,9 @@ class PersonModel implements \JSONSerializable
 
 		if ($new_user) {
 			$pass = $this->set_password();
-			if (!$pass) {
+            if (!$pass) {
 				syslog(LOG_ERR, "Unable to generate password for user " . $this->uid);
+                syslog(LOG_ERR, "Return from set_password() was " . $pass);
 			} else {
 				$this->ldapPerson->send_login($pass);
 			}

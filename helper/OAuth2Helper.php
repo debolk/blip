@@ -86,9 +86,6 @@ class OAuth2Helper
 		if ( $uri->getPort() ) {
 			$path = $path . ':' . $uri->getPort();
 		}
-		syslog(LOG_DEBUG, $path);
-		syslog(LOG_DEBUG, self::$base_url);
-		syslog(LOG_DEBUG, $path === self::$base_url);
 		return $path === self::$base_url;
 	}
 

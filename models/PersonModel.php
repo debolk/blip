@@ -273,11 +273,15 @@ class PersonModel implements \JSONSerializable
                 syslog(LOG_ERR, "Return from set_password() was '" . $pass . "'");
                 syslog(LOG_ERR, "Last LDAP error: " . $this->ldap->lastError());
 			} else {
-				$this->ldapPerson->send_login($pass);
+				$this->send_login($pass);
 			}
 		}
 
         return true;
+    }
+
+    public function send_login($pass){
+        return $this->ldapPerson->send_login($pass);
     }
 
 	public function set_password(#[\SensitiveParameter] $old_password = "", #[\SensitiveParameter] $new_password = ""): bool|string {

@@ -349,7 +349,7 @@ class PersonController extends ControllerBase
 			$person = PersonModel::fromUid($uid);
             $pass = $person->set_password();
 			if ($pass) {
-                $person->ldapPerson->send_login($pass);
+                $person->send_login($pass);
 				return ResponseHelper::create($response, 200, "Successfully changed {$uid} password.");
 			}
 			return ResponseHelper::create($response, 500, LdapHelper::Connect()->lastError());

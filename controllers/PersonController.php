@@ -165,6 +165,7 @@ class PersonController extends ControllerBase
         foreach ($persons as $person){
             $result[$person->uid] = base64_encode($person->getPhoto());
         }
+        syslog(LOG_DEBUG, var_export($result, true));
 
         return ResponseHelper::json($response, json_encode($result));
     }
@@ -369,7 +370,7 @@ class PersonController extends ControllerBase
 		while (gettype($data) !== "array") {
 			if (gettype($data) === "string") {
 				$data = json_decode($data);
-				if ($debug_double) s(LOG_DEBUG, $incoming . ' json_decoded to a string first.');
+				if ($debug_double) syslog(LOG_DEBUG, $incoming . ' json_decoded to a string first.');
 				continue;
 			}
 

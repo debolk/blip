@@ -5,15 +5,29 @@ use controllers\PersonController;
 use Helper\LdapHelper;
 use Helper\MemcacheHelper;
 use Helper\OAuth2Helper;
+use Helper\HttpErrorHandler;
 use Mailer\NewPerson;
 use Models\PersonModel;
+use Slim\Factory\AppFactory;
+use Slim\Factory\ServerRequestCreatorFactory;
+
 
 require_once('vendor/autoload.php');
 $config = require_once('config.php');
 
 openlog("blip", LOG_PID | LOG_PERROR, LOG_LOCAL0);
 
-$app = Slim\Factory\AppFactory::create();
+$app = AppFactory::create();
+
+// setup error handling
+$callableResolver = $app->getCallableResolver();
+$responseFactory = $app->getResponseFactory();
+
+$errorHandler = new HttpErrorHandler($callableResolver, $responseFactory);
+
+$app->addRoutingMiddleware();
+$errorMiddleware = $app->adErrorMiddleware(true, false, false);
+$errorMiddleware->setDefaultErrorHandler($errorHandler);
 
 LdapHelper::Initialise($config['LDAP_HOST'], $config['LDAP_BASEDN'], $config['LDAP_USERNAME'], $config['LDAP_PASSWORD']);
 MemcacheHelper::Initialise($config['MEMCACHE_HOST'], $config['MEMCACHE_PORT'], $config['MEMCACHE_EXPIRY']);

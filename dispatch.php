@@ -9,7 +9,6 @@ use Helper\HttpErrorHandler;
 use Mailer\NewPerson;
 use Models\PersonModel;
 use Slim\Factory\AppFactory;
-use Slim\Factory\ServerRequestCreatorFactory;
 
 
 require __DIR__ . '/vendor/autoload.php';
@@ -35,7 +34,6 @@ OAuth2Helper::Initialise($config['OAUTH2_RESOURCE'], $config['BASE_URL']);
 if ($config['DEBUG']) OAuth2Helper::initialiseDebug($config['DEBUG_ACCESSTOKEN']);
 PersonModel::Initialise($config['BASE_URL'], $config['AVG']);
 NewPerson::Initialise($config['MAIL_FROM'], $config["IMAP_USER"], $config["IMAP_PASSWORD"], $config["IMAP_HOST"], $config["IMAP_PORT"], $config["IMAP_SECURITY"]);
-
 
 //auths:
 //bestuur: members of beheer or bestuur
@@ -75,6 +73,5 @@ $app->options('/members/all', 'Controllers\MemberController::route');
 $app->options('/members/current', 'Controllers\MemberController::route');
 $app->options('/members/former', 'Controllers\MemberController::route');
 $app->options('/members/candidate', 'Controllers\MemberController::route');
-
 
 $app->run();

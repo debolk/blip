@@ -40,7 +40,7 @@ class PersonController extends ControllerBase
 		'/person/uid/photo'
 	);
 
-    private static const int MAX_PHOTO_SEND = 164;
+    private const int MAX_PHOTO_SEND = 164;
 
     public static function route(Request $request, Response $response, array $args) : Response
     {
@@ -50,7 +50,7 @@ class PersonController extends ControllerBase
             $path = str_replace($args['uid'], 'uid', $path);
         }
 
-        syslog(LOG_DEBUG, "(PersonController->route) " . $request->getUri());
+        syslog(LOG_DEBUG, "(PersonController->route) " . $request->getMethod() . '||' . $request->getUri());
 
 		//evaluate if external access is allowed.
 	    if ( !OAuth2Helper::isAccessInternal($request->getUri()) and !in_array($path, self::$externalAllowed)){
@@ -152,14 +152,14 @@ class PersonController extends ControllerBase
             "error_description":"No users where provided."}', "application/json");
         }
                
-        syslog(LOG_DEBUG, "Accessing photo's for " . var_export($uids, true));
+        //syslog(LOG_DEBUG, "Accessing photo's for " . var_export($uids, true));
         
         $filter = '(|';
         foreach ($uids as $uid) {
             $filter = $filter . '(uid=' . $uid . ')';
         }
         $filter = $filter . ')';
-        syslog(LOG_DEBUG, "(PersonsController->persons_photo) " . $filter);
+        //syslog(LOG_DEBUG, "(PersonsController->persons_photo) " . $filter);
         
         $persons = PersonModel::where($filter, 'model');
         
@@ -168,7 +168,6 @@ class PersonController extends ControllerBase
             if (count($result) >= self::MAX_PHOTO_SEND) break;
             $result[$person->uid] = base64_encode($person->getPhoto());
         }
-        syslog(LOG_DEBUG, var_export($result, true));
 
         return ResponseHelper::json($response, json_encode($result));
     }

@@ -18,7 +18,7 @@ class HttpErrorHandler extends ErrorHandler {
         $code = 500;
         $type = self::SERVER_ERROR;
         $desc = "An internal error has occurred while processing your request.";
-        syslog(LOG_DEBUG, var_export($except instanceof HttpException));
+        syslog(LOG_DEBUG, "HttpException: " . var_export($except, true));
         if ($except instanceof HttpException) {
             $code = $except->getCode();
             $desc = $except->getMessage();
@@ -34,7 +34,7 @@ class HttpErrorHandler extends ErrorHandler {
 
         if (!($except instanceof HttpException)
             && ($except instanceof Exception || $except instanceof Throwable)) {
-            $description = $except->getMessage();
+            $desc = $except->getMessage();
         }
 
         $error = [

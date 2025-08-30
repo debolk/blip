@@ -40,6 +40,8 @@ class PersonController extends ControllerBase
 		'/person/uid/photo'
 	);
 
+    private static const int MAX_PHOTO_SEND = 164;
+
     public static function route(Request $request, Response $response, array $args) : Response
     {
         $path = $request->getUri()->getPath();
@@ -163,6 +165,7 @@ class PersonController extends ControllerBase
         
         $result = array();
         foreach ($persons as $person){
+            if (count($result) >= self::MAX_PHOTO_SEND) break;
             $result[$person->uid] = base64_encode($person->getPhoto());
         }
         syslog(LOG_DEBUG, var_export($result, true));

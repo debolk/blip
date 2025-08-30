@@ -24,7 +24,7 @@ class ResponseHelper
 	}
 
 	public static function option(Response $response, string $method): Response {
-		return $response->withStatus(204)->withHeader('Allow', $method);
+		return $response->withStatus(204)->withHeader('Allow', $method . ",OPTIONS");
 	}
 
     public static function data(Response $response, mixed $payload, string $type) : Response {

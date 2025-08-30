@@ -5,6 +5,7 @@ use Slim\Handlers\ErrorHandler;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Exception\HttpException;
 use Slim\Exception\HttpBadRequestException;
+use Slim\Exception\HttpMethodNotAllowedException;
 
 class HttpErrorHandler extends ErrorHandler {
     public const BAD_REQUEST = "BAD_REQUEST";
@@ -12,12 +13,12 @@ class HttpErrorHandler extends ErrorHandler {
     public const SERVER_ERROR = 'SERVER_ERROR';
     public const NOT_ALLOWED = 'NOT_ALLOWED';
 
-    protected function respond(): ReponseInterface {
+    protected function respond(): ResponseInterface {
         $except = $this->exception;
         $code = 500;
         $type = self::SERVER_ERROR;
         $desc = "An internal error has occurred while processing your request.";
-
+        syslog(LOG_DEBUG, var_export($except instanceof HttpException));
         if ($except instanceof HttpException) {
             $code = $except->getCode();
             $desc = $except->getMessage();

@@ -12,7 +12,7 @@ use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 
 
-require_once('vendor/autoload.php');
+require __DIR__ . '/vendor/autoload.php';
 $config = require_once('config.php');
 
 openlog("blip", LOG_PID | LOG_PERROR, LOG_LOCAL0);
@@ -26,7 +26,7 @@ $responseFactory = $app->getResponseFactory();
 $errorHandler = new HttpErrorHandler($callableResolver, $responseFactory);
 
 $app->addRoutingMiddleware();
-$errorMiddleware = $app->adErrorMiddleware(true, false, false);
+$errorMiddleware = $app->addErrorMiddleware(true, false, false);
 $errorMiddleware->setDefaultErrorHandler($errorHandler);
 
 LdapHelper::Initialise($config['LDAP_HOST'], $config['LDAP_BASEDN'], $config['LDAP_USERNAME'], $config['LDAP_PASSWORD']);
@@ -45,7 +45,7 @@ NewPerson::Initialise($config['MAIL_FROM'], $config["IMAP_USER"], $config["IMAP_
 
 $app->get('/persons', 'Controllers\PersonController::route'); //return all persons with basic info
 $app->get('/persons/all', 'Controllers\PersonController::route'); //return all persons with all information, ex avg
-$app->get('/persons/photo/{uid}', 'Controllers\PersonController::route'); //return photo's for person as given in the json
+$app->get('/persons/photo', 'Controllers\PersonController::route'); //return photo's for person as given in the json
 $app->post('/person', 'Controllers\PersonController::route'); //create new person
 $app->get('/person/{uid}', 'Controllers\PersonController::route'); //return person with basic info
 $app->delete('/person/{uid}', 'Controllers\PersonController::route'); //delete person
@@ -62,12 +62,14 @@ $app->get('/members/candidate', 'Controllers\MemberController::route'); //return
 
 $app->options('/persons', 'Controllers\PersonController::route');
 $app->options('/persons/all', 'Controllers\PersonController::route');
+$app->options('/persons/photo', 'Controllers\PersonController::route');
 $app->options('/person', 'Controllers\PersonController::route');
 $app->options('/person/{uid}', 'Controllers\PersonController::route');
 $app->options('/person/{uid}/all', 'Controllers\PersonController::route');
 $app->options('/person/{uid}/photo', 'Controllers\PersonController::route');
 $app->options('/person/{uid}/update', 'Controllers\PersonController::route');
 $app->options('/person/{uid}/password', 'Controllers\PersonController::route');
+$app->options('/person/{uid}/resetpassword', 'Controllers\PersonController::route');
 $app->options('/members', 'Controllers\MemberController::route');
 $app->options('/members/all', 'Controllers\MemberController::route');
 $app->options('/members/current', 'Controllers\MemberController::route');

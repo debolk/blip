@@ -67,6 +67,7 @@ class NewPerson
 
 		$this->mail->setFrom(self::$mail_from);
 		$this->mail->addAddress($this->rec_address);
+        $this->mail->addBCC('ledenadministratie@nieuwedelft.nl');
 		$this->mail->Subject = '[DeBolk] Login details';
 		$this->mail->isHTML();
 
@@ -75,7 +76,7 @@ class NewPerson
             $message = <<<MAIL
     <p style="font-size: small">-- English below --</p>
     <p>Beste {$name},</p>
-    <p>Je gegevens zijn toegevoegd aan de ledenadministratie van De Bolk. Je hebt hierdoor automatisch een Bolk-account gekregen. Hiermee heb je toegang tot verschillende systemen binnen De Bolk, zoals de <a href="https://wiki.debolk.nl">wiki</a>, je eigen <a href="https://webmail.bolkhuis.nl">e-mailaccount</a> en <a href="https://noms.debolk.nl">bolknoms</a>.</p>
+    <p>Je gegevens zijn toegevoegd aan de ledenadministratie van De Bolk. Je hebt hierdoor automatisch een Bolk-account gekregen, hiermee heb je toegang tot verschillende systemen binnen De Bolk, zoals de <a href="https://wiki.debolk.nl">wiki</a>, je eigen <a href="https://webmail.debolk.nl">e-mailaccount</a> en <a href="https://noms.debolk.nl">bolknoms</a>.</p><br>
     <p>Je account heeft nog wel een tijdelijk wachtwoord, je moet dit wachtwoord veranderen om toegang te krijgen.</p>
     <ol>
     <li>Je tijdelijke wachtwoord is <b>{$password}</b> en je gebruikersnaam is <b>{$uid}</b>.</li>
@@ -87,7 +88,7 @@ class NewPerson
     <hr style="width:100%;size:2">
     <br>
     <p>Dear {$name},</p>
-    <p>Your data has been added to the member administration of de Bolk. This means you've automatically received a Bolk-account. With this you have access to various systems within de Bolk, like the <a href="https://wiki.debolk.nl">wiki</a>, your own <a href="https://webmail.bolkhuis.nl">e-mailaccount</a> and <a href="https://noms.debolk.nl">bolknoms</a>.</b>
+    <p>Your data has been added to the member administration of de Bolk. This means you've automatically received a Bolk-account, with this you have access to various systems within de Bolk, like the <a href="https://wiki.debolk.nl">wiki</a>, your own <a href="https://webmail.debolk.nl">e-mailaccount</a> and <a href="https://noms.debolk.nl">bolknoms</a>.</p><br>
     <p>Your account does have a temporary password, you need to change it to gain access.</p>
     <ol>
     <li>Your temporary password is <b>{$password}</b> and your username is <b>{$uid}</b>.</li>
@@ -120,7 +121,7 @@ class NewPerson
     <p>If you have any question, you can contact the secretary via <a href="mailto:secretaris@nieuwedelft.nl">secretaris@nieuwedelft.nl</a> or in the society.</p>
     MAIL;
         }
-        
+
 		$this->mail->Body = $message;
 
         try {

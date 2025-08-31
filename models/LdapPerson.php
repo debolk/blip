@@ -132,20 +132,31 @@ class LdapPerson extends LdapObject
     public static function getDefault() : LdapPerson
     {
         $default = array(
-          'objectclass' => array(
-            'top',
-            'person',
-            'organizationalPerson',
-            'iNetOrgPerson',
-            'posixAccount',
-            'shadowAccount',
-            'gosaMailAccount',
-            'fdBolkData',
-            'fdBolkDataAVG'
-        ),
-          'gosamailserver' => 'mail',
-      );
-
+            'objectclass' => array(
+                'top',
+                'person',
+                'organizationalPerson',
+                'iNetOrgPerson',
+                'posixAccount',
+                'shadowAccount',
+                'gosaMailAccount',
+                'fdBolkData',
+                'fdBolkDataAVG',
+                'sambaSamAccount',
+                'sambaIdmapEntry',
+            ),
+            'gosamailserver' => 'mail',
+            'fdPhotoVisible' => 'TRUE',
+            'sambaacctflags' => '[U           ]',
+            'sambadomainname' => 'nieuwedelft',
+            'sambahomedrive' => 'Z:',
+            'sambahomepath' => '\\\samba\commissies',
+            'sambalogofftime' => '2147483647',
+            'sambalogontime' => '0',
+            'sambapwdlastset' => '0',
+            'sambamungeddial' => 'IAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAUAAQABoACAABAEMAdAB4AEMAZgBnAFAAcgBlAHMAZQBuAHQANTUxZTBiYjAYAAgAAQBDAHQAeABDAGYAZwBGAGwAYQBnAHMAMQAwMDAwMDEwMBYAAAABAEMAdAB4AEMAYQBsAGwAYgBhAGMAawASAAgAAQBDAHQAeABTAGgAYQBkAG8AdwAwMTAwMDAwMCIAAAABAEMAdAB4AEsAZQB5AGIAbwBhAHIAZABMAGEAeQBvAHUAdAAqAAIAAQBDAHQAeABNAGkAbgBFAG4AYwByAHkAcAB0AGkAbwBuAEwAZQB2AGUAbAAwMCAAAgABAEMAdAB4AFcAbwByAGsARABpAHIAZQBjAHQAbwByAHkAMDAgAAIAAQBDAHQAeABOAFcATABvAGcAbwBuAFMAZQByAHYAZQByADAwGAACAAEAQwB0AHgAVwBGAEgAbwBtAGUARABpAHIAMDAiAAIAAQBDAHQAeABXAEYASABvAG0AZQBEAGkAcgBEAHIAaQB2AGUAMDAgAAIAAQBDAHQAeABXAEYAUAByAG8AZgBpAGwAZQBQAGEAdABoADAwIgACAAEAQwB0AHgASQBuAGkAdABpAGEAbABQAHIAbwBnAHIAYQBtADAwIgACAAEAQwB0AHgAQwBhAGwAbABiAGEAYwBrAE4AdQBtAGIAZQByADAwKAAIAAEAQwB0AHgATQBhAHgAQwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDAwLgAIAAEAQwB0AHgATQBhAHgARABpAHMAYwBvAG4AbgBlAGMAdABpAG8AbgBUAGkAbQBlADAwMDAwMDAwHAAIAAEAQwB0AHgATQBhAHgASQBkAGwAZQBUAGkAbQBlADAwMDAwMDAw',
+            );
+        
         $result = new self($default);
         return $result;
     }
@@ -166,9 +177,9 @@ class LdapPerson extends LdapObject
         return parent::save();
     }
 
-	public function send_login($pass) {
+	public function send_login($pass, $new_account = true) {
 		$mail = new NewPerson($this->mail, $this->uid, $this->cn, $pass);
-		if (!$mail->send()){
+		if (!$mail->send($new_account)){
 			syslog(LOG_ERR, "Unable to send login mail: " . $mail->getError());
 		} else{
 			syslog(LOG_DEBUG, "Successfully sent login.");

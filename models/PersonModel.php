@@ -280,8 +280,8 @@ class PersonModel implements \JSONSerializable
         return true;
     }
 
-    public function send_login($pass){
-        return $this->ldapPerson->send_login($pass);
+    public function send_login($pass, $new_account = true){
+        return $this->ldapPerson->send_login($pass, $new_account);
     }
 
 	public function set_password(#[\SensitiveParameter] $old_password = "", #[\SensitiveParameter] $new_password = ""): bool|string {

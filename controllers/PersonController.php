@@ -336,7 +336,7 @@ class PersonController extends ControllerBase
 		try {
 			$person = PersonModel::fromUid($uid);
 			if ($person->set_password($old_pass, $new_pass)) {
-				return ResponseHelper::create($response, 200, "Successfully changed {$uid} password.");
+				return ResponseHelper::create($response, 200, "Successfully changed {$uid}'s password.");
 			}
 			return ResponseHelper::create($response, 500, LdapHelper::Connect()->lastError());
 		} catch (\Exception $e) {
@@ -352,8 +352,8 @@ class PersonController extends ControllerBase
 			$person = PersonModel::fromUid($uid);
             $pass = $person->set_password();
 			if ($pass) {
-                $person->send_login($pass);
-				return ResponseHelper::create($response, 200, "Successfully changed {$uid} password.");
+                $person->send_login($pass, false);
+				return ResponseHelper::create($response, 200, "Successfully reset {$uid}'s password.");
 			}
 			return ResponseHelper::create($response, 500, LdapHelper::Connect()->lastError());
 		} catch (\Exception $e) {

@@ -165,6 +165,25 @@
         </div>
     </div>
 
+    <div class="spec get">
+        <div class="header">
+            <span class="method">GET</span>
+            <span class="url">/persons/photo</span>
+            <span class="short">Users' profile pictures</span>
+        </div>
+        <div class="description">
+            <p>
+                Returns the users' profile pictures. Note: to prevent crashing, the server stops processing after 164 pictures have been collected.
+                Clients should implement a method to collect pictures after 164 pictures have been received.
+                <br><br>This endpoint is also available externally: <a href="https://people.debolk.nl/persons/photo">https://people.debolk.nl/persons/photo?users={uid1},{uid2},{uid3},...</a>
+            </p>
+            <h4>OAuth access level</h4>
+            <p>Every user</p>
+            <h4>Parameters</h4>
+            <p>users - included in the url</p>
+        </div>
+    </div>
+
     <div class="spec post">
         <div class="header">
             <span class="method">POST</span>
@@ -398,7 +417,28 @@
             <p>user id, old_password & new_password</p>
             <h4>Example result</h4>
             <code>
-                200 - Successfully changed mssmit password.
+                200 - Successfully changed melody's password.
+            </code>
+        </div>
+    </div>
+
+    <div class="spec patch">
+        <div class="header">
+            <span class="method">PATCH</span>
+            <span class="url">/person/{uid}/resetpassword</span>
+            <span class="short">Reset a Person's password</span>
+        </div>
+        <div class="description">
+            <p>
+                Resets a user's password in the same way as when the account is created.
+            </p>
+            <h4>OAuth access level</h4>
+            <p>Only the Board & the IT team.</p>
+            <h4>Parameters</h4>
+            <p>none</p>
+            <h4>Example result</h4>
+            <code>
+                200 - Successfully reset melody's password.
             </code>
         </div>
     </div>

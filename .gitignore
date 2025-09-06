@@ -2,3 +2,4 @@ vendor
 .htaccess
 .idea/
 config.php
+nginx.conf

@@ -117,13 +117,13 @@ class PersonModel implements \JSONSerializable
 	);
 
     protected array $additionalClasses = array(
-        'member' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
-        'former_member' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
+        'member' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG', 'sambaSamAccount', 'sambaIdmapEntry'),
+        'former_member' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG', 'sambaSamAccount', 'sambaIdmapEntry'),
         'external' => array(),
-		'ex_member' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
-        'member_of_merit' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
-        'candidate_member' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
-	    'honorary_member' => array('posixAccount', 'gosaIntranetAccount', 'fdBolkData', 'fdBolkDataAVG'),
+		'ex_member' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG'),
+        'member_of_merit' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG', 'sambaSamAccount', 'sambaIdmapEntry'),
+        'candidate_member' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG', 'sambaSamAccount', 'sambaIdmapEntry'),
+	    'honorary_member' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG', 'sambaSamAccount', 'sambaIdmapEntry'),
     );
 
 	protected LdapHelper $ldap;
@@ -249,14 +249,14 @@ class PersonModel implements \JSONSerializable
 
 	    foreach ($data as $key => $value) {
             if (!isset(self::$renaming[$key]) or
-	            (!$new_user && !isset($this->dirty[$key])) or
-	            ($value === null)) {
+	            (!$new_user && !isset($this->dirty[$key]))) {
                 continue;
             }
 
 			$ldapkey = self::$renaming[$key];
             $this->ldapPerson->$ldapkey = $value;
         }
+
 
 		if (!$this->ldapPerson->save()) return false;
 
@@ -493,7 +493,7 @@ class PersonModel implements \JSONSerializable
 			syslog(LOG_ERR, LdapHelper::Connect()->lastError());
         };
 
-        $this->save();
+        // $this->save();
 
         //Remove objectclasses from previous status
         foreach ($this->additionalClasses[$prev] as $class) {
@@ -521,11 +521,13 @@ class PersonModel implements \JSONSerializable
             $this->ldapPerson->objectclass = $new;
         }
 
-		$this->save();
+	    $this->ldapPerson->gidnumber = PersonModel::$groupIds[$membership];
 
-	    $this->ldapPerson->gidnumber = strval(PersonModel::$groupIds[$membership]);
+		if (!$this->ldapPerson->save()) {
+            syslog(LOG_ERR, LdapHelper::Connect()->lastError());
+        }
 
-		$this->ldapPerson->save();
+        $this->save();
 
 		$ldap = LdapHelper::Connect(); //move user to correct OU
 

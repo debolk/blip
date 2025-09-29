@@ -98,7 +98,7 @@ class LdapHelper
      */
     public function lastError() : string
     {
-        return ldap_error($this->ldap);
+        return ldap_errno($this->ldap) . ' - ' . ldap_error($this->ldap);
     }
 
     /**

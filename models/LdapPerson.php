@@ -42,11 +42,15 @@ class LdapPerson extends LdapObject
           },
 
           'uidnumber' => function () {
-              $this->__set('sambasid', 'S-1-5-21-1816619821-1419577557-1603852640-'.(1000+2*$this->uidnumber));
+              if (in_array("sambaSamAccount", $this->objectclass)) $this->__set('sambasid', 'S-1-5-21-1816619821-1419577557-1603852640-'.(1000+2*$this->uidnumber));
           },
 
           'gidnumber' => function () {
-              $this->__set('sambaprimarygroupsid', 'S-1-5-21-1816619821-1419577557-1603852640-'.(1001+2*$this->gidnumber));
+              if (in_array("sambaSamAccount", $this->objectclass)) {
+                $this->__set('sambaprimarygroupsid', 'S-1-5-21-1816619821-1419577557-1603852640-'.(1001+2*$this->gidnumber));
+                if (!isset($this->sambasid)) $this->__set('sambasid', 'S-1-5-21-1816619821-1419577557-1603852640-'.(1000+2*$this->uidnumber));
+              }
+              
           },
         );
     }

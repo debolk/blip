@@ -62,9 +62,11 @@ abstract class ControllerBase {
         $v->rule('alpha', ['initials']);
         $v->rule('dateBefore', ['dateofbirth', 'inauguration_date'], date('Y-m-d'));
         $v->rule(function($field, $value, $params, $fields){
-			if (!is_string($value) and !is_numeric($value)) {
+            if (!is_string($value) and !is_numeric($value) and !is_array($value)) {
 				return false;
-			}
+			} elseif (is_array($value)) {
+                $value = join("", $value);
+            }
 
 			//remove all occurences of +, -, (, ) and spaces
 			$value = str_replace("+", "", (string)$value);

@@ -91,7 +91,9 @@ class LdapObject
      */
     public function __set(string $name, mixed $value)
     {
-		if ((!isset($this->attributes[$name]) || $this->attributes[$name] != $value) && $name != "dn") {
+        if (
+            (!isset($this->attributes[$name]) || $this->attributes[$name] != $value)
+             && $name != "dn") {
             $this->dirty[$name] = true;
         }
 
@@ -107,13 +109,12 @@ class LdapObject
      */
     public function save() : bool
     {
+        syslog(LOG_DEBUG, "(LdapObject->save) dirty = " . var_export($this->dirty, true));
         if (count($this->dirty) == 0) {
             return true;
         }
 
 	    $ldap = \Helper\LdapHelper::connect();
-
-
 
 	    if (!$this->exists) {
             $result = $ldap->add($this->dn, $this->attributes);

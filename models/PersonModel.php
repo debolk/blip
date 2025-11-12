@@ -120,6 +120,7 @@ class PersonModel implements \JSONSerializable
         'member' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG', 'sambaSamAccount', 'sambaIdmapEntry'),
         'former_member' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG', 'sambaSamAccount', 'sambaIdmapEntry'),
         'external' => array(),
+        'donor' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG', 'sambaSamAccount', 'sambaIdmapEntry'),
 		'ex_member' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG'),
         'member_of_merit' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG', 'sambaSamAccount', 'sambaIdmapEntry'),
         'candidate_member' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG', 'sambaSamAccount', 'sambaIdmapEntry'),

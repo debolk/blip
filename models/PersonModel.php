@@ -119,7 +119,7 @@ class PersonModel implements \JSONSerializable
     protected array $additionalClasses = array(
         'member' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG', 'sambaSamAccount', 'sambaIdmapEntry'),
         'former_member' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG', 'sambaSamAccount', 'sambaIdmapEntry'),
-        'external' => array(),
+        'external' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG'),
         'donor' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG', 'sambaSamAccount', 'sambaIdmapEntry'),
 		'ex_member' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG'),
         'member_of_merit' => array('posixAccount', 'fdBolkData', 'fdBolkDataAVG', 'sambaSamAccount', 'sambaIdmapEntry'),
@@ -264,7 +264,9 @@ class PersonModel implements \JSONSerializable
         //Set membership after saving
         if (isset($this->attributes['membership']) &&
 	        ($new_user || isset($this->dirty['membership']))) {
-            $this->setMembership($this->attributes['membership'], $new_user);
+            if (!$this->set_membership($this->attributes['membership'], $new_user)) {
+                return false;
+            }
         }
 
 		if ($new_user) {
@@ -466,14 +468,14 @@ class PersonModel implements \JSONSerializable
      * and saves the member
      * @param string $membership      the new membership status
      */
-    public function setMembership(string $membership, bool $new_user = false): void {
+    public function set_membership(string $membership, bool $new_user = false): bool {
 		if (!array_key_exists($membership, PersonModel::$groupIds)) {
-            return;
+            return false;
         }
 
         $prev = $this->membership();
         if ($membership == $prev && !$new_user) {
-            return;
+            return true;
         }
 
         //Remove from current groups
@@ -526,6 +528,7 @@ class PersonModel implements \JSONSerializable
 
 		if (!$this->ldapPerson->save()) {
             syslog(LOG_ERR, LdapHelper::Connect()->lastError());
+            return false;
         }
 
         $this->save();
@@ -539,7 +542,8 @@ class PersonModel implements \JSONSerializable
 		$ldap->move($this->dn, $new_parent_dn);
         $new_dn = explode(",", $this->dn)[0] . ',' . $new_parent_dn;
         $this->ldapPerson->dn = $new_dn;
-        $this->dn = $new_dn;        
+        $this->dn = $new_dn;  
+        return true;      
     }
 
     /**
@@ -598,7 +602,7 @@ class PersonModel implements \JSONSerializable
     public function __set(string $name, mixed $value)
     {
         if ($name == "membership") {
-            $this->setMembership($value);
+            $this->set_membership($value);
             return;
         } else if ($name == "dn") {
             $this->attributes[$name] = $value;

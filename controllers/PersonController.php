@@ -21,6 +21,7 @@ class PersonController extends ControllerBase
         'GET/persons' => 'lid',
         'GET/persons/all' => 'lid',
         'GET/persons/photo' => 'bekend',
+        'GET/persons/registered' => 'bestuur',
         'POST/person' => 'bestuur',
         'GET/person/uid' => 'bekend',
 	    'DELETE/person/uid' => 'bestuur',
@@ -74,6 +75,10 @@ class PersonController extends ControllerBase
                 case '/persons/photo':
 	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
 					return self::persons_photo($request, $response, $args);
+
+                case '/persons/registered':
+                    if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'GET');
+                    return self::persons_registered($request, $response, $args);
 
                 case '/person':
 	                if ($request->getMethod() == "OPTIONS") return ResponseHelper::option($response, 'POST');
@@ -149,7 +154,7 @@ class PersonController extends ControllerBase
             $uids = explode(',', $_GET['users']);
         } else {
             return ResponseHelper::create($response, 401, '{"error":"no_users_provided",
-            "error_description":"No users where provided."}', "application/json");
+            "error_description":"No users were provided."}', "application/json");
         }
                
         //syslog(LOG_DEBUG, "Accessing photo's for " . var_export($uids, true));
@@ -170,6 +175,19 @@ class PersonController extends ControllerBase
         }
 
         return ResponseHelper::json($response, json_encode($result));
+    }
+
+    private static function persons_registered(Request $request, Response $response, array $args) : Response {
+        if (isset($_GET['email'])) {
+            $email = ldap_escape($_GET['email']);
+        } else {
+            return ResponseHelper::create($response, 401, '{"error":"no_email_provided",
+            "error_description":"No email was provided."}', "application/json");
+        }
+
+        $persons = PersonModel::where('(mail=' . $email . ')', 'model');
+
+        return ResponseHelper::json($response, json_encode(["email_registered" => count($persons) > 0]));
     }
 
 	/**
